@@ -1,2 +1,2 @@
-// Agents package - Sprint 1以降で実装
-export {};
+export { EditBriefAgent } from "./edit-brief/index.js";
+export type { EditBriefAgentInput, EditBriefAgentOutput, ScriptSectionData } from "./edit-brief/index.js";
