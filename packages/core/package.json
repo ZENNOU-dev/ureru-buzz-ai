@@ -1,0 +1,17 @@
+{
+  "name": "@ureru-buzz-ai/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "p-queue": "^8.1.0",
+    "zod": "^3.25.0"
+  }
+}

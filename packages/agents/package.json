@@ -1,0 +1,17 @@
+{
+  "name": "@ureru-buzz-ai/agents",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@ureru-buzz-ai/core": "workspace:*",
+    "@ureru-buzz-ai/skills": "workspace:*"
+  }
+}
