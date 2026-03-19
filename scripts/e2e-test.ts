@@ -89,9 +89,14 @@ async function testMaterialMatch(sectionText: string) {
     process.env.GEMINI_API_KEY, // optional
   );
 
-  // テキストベース検索（Gemini API keyがなくても動く）
+  // まずembeddingを生成
+  const queryEmbedding = await embeddingService.generateTextEmbedding(sectionText);
+  console.log(`  Embedding生成: ${queryEmbedding.length > 0 ? `${queryEmbedding.length}次元` : "スキップ（APIキーなし）"}`);
+
+  // ベクトル検索 or テキストベースfallback
   const results = await embeddingService.searchSimilarMaterials({
     queryText: sectionText,
+    queryEmbedding: queryEmbedding.length > 0 ? queryEmbedding : undefined,
     topK: 5,
     threshold: 0.0,
     tenantProjectName: "05_債務整理",

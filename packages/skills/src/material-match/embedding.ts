@@ -63,9 +63,9 @@ export class EmbeddingService {
     threshold: number;
   }): Promise<SimilarMaterialResult[]> {
     return withRetry(async () => {
-      // Try VMS's existing RPC function
-      const { data, error } = await this.vmsClient.rpc("match_material_vectors", {
-        query_embedding: params.queryEmbedding,
+      // VMS's match_materials RPC: (query_embedding, match_threshold, match_count)
+      const { data, error } = await this.vmsClient.rpc("match_materials", {
+        query_embedding: JSON.stringify(params.queryEmbedding),
         match_threshold: params.threshold,
         match_count: params.topK,
       });
@@ -161,12 +161,13 @@ export class EmbeddingService {
 
     return withRetry(async () => {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${this.geminiApiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-2-preview:embedContent?key=${this.geminiApiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             content: { parts: [{ text }] },
+            outputDimensionality: VMS_EMBEDDING_DIMENSIONS, // 768 to match VMS
           }),
         },
       );
