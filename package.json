@@ -11,7 +11,10 @@
     "clean": "turbo clean"
   },
   "devDependencies": {
+    "@supabase/supabase-js": "^2.99.2",
     "@types/node": "^22.0.0",
+    "dotenv": "^17.3.1",
+    "tsx": "^4.21.0",
     "turbo": "^2.5.0",
     "typescript": "^5.7.0",
     "vitest": "^3.2.0"

@@ -24,14 +24,15 @@ export class MaterialMatchSkill {
       sectionText: input.sectionText.slice(0, 50),
     });
 
-    // 1. Generate embedding for section text
+    // 1. Generate embedding for section text (may return empty if no API key)
     const queryEmbedding = await this.embeddingService.generateTextEmbedding(
       input.sectionText,
     );
 
-    // 2. Search similar materials in VMS
+    // 2. Search similar materials in VMS (vector search or text-based fallback)
     const rawResults = await this.embeddingService.searchSimilarMaterials({
-      queryEmbedding,
+      queryText: input.sectionText,
+      queryEmbedding: queryEmbedding.length > 0 ? queryEmbedding : undefined,
       topK,
       threshold: 0.0, // Get all results, filter by threshold in scoring
     });

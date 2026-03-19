@@ -145,9 +145,20 @@ const databases: DbDefinition[] = [
     properties: {
       ...tenantIdProperty,
       "台本名": { title: {} },
+      "台本テキスト": { rich_text: {} },
+      "企画ID": { rich_text: {} },
       "フックバリエーション": { number: { format: "number" } },
       "フックテキスト": { rich_text: {} },
-      "興味の型": { rich_text: {} },
+      "興味の型": { select: { options: [
+        { name: "商品興味" }, { name: "エピソード興味" }, { name: "手法興味" },
+        { name: "恐怖興味" }, { name: "未来興味" }, { name: "損失興味" },
+        { name: "常識破壊" }, { name: "ターゲット指定" },
+      ]}},
+      "構成の型": { select: { options: [
+        { name: "UGC" }, { name: "アニメ" }, { name: "企業" }, { name: "語り" },
+        { name: "店舗体験" }, { name: "ドラマ" }, { name: "バナー動画" },
+        { name: "イラスト" }, { name: "インフルエンサー" }, { name: "雑学" }, { name: "AI" },
+      ]}},
       "文字数": { number: { format: "number" } },
       "注釈": { rich_text: {} },
       "ステータス": { select: { options: [
@@ -160,9 +171,10 @@ const databases: DbDefinition[] = [
     properties: {
       ...tenantIdProperty,
       "編集概要名": { title: {} },
-      "全体文字数": { number: { format: "number" } },
-      "BGM名": { rich_text: {} },
-      "BGM_URL": { url: {} },
+      "台本ID": { rich_text: {} },
+      "カット情報": { rich_text: {} },
+      "BGM": { rich_text: {} },
+      "総文字数": { number: { format: "number" } },
       "ステータス": { select: { options: [
         { name: "作成中" }, { name: "承認待ち" }, { name: "承認済" }, { name: "差し戻し" },
       ]}},

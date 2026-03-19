@@ -107,4 +107,7 @@ export const OPERATION_CHECK_INTERVAL = 5 * 60 * 1000;
 export const MATERIAL_MATCH_THRESHOLD = 0.6;
 
 /** エンベディング次元数 */
+// VMS uses Gemini text-embedding-004 (768 dims)
+// New embeddings use OpenAI text-embedding-3-large (3072 dims)
+export const VMS_EMBEDDING_DIMENSIONS = 768;
 export const EMBEDDING_DIMENSIONS = 3072;
