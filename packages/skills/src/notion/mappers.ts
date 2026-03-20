@@ -6,7 +6,13 @@ import type {
   NotionBgm,
   NotionMaterialRecord,
 } from "@ureru-buzz-ai/core";
-import { SCRIPT_DB_PROPS, EDIT_BRIEF_DB_PROPS, MATERIAL_DB_PROPS } from "./types.js";
+import {
+  SCRIPT_DB_PROPS,
+  EDIT_BRIEF_DB_PROPS,
+  EDIT_BRIEF_MASTER_DB_PROPS,
+  EDIT_BRIEF_CUT_DB_PROPS,
+  MATERIAL_DB_PROPS,
+} from "./types.js";
 
 type Props = PageObjectResponse["properties"];
 
@@ -108,6 +114,71 @@ export function buildEditBriefProperties(record: NotionEditBriefRecord): Record<
     },
   };
 }
+
+/**
+ * Build Notion properties for EditBrief Master DB（全体情報）
+ */
+export function buildEditBriefMasterProperties(record: NotionEditBriefRecord & {
+  speaker?: string;
+  voiceFile?: string;
+  reference?: string;
+}): Record<string, unknown> {
+  const P = EDIT_BRIEF_MASTER_DB_PROPS;
+  return {
+    [P.title]: { title: [{ text: { content: `EditBrief-${record.scriptId.slice(0, 8)}` } }] },
+    [P.tenantId]: { rich_text: [{ text: { content: record.tenantId } }] },
+    [P.scriptId]: { rich_text: [{ text: { content: record.scriptId } }] },
+    [P.totalCharCount]: { number: record.totalCharCount },
+    [P.speaker]: { rich_text: [{ text: { content: record.speaker ?? "" } }] },
+    [P.voiceFile]: { rich_text: [{ text: { content: record.voiceFile ?? "" } }] },
+    [P.bgmName]: { rich_text: [{ text: { content: record.bgm?.name ?? "" } }] },
+    [P.bgmUrl]: record.bgm?.url ? { url: record.bgm.url } : { url: null },
+    [P.reference]: { rich_text: [{ text: { content: record.reference ?? "" } }] },
+    [P.status]: { select: { name: record.status } },
+  };
+}
+
+/**
+ * Build Notion properties for a single cut row in EditBrief Cut DB
+ */
+export function buildEditBriefCutProperties(
+  cut: NotionCut,
+  cutIndex: number,
+  editBriefId: string,
+  tenantId: string,
+): Record<string, unknown> {
+  const P = EDIT_BRIEF_CUT_DB_PROPS;
+  const sectionLabel = SECTION_LABELS[cut.section] ?? cut.section;
+
+  return {
+    [P.title]: { title: [{ text: { content: `${cutIndex + 1}. ${sectionLabel}` } }] },
+    [P.editBriefId]: { rich_text: [{ text: { content: editBriefId } }] },
+    [P.tenantId]: { rich_text: [{ text: { content: tenantId } }] },
+    [P.cutNumber]: { number: cutIndex + 1 },
+    [P.charCount]: { number: cut.scriptText?.length ?? 0 },
+    [P.text]: { rich_text: [{ text: { content: (cut.scriptText ?? "").slice(0, 2000) } }] },
+    [P.subtitle]: { rich_text: [{ text: { content: (cut.subtitleText ?? cut.scriptText ?? "").slice(0, 2000) } }] },
+    [P.materialName1]: { rich_text: [{ text: { content: cut.materialName ?? "" } }] },
+    [P.materialUrl1]: cut.materialUrl ? { url: cut.materialUrl } : { url: null },
+    [P.materialScore]: { number: (cut as any).materialScore ?? 0 },
+    [P.aiSuggestion]: { rich_text: [{ text: { content: (cut as any).aiSuggestion ?? "" } }] },
+    [P.aiGenerated]: { checkbox: cut.isAiGenerated ?? false },
+    [P.motionEffect]: { rich_text: [{ text: { content: (cut.effects ?? []).join(", ") } }] },
+    [P.soundEffect]: { rich_text: [{ text: { content: (cut.soundEffects ?? []).join(", ") } }] },
+    [P.regulationCheck]: { select: null },
+  };
+}
+
+// Section name → Japanese display label
+const SECTION_LABELS: Record<string, string> = {
+  hook: "フック",
+  empathy: "共感",
+  concept: "コンセプト",
+  product: "商品紹介",
+  benefit: "ベネフィット",
+  offer: "オファー",
+  cta: "CTA",
+};
 
 /**
  * Map Notion page to NotionMaterialRecord

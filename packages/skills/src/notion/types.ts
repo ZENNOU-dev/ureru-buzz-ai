@@ -40,6 +40,46 @@ export const EDIT_BRIEF_DB_PROPS = {
   status: "ステータス",
 } as const;
 
+// Property name constants for EditBrief Master DB (全体情報)
+export const EDIT_BRIEF_MASTER_DB_PROPS = {
+  title: "編集概要名",
+  tenantId: "テナントID",
+  scriptId: "台本ID",
+  totalCharCount: "全体文字数",
+  speaker: "話者設定",
+  voiceFile: "音声ファイル",
+  bgmName: "BGM名",
+  bgmUrl: "BGM_URL",
+  reference: "参考/備考",
+  status: "ステータス",
+} as const;
+
+// Property name constants for EditBrief Cut DB (カット単位)
+export const EDIT_BRIEF_CUT_DB_PROPS = {
+  title: "カット名",
+  editBriefId: "編集概要ID",
+  tenantId: "テナントID",
+  cutNumber: "カット番号",
+  charCount: "文字数",
+  text: "テキスト",
+  subtitle: "テロップ",
+  materialName1: "素材名①",
+  materialUrl1: "素材①URL",
+  materialName2: "素材名②",
+  materialUrl2: "素材②URL",
+  materialScore: "素材スコア",
+  aiSuggestion: "AI生成提案",
+  aiGenerated: "AI生成済み",
+  annotation: "注釈",
+  regulationCheck: "レギュチェック欄",
+  motionEffect: "モーションエフェクト",
+  soundEffect: "効果音",
+  otherDirections: "その他編集指示",
+  revisionRequest: "修正版依頼",
+  revision2: "修正②",
+  revision3: "修正③",
+} as const;
+
 // Property name constants for Material DB
 export const MATERIAL_DB_PROPS = {
   tenantId: "テナントID",
