@@ -16,9 +16,10 @@ export default function ChatPage() {
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-1 flex flex-col items-center justify-center px-6">
-        <h1 className="text-3xl font-black tracking-tight gradient-warm-text mb-10">
-          売れるBUZZ AI
+        <h1 className="text-4xl font-black tracking-tight gradient-warm-text mb-2">
+          ZENNOU
         </h1>
+        <p className="text-lg font-bold gradient-warm-text opacity-80 mb-10">売れるBUZZ AI</p>
         <div className="grid grid-cols-2 gap-3 max-w-lg w-full">
           {SUGGESTIONS.map((s, i) => (
             <button

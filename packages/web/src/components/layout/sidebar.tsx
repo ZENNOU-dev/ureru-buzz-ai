@@ -40,10 +40,10 @@ export function Sidebar() {
     <aside className="w-[220px] h-screen flex flex-col shrink-0 border-r border-white/[0.08]" style={{ background: "#151528" }}>
       {/* Brand */}
       <div className="px-5 pt-5 pb-3">
-        <h1 className="text-xl font-black tracking-tight text-white text-center">
+        <h1 className="text-2xl font-black tracking-tight gradient-warm-text text-center">
           ZENNOU
         </h1>
-        <p className="text-[10px] gradient-warm-text text-center tracking-wider mt-0.5 font-semibold">売れるBUZZ AI</p>
+        <p className="text-[13px] gradient-warm-text text-center tracking-wider mt-1 font-bold opacity-80">売れるBUZZ AI</p>
       </div>
 
       {/* Tenant selector */}

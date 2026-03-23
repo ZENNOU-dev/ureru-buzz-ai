@@ -16,9 +16,10 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: "#FAF8F5" }}>
       {/* Brand */}
-      <h1 className="text-2xl font-black tracking-tight gradient-warm-text mb-8">
-        売れるBUZZ AI
+      <h1 className="text-3xl font-black tracking-tight gradient-warm-text mb-1">
+        ZENNOU
       </h1>
+      <p className="text-sm font-bold gradient-warm-text opacity-80 mb-8">売れるBUZZ AI</p>
 
       {/* Card */}
       <div className="w-full max-w-md content-card rounded-2xl p-10 shadow-sm">

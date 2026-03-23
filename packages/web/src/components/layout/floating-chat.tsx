@@ -41,7 +41,7 @@ export function FloatingChat() {
                 <MessageSquare className="w-4 h-4 text-white" />
               </div>
               <div>
-                <p className="text-[13px] font-bold text-[#1A1A2E]">売れるBUZZ AI</p>
+                <p className="text-[13px] font-bold text-[#1A1A2E]">ZENNOU <span className="text-[10px] font-semibold text-[#1A1A2E]/40">売れるBUZZ AI</span></p>
                 <p className="text-[10px] text-[#1A1A2E]/35">いつでも相談できます</p>
               </div>
             </div>
