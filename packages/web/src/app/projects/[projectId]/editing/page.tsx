@@ -180,29 +180,25 @@ function Bubble({ label, text, color = "bg-[#FAF8F5]" }: { label: string; text: 
 // ─── Concept + Plan cards (正方形バブル型) ─────────────
 function ConceptPlanCards() {
   return (
-    <div className="grid grid-cols-2 gap-2" style={{ gridTemplateRows: "1fr" }}>
-      {/* コンセプト */}
-      <div className="bg-white/90 rounded-xl border border-black/[0.06] p-3 flex flex-col" style={{ aspectRatio: "1/1" }}>
-        <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-wider">コンセプト</span>
-        <p className="text-[9px] font-bold text-[#1A1A2E] mt-0.5 mb-1 leading-snug line-clamp-2">AIとSNSを組み合わせた新世代フリーランス</p>
-        <div className="grid grid-cols-2 gap-1.5 flex-1 place-items-center">
-          <Bubble label="WHO" text="会社員で給料に不満を持つ20〜30代" color="bg-emerald-50" />
-          <Bubble label="WHAT" text="AI活用フリーランスで収入UP" color="bg-emerald-50" />
-          <Bubble label="WHY" text="AIスキル×SNS運用で短期成果" color="bg-emerald-50" />
-          <Bubble label="USP" text="実践AIツール+連続起業家監修" color="bg-emerald-50" />
+    <div className="grid grid-cols-2 gap-2">
+      {[
+        { tag: "コンセプト", tagColor: "text-emerald-600", title: "AIとSNSを組み合わせた新世代フリーランス", bubbleColor: "bg-emerald-50",
+          items: [{ l: "WHO", t: "会社員で給料に不満を持つ20〜30代" }, { l: "WHAT", t: "AI活用フリーランスで収入UP" }, { l: "WHY", t: "AIスキル×SNS運用で短期成果" }, { l: "USP", t: "実践AIツール+連続起業家監修" }] },
+        { tag: "広告企画", tagColor: "text-amber-600", title: "フリーランス2.0体験談", bubbleColor: "bg-amber-50",
+          items: [{ l: "興味の型", t: "体験談 / ビフォーアフター" }, { l: "構成の型", t: "フック→共感→商品紹介→CTA" }, { l: "FV", t: "未経験ならAIフリーランス" }, { l: "話者設定", t: "ずんだもん（機械音声）" }] },
+      ].map((card) => (
+        <div key={card.tag} className="bg-white/90 rounded-xl border border-black/[0.06] overflow-hidden">
+          <div className="p-2">
+            <span className={`text-[7px] font-bold ${card.tagColor} uppercase tracking-wider`}>{card.tag}</span>
+            <p className="text-[8px] font-bold text-[#1A1A2E] mt-0.5 leading-snug h-[20px] overflow-hidden">{card.title}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-1 p-2 pt-0 place-items-center">
+            {card.items.map((item) => (
+              <Bubble key={item.l} label={item.l} text={item.t} color={card.bubbleColor} />
+            ))}
+          </div>
         </div>
-      </div>
-      {/* 広告企画 */}
-      <div className="bg-white/90 rounded-xl border border-black/[0.06] p-3 flex flex-col" style={{ aspectRatio: "1/1" }}>
-        <span className="text-[8px] font-bold text-amber-600 uppercase tracking-wider">広告企画</span>
-        <p className="text-[9px] font-bold text-[#1A1A2E] mt-0.5 mb-1 leading-snug line-clamp-2">フリーランス2.0体験談</p>
-        <div className="grid grid-cols-2 gap-1.5 flex-1 place-items-center">
-          <Bubble label="興味の型" text="体験談 / ビフォーアフター" color="bg-amber-50" />
-          <Bubble label="構成の型" text="フック→共感→商品紹介→CTA" color="bg-amber-50" />
-          <Bubble label="FV" text="未経験ならAIフリーランス" color="bg-amber-50" />
-          <Bubble label="話者設定" text="ずんだもん（機械音声）" color="bg-amber-50" />
-        </div>
-      </div>
+      ))}
     </div>
   );
 }
