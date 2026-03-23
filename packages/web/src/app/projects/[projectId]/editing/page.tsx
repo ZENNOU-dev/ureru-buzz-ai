@@ -170,9 +170,9 @@ function SmartSelect({ value, options, topCount = 3, onChange, placeholder }: {
 // ─── Bubble item helper ──────────────────────────────
 function Bubble({ label, text, color = "bg-[#FAF8F5]" }: { label: string; text: string; color?: string }) {
   return (
-    <div className={`${color} w-[56px] h-[56px] rounded-full inline-flex flex-col items-center justify-center p-1 shrink-0 shadow-sm`}>
-      <span className="text-[6px] font-bold text-[#1A1A2E]/50 uppercase">{label}</span>
-      <p className="text-[5px] text-[#1A1A2E] font-medium leading-tight text-center mt-0.5 line-clamp-3">{text}</p>
+    <div className={`${color} w-[72px] h-[72px] rounded-full inline-flex flex-col items-center justify-center p-2 shrink-0 shadow-sm`}>
+      <span className="text-[7px] font-bold text-[#1A1A2E]/50 uppercase">{label}</span>
+      <p className="text-[6px] text-[#1A1A2E] font-medium leading-tight text-center mt-0.5 line-clamp-3">{text}</p>
     </div>
   );
 }
@@ -180,17 +180,17 @@ function Bubble({ label, text, color = "bg-[#FAF8F5]" }: { label: string; text: 
 // ─── Concept + Plan cards (正方形バブル型) ─────────────
 function ConceptPlanCards() {
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="flex justify-center gap-3">
       {[
         { tag: "コンセプト", tagColor: "text-emerald-600", title: "AIとSNSを組み合わせた新世代フリーランス", bubbleColor: "bg-emerald-50",
           items: [{ l: "WHO", t: "会社員で給料に不満を持つ20〜30代" }, { l: "WHAT", t: "AI活用フリーランスで収入UP" }, { l: "WHY", t: "AIスキル×SNS運用で短期成果" }, { l: "USP", t: "実践AIツール+連続起業家監修" }] },
         { tag: "広告企画", tagColor: "text-amber-600", title: "フリーランス2.0体験談", bubbleColor: "bg-amber-50",
           items: [{ l: "興味の型", t: "体験談 / ビフォーアフター" }, { l: "構成の型", t: "フック→共感→商品紹介→CTA" }, { l: "FV", t: "未経験ならAIフリーランス" }, { l: "話者設定", t: "ずんだもん（機械音声）" }] },
       ].map((card) => (
-        <div key={card.tag} className="bg-white/90 rounded-xl border border-black/[0.06] p-2.5">
-          <span className={`text-[8px] font-bold ${card.tagColor} uppercase tracking-wider`}>{card.tag}</span>
-          <p className="text-[9px] font-bold text-[#1A1A2E] mt-0.5 mb-1.5 leading-snug h-[18px] overflow-hidden">{card.title}</p>
-          <div className="grid grid-cols-2 gap-1.5 place-items-center">
+        <div key={card.tag} className="bg-white/90 rounded-xl border border-black/[0.06] p-3 w-[220px] h-[220px] flex flex-col">
+          <span className={`text-[9px] font-bold ${card.tagColor} uppercase tracking-wider`}>{card.tag}</span>
+          <p className="text-[10px] font-bold text-[#1A1A2E] mt-1 mb-2 leading-snug h-[24px] overflow-hidden">{card.title}</p>
+          <div className="grid grid-cols-2 gap-2 flex-1 place-items-center">
             {card.items.map((item) => (
               <Bubble key={item.l} label={item.l} text={item.t} color={card.bubbleColor} />
             ))}
@@ -633,7 +633,7 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
       {/* ── Main: Preview (left) + Edit Grid (right) ── */}
       <div className="flex-1 flex min-h-0 relative">
         {/* Left: Concept/Plan cards + Phone Preview */}
-        <div className="w-[45%] min-w-[320px] max-w-[500px] shrink-0 flex flex-col border-r border-black/[0.06] bg-[#F5F3F0]">
+        <div className="w-[480px] shrink-0 flex flex-col border-r border-black/[0.06] bg-[#F5F3F0]">
           {/* Concept + Plan cards above phone */}
           <div className="shrink-0 px-3 pt-3">
             <ConceptPlanCards />
