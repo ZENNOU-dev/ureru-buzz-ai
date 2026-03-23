@@ -13,14 +13,18 @@ type EditingScene = {
   section: string;
   text: string;
   telop: string;
+  telopSize: number;
   annotation: string;
   annotationPlacement: "左上" | "右下" | "テロップ追加";
+  annotationSize: number;
   fontOverride: string;
   bgmChange: boolean;
   bgmValue: string;
   mainMaterial: string;
   subMaterials: string[];
+  subMaterialSize: number;
   motionEffect: string;
+  motionTarget: string; // "テロップ" | "メイン素材" | "サブ素材" | ""
   soundEffect: string;
   comment: string;
 };
@@ -88,14 +92,18 @@ function makeInitialScenes(): EditingScene[] {
     section: d.section,
     text: d.text,
     telop: d.text,
+    telopSize: 12,
     annotation: d.annotation,
     annotationPlacement: "左上" as const,
+    annotationSize: 6,
     fontOverride: "",
     bgmChange: false,
     bgmValue: "",
     mainMaterial: "",
     subMaterials: [""],
+    subMaterialSize: 50,
     motionEffect: "",
+    motionTarget: "",
     soundEffect: "",
     comment: "",
   }));
@@ -151,32 +159,22 @@ function SmartSelect({ value, options, topCount = 3, onChange, placeholder }: {
   );
 }
 
-// ─── Top Cards (Concept + Plan) ──────────────────────
-function TopCards() {
-  const [collapsed, setCollapsed] = useState(true);
+// ─── Concept + Plan inline cards (台本と同じ形式) ─────
+function ConceptPlanCards() {
   return (
-    <div className="shrink-0 bg-white border-b border-black/[0.06]">
-      <button onClick={() => setCollapsed(!collapsed)}
-        className="w-full px-5 py-2 flex items-center gap-2 text-left hover:bg-black/[0.01] transition-colors">
-        <ChevronDown className={`w-3.5 h-3.5 text-[#1A1A2E]/30 transition-transform ${collapsed ? "-rotate-90" : ""}`} />
-        <span className="text-[11px] font-bold text-[#1A1A2E]/40">コンセプト・広告企画</span>
-      </button>
-      {!collapsed && (
-        <div className="px-5 pb-3 flex gap-3 overflow-x-auto">
-          <div className="shrink-0 bg-[#FAF8F5] rounded-xl border border-black/[0.06] p-3 min-w-[200px]">
-            <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">コンセプト</span>
-            <p className="text-[13px] font-bold text-[#1A1A2E] mt-1 leading-snug">AIとSNSを組み合わせた新世代フリーランス</p>
-          </div>
-          <div className="shrink-0 bg-[#FAF8F5] rounded-xl border border-black/[0.06] p-3 min-w-[320px]">
-            <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">広告企画</span>
-            <p className="text-[13px] font-bold text-[#1A1A2E] mt-1 leading-snug">フリーランス2.0体験談</p>
-            <div className="flex gap-3 mt-2">
-              <div><span className="text-[9px] text-[#1A1A2E]/30 font-bold">興味の型</span><p className="text-[10px] text-[#1A1A2E]/70">体験談 / ビフォーアフター</p></div>
-              <div><span className="text-[9px] text-[#1A1A2E]/30 font-bold">FV</span><p className="text-[10px] text-[#1A1A2E]/70">未経験なら AIフリーランス めちゃチャンスです</p></div>
-            </div>
-          </div>
+    <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="shrink-0 bg-white/80 rounded-lg border border-black/[0.06] px-2.5 py-1.5">
+        <span className="text-[8px] font-bold text-emerald-600 uppercase">コンセプト</span>
+        <p className="text-[10px] font-bold text-[#1A1A2E] mt-0.5 leading-snug">AIとSNSを組み合わせた新世代フリーランス</p>
+      </div>
+      <div className="shrink-0 bg-white/80 rounded-lg border border-black/[0.06] px-2.5 py-1.5">
+        <span className="text-[8px] font-bold text-amber-600 uppercase">広告企画</span>
+        <p className="text-[10px] font-bold text-[#1A1A2E] mt-0.5 leading-snug">フリーランス2.0体験談</p>
+        <div className="flex gap-2 mt-1">
+          <div><span className="text-[7px] text-[#1A1A2E]/30 font-bold">興味の型</span><p className="text-[8px] text-[#1A1A2E]/60">体験談 / ビフォーアフター</p></div>
+          <div><span className="text-[7px] text-[#1A1A2E]/30 font-bold">FV</span><p className="text-[8px] text-[#1A1A2E]/60">未経験なら AIフリーランス…</p></div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -214,6 +212,13 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate }: {
 
   const handlePointerUp = useCallback(() => setDragTarget(null), []);
 
+  // Wheel to resize telop/annotation/subMaterial
+  const handleWheel = useCallback((target: "telopSize" | "annotationSize" | "subMaterialSize", current: number, min: number, max: number) => (e: React.WheelEvent) => {
+    e.stopPropagation();
+    const delta = e.deltaY > 0 ? -0.5 : 0.5;
+    onUpdate(target, Math.max(min, Math.min(max, current + delta)));
+  }, [onUpdate]);
+
   return (
     <div className="flex flex-col items-center gap-2">
       {/* Time display */}
@@ -240,30 +245,33 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate }: {
             )}
           </div>
 
-          {/* Draggable Annotation */}
+          {/* Draggable Annotation (shows actual content) */}
           {scene.annotation && (
             <div
               className={`absolute z-[8] cursor-grab active:cursor-grabbing ${dragTarget === "annotation" ? "opacity-70" : ""}`}
               style={{ left: `${annoPos.x}%`, top: `${annoPos.y}%`, transform: "translate(-50%, -50%)" }}
               onPointerDown={handlePointerDown("annotation")}
+              onWheel={handleWheel("annotationSize", scene.annotationSize, 4, 12)}
             >
-              <div className="border border-white/50 bg-black/30 rounded-sm px-1.5 py-0.5 text-white/70 text-[6px] whitespace-nowrap">
-                注釈
+              <div className="border border-white/50 bg-black/40 rounded-sm px-1.5 py-0.5 text-white/80 max-w-[160px] whitespace-pre-line leading-snug"
+                style={{ fontSize: `${scene.annotationSize}px` }}>
+                {scene.annotation}
               </div>
             </div>
           )}
 
-          {/* Draggable Telop */}
+          {/* Draggable Telop (wheel to resize) */}
           {telopLines.length > 0 && (
             <div
               className={`absolute z-10 cursor-grab active:cursor-grabbing ${dragTarget === "telop" ? "opacity-70" : ""}`}
               style={{ left: `${telopPos.x}%`, top: `${telopPos.y}%`, transform: "translate(-50%, -50%)", maxWidth: "92%" }}
               onPointerDown={handlePointerDown("telop")}
+              onWheel={handleWheel("telopSize", scene.telopSize, 6, 20)}
             >
               <div className="text-center">
                 {telopLines.map((line, i) => (
-                  <div key={i} className="text-white font-bold leading-tight text-[12px]"
-                    style={{ textShadow: "0 0 5px rgba(0,0,0,0.9), 0 1px 3px rgba(0,0,0,0.7)" }}>
+                  <div key={i} className="text-white font-bold leading-tight"
+                    style={{ fontSize: `${scene.telopSize}px`, textShadow: "0 0 5px rgba(0,0,0,0.9), 0 1px 3px rgba(0,0,0,0.7)" }}>
                     {line}
                   </div>
                 ))}
@@ -271,10 +279,23 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate }: {
             </div>
           )}
 
-          {/* Material info */}
+          {/* Sub material overlay (resizable via wheel) */}
+          {scene.subMaterials[0] && (
+            <div className="absolute bottom-12 right-2 z-[6]"
+              onWheel={handleWheel("subMaterialSize", scene.subMaterialSize, 20, 80)}>
+              <div className="bg-black/20 border border-white/20 rounded overflow-hidden"
+                style={{ width: `${scene.subMaterialSize}%` }}>
+                <div className="aspect-[9/16] bg-gradient-to-b from-white/10 to-white/5 flex items-center justify-center">
+                  <span className="text-[5px] text-white/50 text-center px-1">{scene.subMaterials[0]}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Main material label */}
           {scene.mainMaterial && (
             <div className="absolute bottom-8 left-2 right-2 z-[5]">
-              <div className="text-[6px] text-white/50 bg-black/30 rounded px-1.5 py-0.5 text-center truncate">{scene.mainMaterial}</div>
+              <div className="text-[6px] text-white/50 bg-black/30 rounded px-1.5 py-0.5 text-center truncate">素材: {scene.mainMaterial}</div>
             </div>
           )}
 
@@ -361,17 +382,31 @@ function getFieldDefs(
       );
     }},
     { key: "mainMat", label: "メイン\n素材名", render: (s: EditingScene) => (
-      <input value={s.mainMaterial} onChange={(e) => updateScene(s.id, "mainMaterial", e.target.value)}
-        placeholder="メイン素材" className="w-full text-[10px] text-[#1A1A2E]/70 bg-transparent border border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 rounded-lg px-2 py-1 outline-none placeholder:text-[#1A1A2E]/20" />
+      <div>
+        <input value={s.mainMaterial} onChange={(e) => updateScene(s.id, "mainMaterial", e.target.value)}
+          placeholder="メイン素材" className="w-full text-[10px] text-[#1A1A2E]/70 bg-transparent border border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 rounded-lg px-2 py-1 outline-none placeholder:text-[#1A1A2E]/20" />
+        {s.mainMaterial && (
+          <div className="mt-1 w-[50px] aspect-[9/16] rounded-[4px] border border-black/[0.08] bg-gradient-to-b from-[#1a1a2e]/10 to-[#1a1a2e]/20 flex items-center justify-center overflow-hidden">
+            <span className="text-[5px] text-[#1A1A2E]/30 text-center px-0.5">{s.mainMaterial}</span>
+          </div>
+        )}
+      </div>
     )},
     { key: "subMat", label: "サブ\n素材名", render: (s: EditingScene) => (
       <div>
         {s.subMaterials.map((sub, i) => (
-          <div key={i} className="flex items-center gap-0.5 group/sub">
-            <input value={sub} onChange={(e) => updateSub(s.id, i, e.target.value)}
-              placeholder="サブ素材" className="w-full text-[10px] text-[#1A1A2E]/60 bg-transparent border border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 rounded-lg px-2 py-0.5 outline-none placeholder:text-[#1A1A2E]/15" />
-            {s.subMaterials.length > 1 && (
-              <button onClick={() => removeSub(s.id, i)} className="text-red-400 opacity-0 group-hover/sub:opacity-100 shrink-0"><X className="w-2.5 h-2.5" /></button>
+          <div key={i} className="group/sub">
+            <div className="flex items-center gap-0.5">
+              <input value={sub} onChange={(e) => updateSub(s.id, i, e.target.value)}
+                placeholder="サブ素材" className="w-full text-[10px] text-[#1A1A2E]/60 bg-transparent border border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 rounded-lg px-2 py-0.5 outline-none placeholder:text-[#1A1A2E]/15" />
+              {s.subMaterials.length > 1 && (
+                <button onClick={() => removeSub(s.id, i)} className="text-red-400 opacity-0 group-hover/sub:opacity-100 shrink-0"><X className="w-2.5 h-2.5" /></button>
+              )}
+            </div>
+            {sub && (
+              <div className="mt-0.5 w-[40px] aspect-[9/16] rounded-[3px] border border-black/[0.06] bg-gradient-to-b from-white/50 to-[#1a1a2e]/10 flex items-center justify-center overflow-hidden ml-2">
+                <span className="text-[4px] text-[#1A1A2E]/25 text-center px-0.5">{sub}</span>
+              </div>
             )}
           </div>
         ))}
@@ -381,7 +416,24 @@ function getFieldDefs(
         </button>
       </div>
     )},
-    { key: "me", label: "モーション\nエフェクト", render: (s: EditingScene) => <SmartSelect value={s.motionEffect} options={ME_OPTIONS} topCount={3} onChange={(v) => updateScene(s.id, "motionEffect", v)} placeholder="選択" /> },
+    { key: "me", label: "モーション\nエフェクト", render: (s: EditingScene) => (
+      <div>
+        <SmartSelect value={s.motionEffect} options={ME_OPTIONS} topCount={3} onChange={(v) => updateScene(s.id, "motionEffect", v)} placeholder="選択" />
+        {s.motionEffect && (
+          <div className="mt-1">
+            <span className="text-[7px] text-[#1A1A2E]/30 block mb-0.5">対象:</span>
+            <div className="flex flex-wrap gap-0.5">
+              {["テロップ", "メイン素材", "サブ素材"].map((t) => (
+                <button key={t} onClick={() => updateScene(s.id, "motionTarget", s.motionTarget === t ? "" : t)}
+                  className={`text-[7px] px-1.5 py-0.5 rounded transition-colors ${s.motionTarget === t ? "bg-[#9333EA]/10 text-[#9333EA] font-bold" : "bg-black/[0.03] text-[#1A1A2E]/30 hover:text-[#1A1A2E]/50"}`}>
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    )},
     { key: "se", label: "サウンド\nエフェクト", render: (s: EditingScene) => <SmartSelect value={s.soundEffect} options={SE_OPTIONS} topCount={3} onChange={(v) => updateScene(s.id, "soundEffect", v)} placeholder="選択" /> },
   ] as { key: string; label: string; render: (s: EditingScene, idx: number) => React.ReactNode }[];
 }
@@ -503,13 +555,16 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
         </div>
       </div>
 
-      {/* ── Top Cards ── */}
-      <TopCards />
-
       {/* ── Main: Preview (left) + Edit Grid (right) ── */}
       <div className="flex-1 flex min-h-0 relative">
-        {/* Left: Phone Preview (compact) */}
-        <div className="w-[280px] shrink-0 flex flex-col items-center justify-center border-r border-black/[0.06] bg-[#F5F3F0] py-4">
+        {/* Left: Concept/Plan cards + Phone Preview */}
+        <div className="w-[340px] shrink-0 flex flex-col border-r border-black/[0.06] bg-[#F5F3F0]">
+          {/* Concept + Plan cards above phone */}
+          <div className="shrink-0 px-3 pt-3">
+            <ConceptPlanCards />
+          </div>
+          {/* Phone centered */}
+          <div className="flex-1 flex items-center justify-center px-4 pb-4">
           {activeScene && (
             <PhonePreview
               scene={activeScene}
@@ -520,6 +575,7 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
               onUpdate={(f, v) => updateScene(activeScene.id, f, v)}
             />
           )}
+          </div>
         </div>
 
         {/* Right: Horizontal edit grid (edit-brief style) */}
