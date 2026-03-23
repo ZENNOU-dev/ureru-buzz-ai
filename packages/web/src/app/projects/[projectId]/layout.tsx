@@ -12,6 +12,7 @@ const TABS = [
   { label: "台本", segment: "scripts" },
   { label: "編集概要", segment: "edit-brief" },
   { label: "編集", segment: "editing" },
+  { label: "素材", segment: "materials" },
   { label: "レギュレーション", segment: "regulations" },
 ];
 

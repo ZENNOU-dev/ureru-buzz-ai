@@ -3,6 +3,7 @@
 import { use, useState } from "react";
 import { ArrowLeft, CheckCircle2, XCircle, AlertTriangle, Plus, Search, FileText, Video, Tag, ChevronRight, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { VoiceInputButton } from "@/components/voice-input-button";
 
 // ─── Types ────────────────────────────────────────────
 type RegItem = {
@@ -16,7 +17,6 @@ type RegItem = {
   note: string;
   checkDate: string;
   result: "OK" | "NG" | "修正依頼" | "";
-  comment: string;
 };
 
 type KnowledgeItem = {
@@ -45,22 +45,22 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 // ─── Sample Data (from spreadsheet) ───────────────────
 const REG_ITEMS: RegItem[] = [
-  { no: 1, date: "2025/12/15", person: "横野", type: "記事/LP台本", appeal: "AI活用型訴求", plan: "成功談記事", url: "【制作管理】DOT-AI×BONNOU", note: "", checkDate: "", result: "OK", comment: "" },
-  { no: 2, date: "2025/12/15", person: "横野", type: "CR台本", appeal: "AI活用型訴求", plan: "AI副業", url: "【制作管理】DOT-AI×BONNOU", note: "", checkDate: "", result: "OK", comment: "" },
-  { no: 3, date: "2025/12/15", person: "横野", type: "CR台本", appeal: "AI活用型訴求", plan: "三日坊主", url: "【制作管理】DOT-AI×BONNOU", note: "", checkDate: "", result: "OK", comment: "" },
-  { no: 4, date: "2025/12/15", person: "横野", type: "CR台本", appeal: "AI活用型訴求", plan: "特典推し", url: "【制作管理】DOT-AI×BONNOU", note: "", checkDate: "", result: "OK", comment: "" },
-  { no: 5, date: "2025/12/22", person: "渋谷", type: "ショート動画", appeal: "AI活用型訴求", plan: "AI副業", url: "渋谷_AI副業A.mp4", note: "", checkDate: "", result: "OK", comment: "" },
-  { no: 6, date: "2025/12/22", person: "渋谷", type: "ショート動画", appeal: "AI活用型訴求", plan: "", url: "渋谷_AI副業B.mp4", note: "", checkDate: "", result: "OK", comment: "" },
-  { no: 7, date: "2025/12/22", person: "渋谷", type: "ショート動画", appeal: "AI活用型訴求", plan: "", url: "渋谷_AI副業C.mp4", note: "", checkDate: "", result: "OK", comment: "" },
-  { no: 8, date: "2025/12/22", person: "渋谷", type: "ショート動画", appeal: "AI活用型訴求", plan: "三日坊主", url: "渋谷_特典推しA.mp4", note: "", checkDate: "", result: "OK", comment: "" },
-  { no: 9, date: "2025/12/22", person: "渋谷", type: "ショート動画", appeal: "AI活用型訴求", plan: "", url: "渋谷_特典推しB.mp4", note: "", checkDate: "", result: "OK", comment: "" },
-  { no: 10, date: "2025/12/22", person: "渋谷", type: "ショート動画", appeal: "AI活用型訴求", plan: "", url: "渋谷_特典推しC.mp4", note: "", checkDate: "", result: "OK", comment: "" },
-  { no: 11, date: "2026/02/17", person: "松永", type: "ショート動画", appeal: "AI活用型訴求", plan: "AI副業BU1", url: "松永_AI副業BU1A.mp4", note: "", checkDate: "", result: "OK", comment: "" },
-  { no: 12, date: "2026/02/19", person: "横野", type: "ショート動画", appeal: "AI活用型訴求", plan: "フリーランス2.0", url: "【制作管理】DOT-AI×BONNOU", note: "", checkDate: "", result: "OK", comment: "" },
-  { no: 13, date: "2026/02/19", person: "横野", type: "ショート動画", appeal: "AI活用型訴求", plan: "女性2.0", url: "【制作管理】DOT-AI×BONNOU", note: "", checkDate: "", result: "OK", comment: "" },
-  { no: 14, date: "2026/02/26", person: "横野", type: "ショート動画", appeal: "AIフリーランス訴求", plan: "女性2.0", url: "横野_女性2.0_A.mp4", note: "", checkDate: "", result: "OK", comment: "" },
-  { no: 15, date: "2026/03/20", person: "横野", type: "CR台本", appeal: "AIフリーランス訴求", plan: "フリーランス2.0体験談", url: "", note: "初稿", checkDate: "2026/03/21", result: "修正依頼", comment: "誇大表現の修正が必要" },
-  { no: 16, date: "2026/03/22", person: "横野", type: "ショート動画", appeal: "AIフリーランス訴求", plan: "フリーランス2.0体験談", url: "", note: "初稿動画", checkDate: "", result: "", comment: "" },
+  { no: 1, date: "2025/12/15", person: "横野", type: "記事/LP台本", appeal: "AI活用型訴求", plan: "成功談記事", url: "【制作管理】DOT-AI×BONNOU", note: "", checkDate: "", result: "OK" },
+  { no: 2, date: "2025/12/15", person: "横野", type: "CR台本", appeal: "AI活用型訴求", plan: "AI副業", url: "【制作管理】DOT-AI×BONNOU", note: "", checkDate: "", result: "OK" },
+  { no: 3, date: "2025/12/15", person: "横野", type: "CR台本", appeal: "AI活用型訴求", plan: "三日坊主", url: "【制作管理】DOT-AI×BONNOU", note: "", checkDate: "", result: "OK" },
+  { no: 4, date: "2025/12/15", person: "横野", type: "CR台本", appeal: "AI活用型訴求", plan: "特典推し", url: "【制作管理】DOT-AI×BONNOU", note: "", checkDate: "", result: "OK" },
+  { no: 5, date: "2025/12/22", person: "渋谷", type: "ショート動画", appeal: "AI活用型訴求", plan: "AI副業", url: "渋谷_AI副業A.mp4", note: "", checkDate: "", result: "OK" },
+  { no: 6, date: "2025/12/22", person: "渋谷", type: "ショート動画", appeal: "AI活用型訴求", plan: "", url: "渋谷_AI副業B.mp4", note: "", checkDate: "", result: "OK" },
+  { no: 7, date: "2025/12/22", person: "渋谷", type: "ショート動画", appeal: "AI活用型訴求", plan: "", url: "渋谷_AI副業C.mp4", note: "", checkDate: "", result: "OK" },
+  { no: 8, date: "2025/12/22", person: "渋谷", type: "ショート動画", appeal: "AI活用型訴求", plan: "三日坊主", url: "渋谷_特典推しA.mp4", note: "", checkDate: "", result: "OK" },
+  { no: 9, date: "2025/12/22", person: "渋谷", type: "ショート動画", appeal: "AI活用型訴求", plan: "", url: "渋谷_特典推しB.mp4", note: "", checkDate: "", result: "OK" },
+  { no: 10, date: "2025/12/22", person: "渋谷", type: "ショート動画", appeal: "AI活用型訴求", plan: "", url: "渋谷_特典推しC.mp4", note: "", checkDate: "", result: "OK" },
+  { no: 11, date: "2026/02/17", person: "松永", type: "ショート動画", appeal: "AI活用型訴求", plan: "AI副業BU1", url: "松永_AI副業BU1A.mp4", note: "", checkDate: "", result: "OK" },
+  { no: 12, date: "2026/02/19", person: "横野", type: "ショート動画", appeal: "AI活用型訴求", plan: "フリーランス2.0", url: "【制作管理】DOT-AI×BONNOU", note: "", checkDate: "", result: "OK" },
+  { no: 13, date: "2026/02/19", person: "横野", type: "ショート動画", appeal: "AI活用型訴求", plan: "女性2.0", url: "【制作管理】DOT-AI×BONNOU", note: "", checkDate: "", result: "OK" },
+  { no: 14, date: "2026/02/26", person: "横野", type: "ショート動画", appeal: "AIフリーランス訴求", plan: "女性2.0", url: "横野_女性2.0_A.mp4", note: "", checkDate: "", result: "OK" },
+  { no: 15, date: "2026/03/20", person: "横野", type: "CR台本", appeal: "AIフリーランス訴求", plan: "フリーランス2.0体験談", url: "", note: "初稿", checkDate: "2026/03/21", result: "修正依頼" },
+  { no: 16, date: "2026/03/22", person: "横野", type: "ショート動画", appeal: "AIフリーランス訴求", plan: "フリーランス2.0体験談", url: "", note: "初稿動画", checkDate: "", result: "" },
 ];
 
 const KNOWLEDGE: KnowledgeItem[] = [
@@ -112,8 +112,8 @@ export default function RegulationsPage({ params }: { params: Promise<{ projectI
         {/* Tabs */}
         <div className="px-6 flex gap-0 border-t border-black/[0.03]">
           {[
-            { key: "script" as const, label: "台本提出リスト", icon: FileText, count: scriptItems.length },
-            { key: "video" as const, label: "動画提出リスト", icon: Video, count: videoItems.length },
+            { key: "script" as const, label: "台本確認リスト", icon: FileText, count: scriptItems.length },
+            { key: "video" as const, label: "広告確認リスト", icon: Video, count: videoItems.length },
             { key: "knowledge" as const, label: "ナレッジ", icon: Tag, count: KNOWLEDGE.length },
           ].map((tab) => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
@@ -135,63 +135,67 @@ export default function RegulationsPage({ params }: { params: Promise<{ projectI
             {/* Table */}
             <div className="bg-white rounded-xl border border-black/[0.06] overflow-hidden">
               {/* Header row */}
-              <div className="grid grid-cols-[50px_90px_70px_100px_120px_140px_1fr_80px_90px_60px_1fr] bg-[#FAF8F5] border-b border-black/[0.06] text-[10px] font-bold text-[#1A1A2E]/40 uppercase tracking-wider">
+              <div className="grid grid-cols-[50px_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_80px] bg-[#FAF8F5] border-b border-black/[0.06] text-[10px] font-bold text-[#1A1A2E]/40 uppercase tracking-wider">
                 <div className="px-3 py-2.5">No.</div>
                 <div className="px-2 py-2.5">記載日付</div>
                 <div className="px-2 py-2.5">担当者</div>
                 <div className="px-2 py-2.5">確認物</div>
                 <div className="px-2 py-2.5">訴求名</div>
                 <div className="px-2 py-2.5">企画名</div>
-                <div className="px-2 py-2.5">確認物URL</div>
+                <div className="px-2 py-2.5">確認ページ</div>
                 <div className="px-2 py-2.5">備考</div>
                 <div className="px-2 py-2.5">確認日付</div>
                 <div className="px-2 py-2.5">可否</div>
-                <div className="px-2 py-2.5">コメント</div>
               </div>
 
               {/* Data rows */}
               {items.map((item) => {
                 const rs = RESULT_STYLES[item.result] || RESULT_STYLES[""];
+                const isScript = isScriptType(item.type);
+                const confirmLink = isScript
+                  ? `/projects/${projectId}/scripts/script-001`
+                  : `/projects/${projectId}/editing`;
+                const confirmLabel = isScript ? "台本を確認" : "動画を確認";
                 return (
-                  <div key={item.no} className={`grid grid-cols-[50px_90px_70px_100px_120px_140px_1fr_80px_90px_60px_1fr] border-b border-black/[0.03] hover:bg-black/[0.01] transition-colors ${
+                  <div key={item.no} className={`grid grid-cols-[50px_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_80px] border-b border-black/[0.03] hover:bg-black/[0.01] transition-colors ${
                     item.result === "NG" || item.result === "修正依頼" ? "bg-red-50/30" : ""
                   }`}>
                     <div className="px-3 py-2 text-[11px] text-[#1A1A2E]/40 font-medium">{item.no}</div>
                     <div className="px-2 py-2 text-[11px] text-[#1A1A2E]/60">{item.date}</div>
                     <div className="px-2 py-2 text-[11px] text-[#1A1A2E]/70 font-medium">{item.person}</div>
                     <div className="px-2 py-2">
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded whitespace-nowrap ${
                         item.type.includes("台本") ? "bg-blue-50 text-blue-600" : item.type.includes("動画") ? "bg-purple-50 text-purple-600" : "bg-gray-100 text-gray-600"
                       }`}>{item.type}</span>
                     </div>
                     <div className="px-2 py-2 text-[11px] text-[#1A1A2E]/60 truncate">{item.appeal}</div>
                     <div className="px-2 py-2 text-[11px] text-[#1A1A2E]/70 font-medium truncate">{item.plan}</div>
-                    <div className="px-2 py-2 text-[10px] text-[#9333EA]/60 truncate">
-                      {item.url && (
-                        <span className="flex items-center gap-1 hover:text-[#9333EA] cursor-pointer">
-                          <ExternalLink className="w-3 h-3 shrink-0" />
-                          <span className="truncate">{item.url}</span>
-                        </span>
-                      )}
+                    <div className="px-2 py-2 text-[10px]">
+                      <Link href={confirmLink} className="flex items-center gap-1 text-[#9333EA]/70 hover:text-[#9333EA] transition-colors">
+                        <ExternalLink className="w-3 h-3 shrink-0" />
+                        <span className="truncate">{confirmLabel}</span>
+                      </Link>
                     </div>
                     <div className="px-2 py-2 text-[10px] text-[#1A1A2E]/40">{item.note}</div>
                     <div className="px-2 py-2 text-[11px] text-[#1A1A2E]/50">{item.checkDate}</div>
                     <div className="px-2 py-2">
                       {item.result ? (
-                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${rs.bg} ${rs.text}`}>{item.result}</span>
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap ${rs.bg} ${rs.text}`}>{item.result}</span>
                       ) : (
                         <span className="text-[9px] text-[#1A1A2E]/20">—</span>
                       )}
                     </div>
-                    <div className="px-2 py-2 text-[10px] text-[#1A1A2E]/50">{item.comment}</div>
                   </div>
                 );
               })}
 
-              {/* Add row */}
-              <button className="w-full py-2.5 text-[10px] text-[#1A1A2E]/20 hover:text-[#9333EA]/50 hover:bg-[#9333EA]/[0.02] flex items-center justify-center gap-1 transition-all">
-                <Plus className="w-3 h-3" /> 行を追加
-              </button>
+              {/* Add row + note */}
+              <div className="flex items-center justify-center gap-3 py-2.5">
+                <button className="text-[10px] text-[#1A1A2E]/20 hover:text-[#9333EA]/50 hover:bg-[#9333EA]/[0.02] flex items-center gap-1 transition-all px-3 py-1 rounded-lg">
+                  <Plus className="w-3 h-3" /> 行を追加
+                </button>
+                <span className="text-[9px] text-[#1A1A2E]/20">台本のレギュレーションチェックから自動追加されます</span>
+              </div>
             </div>
           </div>
         )}
@@ -204,18 +208,27 @@ export default function RegulationsPage({ params }: { params: Promise<{ projectI
                 <input value={knowledgeSearch} onChange={(e) => setKnowledgeSearch(e.target.value)}
                   placeholder="ナレッジを検索..." className="flex-1 text-[12px] text-[#1A1A2E]/70 bg-transparent outline-none placeholder:text-[#1A1A2E]/20" />
               </div>
-              <div className="flex gap-1 flex-wrap">
-                <button onClick={() => setKnowledgeTagFilter("")}
-                  className={`text-[10px] px-2.5 py-1.5 rounded-full transition-all ${!knowledgeTagFilter ? "bg-[#9333EA] text-white" : "bg-white border border-black/[0.06] text-[#1A1A2E]/40 hover:text-[#1A1A2E]/60"}`}>
-                  すべて
+              <a
+                href="https://docs.google.com/spreadsheets/d/16DAJi3HwtPdsoP05vXTLEBkjCVDeYMIg7tDgEqn1IZE/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/[0.06] text-[11px] font-semibold text-[#1A1A2E]/50 hover:text-[#9333EA] hover:border-[#9333EA]/30 transition-all shrink-0"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                レギュレーションシート
+              </a>
+            </div>
+            <div className="flex gap-1 flex-wrap">
+              <button onClick={() => setKnowledgeTagFilter("")}
+                className={`text-[10px] px-2.5 py-1.5 rounded-full transition-all ${!knowledgeTagFilter ? "bg-[#9333EA] text-white" : "bg-white border border-black/[0.06] text-[#1A1A2E]/40 hover:text-[#1A1A2E]/60"}`}>
+                すべて
+              </button>
+              {allTags.map((tag) => (
+                <button key={tag} onClick={() => setKnowledgeTagFilter(tag === knowledgeTagFilter ? "" : tag)}
+                  className={`text-[10px] px-2.5 py-1.5 rounded-full transition-all ${knowledgeTagFilter === tag ? "bg-[#9333EA] text-white" : "bg-white border border-black/[0.06] text-[#1A1A2E]/40 hover:text-[#1A1A2E]/60"}`}>
+                  {tag}
                 </button>
-                {allTags.map((tag) => (
-                  <button key={tag} onClick={() => setKnowledgeTagFilter(tag === knowledgeTagFilter ? "" : tag)}
-                    className={`text-[10px] px-2.5 py-1.5 rounded-full transition-all ${knowledgeTagFilter === tag ? "bg-[#9333EA] text-white" : "bg-white border border-black/[0.06] text-[#1A1A2E]/40 hover:text-[#1A1A2E]/60"}`}>
-                    {tag}
-                  </button>
-                ))}
-              </div>
+              ))}
             </div>
             <div className="space-y-2">
               {filteredKnowledge.map((item) => (
@@ -238,6 +251,7 @@ export default function RegulationsPage({ params }: { params: Promise<{ projectI
           </div>
         )}
       </div>
+      <VoiceInputButton onTranscript={(text) => console.log("voice:", text)} />
     </div>
   );
 }

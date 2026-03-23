@@ -1,4 +1,5 @@
 import { ComingSoon } from "@/components/ui/coming-soon";
+import { VoiceInputButton } from "@/components/voice-input-button";
 
 export default function ResearchPage() {
   return (
@@ -7,6 +8,7 @@ export default function ResearchPage() {
         title="リサーチ"
         description="市場調査・競合分析機能を開発中です"
       />
+      <VoiceInputButton onTranscript={(text) => console.log("voice:", text)} />
     </div>
   );
 }

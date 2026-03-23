@@ -5,6 +5,7 @@ import {
   ArrowLeft, Music, Plus, X, ArrowRight, Mic, Download, Share2,
 } from "lucide-react";
 import Link from "next/link";
+import { VoiceInputButton } from "@/components/voice-input-button";
 
 // ─── Types ────────────────────────────────────────────
 type TelopPosition = { x: number; y: number };
@@ -631,6 +632,7 @@ export default function EditBriefPage({ params }: { params: Promise<{ projectId:
 
         </div>
       </div>
+      <VoiceInputButton onTranscript={(text) => console.log("voice:", text)} />
     </div>
   );
 }
