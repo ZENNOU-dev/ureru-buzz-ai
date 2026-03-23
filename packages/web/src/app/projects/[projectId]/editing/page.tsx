@@ -2,7 +2,7 @@
 
 import { use, useState, useCallback, useRef, useEffect } from "react";
 import {
-  Play, Pause, Plus, X, ChevronDown, Music, Check, ArrowLeft, ArrowRight, Package, MessageSquare,
+  Play, Pause, Plus, X, ChevronDown, Music, Check, ArrowLeft, ArrowRight, Package,
 } from "lucide-react";
 import Link from "next/link";
 import { VoiceInputButton } from "@/components/voice-input-button";
@@ -159,46 +159,57 @@ function SmartSelect({ value, options, topCount = 3, onChange, placeholder }: {
   );
 }
 
-// ─── Concept + Plan square cards (台本と同じ内容) ─────
-function ConceptPlanCards() {
+// ─── Bubble item helper ──────────────────────────────
+function Bubble({ label, text, color = "bg-[#FAF8F5]" }: { label: string; text: string; color?: string }) {
   return (
-    <div className="grid grid-cols-2 gap-2">
-      {/* コンセプト */}
-      <div className="bg-white/80 rounded-lg border border-black/[0.06] p-2.5 aspect-square flex flex-col">
-        <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-wider">コンセプト</span>
-        <p className="text-[10px] font-bold text-[#1A1A2E] mt-1 leading-snug flex-1">AIとSNSを組み合わせた新世代フリーランス</p>
-        <div className="grid grid-cols-3 gap-1 mt-auto pt-1 border-t border-black/[0.04]">
-          <div>
-            <span className="text-[6px] text-[#1A1A2E]/25 font-bold block">WHO</span>
-            <p className="text-[7px] text-[#1A1A2E]/50 leading-tight">会社員で給料・環境に不満を持つ20〜30代</p>
+    <div className={`${color} rounded-full px-2.5 py-1 inline-flex flex-col items-center min-w-0`}>
+      <span className="text-[6px] font-bold text-[#1A1A2E]/30 uppercase">{label}</span>
+      <p className="text-[7px] text-[#1A1A2E]/60 leading-tight text-center">{text}</p>
+    </div>
+  );
+}
+
+// ─── Concept + Plan cards (バブル型) ─────────────────
+function ConceptPlanCards({ globalBgm, globalFont }: { globalBgm: string; globalFont: string }) {
+  return (
+    <div className="space-y-2">
+      {/* コンセプト + 広告企画 横並び */}
+      <div className="grid grid-cols-2 gap-2">
+        {/* コンセプト */}
+        <div className="bg-white/80 rounded-xl border border-black/[0.06] p-2.5">
+          <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-wider">コンセプト</span>
+          <p className="text-[9px] font-bold text-[#1A1A2E] mt-1 mb-2 leading-snug">AIとSNSを組み合わせた新世代フリーランス</p>
+          <div className="flex flex-wrap gap-1">
+            <Bubble label="WHO" text="会社員で給料に不満を持つ20〜30代" color="bg-emerald-50" />
+            <Bubble label="WHAT" text="AI活用フリーランスで収入UP" color="bg-emerald-50" />
+            <Bubble label="WHY" text="AIスキル×SNS運用で短期成果" color="bg-emerald-50" />
+            <Bubble label="USP" text="実践AIツール+連続起業家監修" color="bg-emerald-50" />
           </div>
-          <div>
-            <span className="text-[6px] text-[#1A1A2E]/25 font-bold block">WHAT</span>
-            <p className="text-[7px] text-[#1A1A2E]/50 leading-tight">AI活用フリーランスとして収入アップ</p>
-          </div>
-          <div>
-            <span className="text-[6px] text-[#1A1A2E]/25 font-bold block">USP</span>
-            <p className="text-[7px] text-[#1A1A2E]/50 leading-tight">実践的なAIツール提供+連続起業家</p>
+        </div>
+        {/* 広告企画 */}
+        <div className="bg-white/80 rounded-xl border border-black/[0.06] p-2.5">
+          <span className="text-[8px] font-bold text-amber-600 uppercase tracking-wider">広告企画</span>
+          <p className="text-[9px] font-bold text-[#1A1A2E] mt-1 mb-2 leading-snug">フリーランス2.0体験談</p>
+          <div className="flex flex-wrap gap-1">
+            <Bubble label="興味の型" text="体験談 / ビフォーアフター" color="bg-amber-50" />
+            <Bubble label="構成の型" text="フック→共感→商品紹介→CTA" color="bg-amber-50" />
+            <Bubble label="FV" text="未経験ならAIフリーランス" color="bg-amber-50" />
+            <Bubble label="話者設定" text="ずんだもん（機械音声）" color="bg-amber-50" />
           </div>
         </div>
       </div>
-      {/* 広告企画 */}
-      <div className="bg-white/80 rounded-lg border border-black/[0.06] p-2.5 aspect-square flex flex-col">
-        <span className="text-[8px] font-bold text-amber-600 uppercase tracking-wider">広告企画</span>
-        <p className="text-[10px] font-bold text-[#1A1A2E] mt-1 leading-snug">フリーランス2.0体験談</p>
-        <div className="grid grid-cols-2 gap-1.5 mt-1.5 flex-1">
-          <div>
-            <span className="text-[6px] text-[#1A1A2E]/25 font-bold block">興味の型</span>
-            <p className="text-[7px] text-[#1A1A2E]/50 leading-tight">体験談 / ビフォーアフター</p>
-          </div>
-          <div>
-            <span className="text-[6px] text-[#1A1A2E]/25 font-bold block">構成の型</span>
-            <p className="text-[7px] text-[#1A1A2E]/50 leading-tight">フック→共感→コンセプト→商品紹介→ベネフィット→CTA</p>
-          </div>
-          <div className="col-span-2">
-            <span className="text-[6px] text-[#1A1A2E]/25 font-bold block">FV</span>
-            <p className="text-[7px] text-[#1A1A2E]/50 leading-tight">未経験なら AIフリーランス めちゃチャンスです</p>
-          </div>
+      {/* BGM + フォント（線でつなぐ表記） */}
+      <div className="flex items-center gap-2 px-1">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[7px] font-bold text-[#1A1A2E]/30">♪ BGM</span>
+          <div className="h-[1px] w-3 bg-[#1A1A2E]/10" />
+          <span className="text-[8px] font-semibold text-[#1A1A2E]/50">{globalBgm}</span>
+        </div>
+        <div className="h-3 w-[1px] bg-[#1A1A2E]/10" />
+        <div className="flex items-center gap-1.5">
+          <span className="text-[7px] font-bold text-[#1A1A2E]/30">Aa フォント</span>
+          <div className="h-[1px] w-3 bg-[#1A1A2E]/10" />
+          <span className="text-[8px] font-semibold text-[#1A1A2E]/50">{globalFont}</span>
         </div>
       </div>
     </div>
@@ -493,10 +504,10 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
   const [scenes, setScenes] = useState<EditingScene[]>(makeInitialScenes);
   const [activeIdx, setActiveIdx] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [phoneMode, setPhoneMode] = useState<"preview" | "edit">("preview");
   const [globalBgm] = useState("BGM-01: アップテンポ・ポジティブ");
+  const [globalFont] = useState("ゴシック体");
   const [globalFeedback, setGlobalFeedback] = useState("");
-  const [commentPanelOpen, setCommentPanelOpen] = useState(false);
-  const [commentSceneIdx, setCommentSceneIdx] = useState(0);
 
   const editScrollRef = useRef<HTMLDivElement | null>(null);
   const activeSceneIdRef = useRef<number | null>(null);
@@ -589,11 +600,6 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
             <p className="text-[10px] text-[#1A1A2E]/30 font-medium">編集</p>
             <h1 className="text-base font-bold text-[#1A1A2E] truncate">フリーランス2.0体験談</h1>
           </div>
-          <button
-            onClick={() => { setCommentPanelOpen(!commentPanelOpen); setCommentSceneIdx(activeIdx); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#1A1A2E]/10 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/[0.03] text-[11px] font-medium text-[#1A1A2E]/50 hover:text-[#9333EA] transition-all">
-            <MessageSquare className="w-3.5 h-3.5" /> コメント
-          </button>
           <Link href={`/projects/${projectId}/regulations`}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#1A1A2E]/10 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/[0.03] text-[11px] font-medium text-[#1A1A2E]/50 hover:text-[#9333EA] transition-all">
             <Check className="w-3.5 h-3.5" /> クライアントチェック
@@ -610,20 +616,36 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
         <div className="w-[420px] shrink-0 flex flex-col border-r border-black/[0.06] bg-[#F5F3F0]">
           {/* Concept + Plan cards above phone */}
           <div className="shrink-0 px-3 pt-3">
-            <ConceptPlanCards />
+            <ConceptPlanCards globalBgm={globalBgm} globalFont={globalFont} />
           </div>
-          {/* Phone centered */}
-          <div className="flex-1 flex items-center justify-center px-4 pb-4">
-          {activeScene && (
-            <PhonePreview
-              scene={activeScene}
-              idx={activeIdx}
-              total={scenes.length}
-              playing={playing}
-              onTogglePlay={() => setPlaying(!playing)}
-              onUpdate={(f, v) => updateScene(activeScene.id, f, v)}
-            />
-          )}
+          {/* Phone centered (with mode tabs above time) */}
+          <div className="flex-1 flex flex-col items-center justify-center px-4 pb-3">
+            {/* Preview/Edit tabs above time */}
+            <div className="flex items-center gap-1 mb-1">
+              <button onClick={() => setPhoneMode("preview")}
+                className={`text-[9px] font-semibold px-2.5 py-0.5 rounded-full transition-all ${phoneMode === "preview" ? "bg-[#9333EA] text-white" : "text-[#1A1A2E]/30 hover:text-[#1A1A2E]/50"}`}>
+                ▶ プレビュー
+              </button>
+              <button onClick={() => { setPhoneMode("edit"); setPlaying(false); }}
+                className={`text-[9px] font-semibold px-2.5 py-0.5 rounded-full transition-all ${phoneMode === "edit" ? "bg-[#9333EA] text-white" : "text-[#1A1A2E]/30 hover:text-[#1A1A2E]/50"}`}>
+                ✏️ 編集
+              </button>
+            </div>
+            {activeScene && (
+              <PhonePreview
+                scene={activeScene}
+                idx={activeIdx}
+                total={scenes.length}
+                playing={playing && phoneMode === "preview"}
+                onTogglePlay={() => { if (phoneMode === "preview") setPlaying(!playing); else { setPhoneMode("preview"); setPlaying(true); } }}
+                onUpdate={(f, v) => updateScene(activeScene.id, f, v)}
+              />
+            )}
+            {phoneMode === "edit" && (
+              <p className="text-[7px] text-[#1A1A2E]/20 mt-1 text-center">
+                スマホ内でドラッグ: 位置調整 / ホイール: サイズ変更<br />右の編集画面でもテキスト変更可能（双方向同期）
+              </p>
+            )}
           </div>
         </div>
 
@@ -684,31 +706,6 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
           </div>
         </div>
 
-        {/* Comment Side Panel */}
-        {commentPanelOpen && (
-          <div className="w-[280px] shrink-0 border-l border-black/[0.06] bg-white flex flex-col">
-            <div className="px-4 py-3 border-b border-black/[0.06] flex items-center justify-between">
-              <span className="text-[12px] font-bold text-[#1A1A2E]/70">
-                コメント — {String(commentSceneIdx + 1).padStart(2, "0")} {scenes[commentSceneIdx]?.section}
-              </span>
-              <button onClick={() => setCommentPanelOpen(false)} className="text-[#1A1A2E]/30 hover:text-[#1A1A2E]/60"><X className="w-4 h-4" /></button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {scenes.map((s, idx) => (
-                <div key={s.id} className={`rounded-lg border p-3 ${idx === activeIdx ? "border-[#9333EA]/20 bg-[#9333EA]/[0.02]" : "border-black/[0.06]"}`}>
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <span className="text-[10px] font-bold text-[#1A1A2E]/40">{String(idx + 1).padStart(2, "0")}</span>
-                    {s.section && (() => {
-                      const sc = SECTION_COLORS[s.section] || SECTION_COLORS[""];
-                      return <span className={`text-[8px] font-bold px-1 py-0.5 rounded ${sc.badgeBg} ${sc.text}`}>{s.section}</span>;
-                    })()}
-                  </div>
-                  <AutoTextarea value={s.comment} onChange={(v) => updateScene(s.id, "comment", v)} placeholder="コメント..." />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Voice Input */}
