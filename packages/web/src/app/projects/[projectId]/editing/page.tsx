@@ -159,20 +159,46 @@ function SmartSelect({ value, options, topCount = 3, onChange, placeholder }: {
   );
 }
 
-// ─── Concept + Plan inline cards (台本と同じ形式) ─────
+// ─── Concept + Plan square cards (台本と同じ内容) ─────
 function ConceptPlanCards() {
   return (
-    <div className="flex gap-2 overflow-x-auto pb-2">
-      <div className="shrink-0 bg-white/80 rounded-lg border border-black/[0.06] px-2.5 py-1.5">
-        <span className="text-[8px] font-bold text-emerald-600 uppercase">コンセプト</span>
-        <p className="text-[10px] font-bold text-[#1A1A2E] mt-0.5 leading-snug">AIとSNSを組み合わせた新世代フリーランス</p>
+    <div className="grid grid-cols-2 gap-2">
+      {/* コンセプト */}
+      <div className="bg-white/80 rounded-lg border border-black/[0.06] p-2.5 aspect-square flex flex-col">
+        <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-wider">コンセプト</span>
+        <p className="text-[10px] font-bold text-[#1A1A2E] mt-1 leading-snug flex-1">AIとSNSを組み合わせた新世代フリーランス</p>
+        <div className="grid grid-cols-3 gap-1 mt-auto pt-1 border-t border-black/[0.04]">
+          <div>
+            <span className="text-[6px] text-[#1A1A2E]/25 font-bold block">WHO</span>
+            <p className="text-[7px] text-[#1A1A2E]/50 leading-tight">会社員で給料・環境に不満を持つ20〜30代</p>
+          </div>
+          <div>
+            <span className="text-[6px] text-[#1A1A2E]/25 font-bold block">WHAT</span>
+            <p className="text-[7px] text-[#1A1A2E]/50 leading-tight">AI活用フリーランスとして収入アップ</p>
+          </div>
+          <div>
+            <span className="text-[6px] text-[#1A1A2E]/25 font-bold block">USP</span>
+            <p className="text-[7px] text-[#1A1A2E]/50 leading-tight">実践的なAIツール提供+連続起業家</p>
+          </div>
+        </div>
       </div>
-      <div className="shrink-0 bg-white/80 rounded-lg border border-black/[0.06] px-2.5 py-1.5">
-        <span className="text-[8px] font-bold text-amber-600 uppercase">広告企画</span>
-        <p className="text-[10px] font-bold text-[#1A1A2E] mt-0.5 leading-snug">フリーランス2.0体験談</p>
-        <div className="flex gap-2 mt-1">
-          <div><span className="text-[7px] text-[#1A1A2E]/30 font-bold">興味の型</span><p className="text-[8px] text-[#1A1A2E]/60">体験談 / ビフォーアフター</p></div>
-          <div><span className="text-[7px] text-[#1A1A2E]/30 font-bold">FV</span><p className="text-[8px] text-[#1A1A2E]/60">未経験なら AIフリーランス…</p></div>
+      {/* 広告企画 */}
+      <div className="bg-white/80 rounded-lg border border-black/[0.06] p-2.5 aspect-square flex flex-col">
+        <span className="text-[8px] font-bold text-amber-600 uppercase tracking-wider">広告企画</span>
+        <p className="text-[10px] font-bold text-[#1A1A2E] mt-1 leading-snug">フリーランス2.0体験談</p>
+        <div className="grid grid-cols-2 gap-1.5 mt-1.5 flex-1">
+          <div>
+            <span className="text-[6px] text-[#1A1A2E]/25 font-bold block">興味の型</span>
+            <p className="text-[7px] text-[#1A1A2E]/50 leading-tight">体験談 / ビフォーアフター</p>
+          </div>
+          <div>
+            <span className="text-[6px] text-[#1A1A2E]/25 font-bold block">構成の型</span>
+            <p className="text-[7px] text-[#1A1A2E]/50 leading-tight">フック→共感→コンセプト→商品紹介→ベネフィット→CTA</p>
+          </div>
+          <div className="col-span-2">
+            <span className="text-[6px] text-[#1A1A2E]/25 font-bold block">FV</span>
+            <p className="text-[7px] text-[#1A1A2E]/50 leading-tight">未経験なら AIフリーランス めちゃチャンスです</p>
+          </div>
         </div>
       </div>
     </div>
@@ -494,7 +520,7 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
   useEffect(() => {
     if (!editScrollRef.current) return;
     const lw = 100;
-    const cw = 180;
+    const cw = 220;
     const containerWidth = editScrollRef.current.clientWidth;
     const sceneCenter = lw + activeIdx * cw + cw / 2;
     const scrollTo = Math.max(0, sceneCenter - containerWidth / 2);
@@ -522,7 +548,7 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
 
   const activeScene = scenes[activeIdx];
   const labelWidth = 100;
-  const cardWidth = 180;
+  const cardWidth = 220;
   const totalWidth = labelWidth + scenes.length * cardWidth + 32;
 
   const fieldDefs = getFieldDefs(scenes, globalBgm, updateScene, addSubMaterial, removeSubMaterial, updateSubMaterial);
@@ -558,7 +584,7 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
       {/* ── Main: Preview (left) + Edit Grid (right) ── */}
       <div className="flex-1 flex min-h-0 relative">
         {/* Left: Concept/Plan cards + Phone Preview */}
-        <div className="w-[340px] shrink-0 flex flex-col border-r border-black/[0.06] bg-[#F5F3F0]">
+        <div className="w-[420px] shrink-0 flex flex-col border-r border-black/[0.06] bg-[#F5F3F0]">
           {/* Concept + Plan cards above phone */}
           <div className="shrink-0 px-3 pt-3">
             <ConceptPlanCards />
