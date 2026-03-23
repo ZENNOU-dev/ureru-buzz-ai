@@ -162,9 +162,9 @@ function SmartSelect({ value, options, topCount = 3, onChange, placeholder }: {
 // ─── Bubble item helper ──────────────────────────────
 function Bubble({ label, text, color = "bg-[#FAF8F5]" }: { label: string; text: string; color?: string }) {
   return (
-    <div className={`${color} rounded-full px-2.5 py-1 inline-flex flex-col items-center min-w-0`}>
-      <span className="text-[6px] font-bold text-[#1A1A2E]/30 uppercase">{label}</span>
-      <p className="text-[7px] text-[#1A1A2E]/60 leading-tight text-center">{text}</p>
+    <div className={`${color} w-[72px] h-[72px] rounded-full inline-flex flex-col items-center justify-center p-1.5 shrink-0`}>
+      <span className="text-[5px] font-bold text-[#1A1A2E]/30 uppercase">{label}</span>
+      <p className="text-[6px] text-[#1A1A2E]/60 leading-tight text-center mt-0.5">{text}</p>
     </div>
   );
 }
@@ -217,9 +217,9 @@ function ConceptPlanCards({ globalBgm, globalFont }: { globalBgm: string; global
 }
 
 // ─── Phone Preview (draggable telop + annotation) ────
-function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate }: {
+function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate, editMode = false }: {
   scene: EditingScene; idx: number; total: number; playing: boolean; onTogglePlay: () => void;
-  onUpdate: (field: string, value: any) => void;
+  onUpdate: (field: string, value: any) => void; editMode?: boolean;
 }) {
   const frameRef = useRef<HTMLDivElement>(null);
   const [dragTarget, setDragTarget] = useState<"telop" | "annotation" | null>(null);
@@ -336,12 +336,14 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate }: {
             </div>
           )}
 
-          {/* Play/Pause overlay */}
-          <button onClick={onTogglePlay} className="absolute inset-0 z-20 flex items-center justify-center group">
-            <div className={`w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-opacity ${playing ? "opacity-0 group-hover:opacity-100" : "opacity-100"}`}>
-              {playing ? <Pause className="w-4 h-4 text-white" /> : <Play className="w-4 h-4 text-white ml-0.5" />}
-            </div>
-          </button>
+          {/* Play/Pause overlay (hidden in edit mode) */}
+          {!editMode && (
+            <button onClick={onTogglePlay} className="absolute inset-0 z-20 flex items-center justify-center group">
+              <div className={`w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-opacity ${playing ? "opacity-0 group-hover:opacity-100" : "opacity-100"}`}>
+                {playing ? <Pause className="w-4 h-4 text-white" /> : <Play className="w-4 h-4 text-white ml-0.5" />}
+              </div>
+            </button>
+          )}
 
           {/* Progress */}
           <div className="absolute bottom-0 left-0 right-0 z-[18] h-1 bg-white/10">
@@ -351,21 +353,25 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate }: {
         <div className="w-[30px] h-[4px] bg-white/15 rounded-full mx-auto mb-[5px] shrink-0" />
       </div>
 
-      {/* Play controls */}
-      <div className="flex items-center gap-3">
-        <button onClick={onTogglePlay}
-          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${playing ? "bg-red-500 hover:bg-red-600" : "bg-[#9333EA] hover:bg-[#7E22CE]"}`}>
-          {playing ? <Pause className="w-3.5 h-3.5 text-white" /> : <Play className="w-3.5 h-3.5 text-white ml-0.5" />}
-        </button>
-        <span className="text-[10px] text-[#1A1A2E]/40 font-medium">
-          {String(idx + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-        </span>
-      </div>
-
-      {/* Drag hint */}
-      <div className="flex justify-center gap-2 text-[7px] text-[#1A1A2E]/20">
-        <span>ドラッグ: テロップ・注釈の位置調整</span>
-      </div>
+      {/* Play controls (hidden in edit mode) */}
+      {!editMode ? (
+        <div className="flex items-center gap-3">
+          <button onClick={onTogglePlay}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${playing ? "bg-red-500 hover:bg-red-600" : "bg-[#9333EA] hover:bg-[#7E22CE]"}`}>
+            {playing ? <Pause className="w-3.5 h-3.5 text-white" /> : <Play className="w-3.5 h-3.5 text-white ml-0.5" />}
+          </button>
+          <span className="text-[10px] text-[#1A1A2E]/40 font-medium">
+            {String(idx + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+          </span>
+        </div>
+      ) : (
+        <div className="text-center">
+          <span className="text-[9px] text-[#1A1A2E]/40 font-medium">
+            {String(idx + 1).padStart(2, "0")} / {String(total).padStart(2, "0")} — 編集中
+          </span>
+          <p className="text-[7px] text-[#1A1A2E]/20 mt-0.5">ドラッグ: 移動 / ホイール: サイズ変更</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -637,8 +643,9 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
                 idx={activeIdx}
                 total={scenes.length}
                 playing={playing && phoneMode === "preview"}
-                onTogglePlay={() => { if (phoneMode === "preview") setPlaying(!playing); else { setPhoneMode("preview"); setPlaying(true); } }}
+                onTogglePlay={() => { if (phoneMode === "preview") setPlaying(!playing); }}
                 onUpdate={(f, v) => updateScene(activeScene.id, f, v)}
+                editMode={phoneMode === "edit"}
               />
             )}
             {phoneMode === "edit" && (
