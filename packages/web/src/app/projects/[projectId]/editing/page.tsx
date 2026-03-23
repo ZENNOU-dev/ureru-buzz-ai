@@ -267,49 +267,63 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate, edit
             )}
           </div>
 
-          {/* Draggable Annotation (shows actual content, fully visible) */}
+          {/* Draggable Annotation (4 corners = resize, center = grab) */}
           {scene.annotation && (
             <div
-              className={`absolute z-[8] cursor-grab active:cursor-grabbing ${dragTarget === "annotation" ? "opacity-70" : ""}`}
+              className={`absolute z-[8] ${dragTarget === "annotation" ? "opacity-70" : ""}`}
               style={{ left: `${Math.max(5, Math.min(95, annoPos.x))}%`, top: `${Math.max(5, Math.min(95, annoPos.y))}%`, transform: "translate(-50%, -50%)", maxWidth: "90%", wordBreak: "break-word" }}
-              onPointerDown={handlePointerDown("annotation")}
-              onWheel={handleWheel("annotationSize", scene.annotationSize, 3, 12)}
             >
-              <div className="border border-white/50 bg-black/40 rounded-sm px-1.5 py-0.5 text-white/80 whitespace-pre-line leading-snug [cursor:nwse-resize]"
-                style={{ fontSize: `${scene.annotationSize}px` }}>
+              <div className="relative border border-white/50 bg-black/40 rounded-sm px-1.5 py-0.5 text-white/80 whitespace-pre-line leading-snug cursor-grab active:cursor-grabbing"
+                style={{ fontSize: `${scene.annotationSize}px` }}
+                onPointerDown={handlePointerDown("annotation")}>
                 {scene.annotation}
+                {/* 4 corner resize handles */}
+                {["-top-1 -left-1 cursor-nwse-resize", "-top-1 -right-1 cursor-nesw-resize", "-bottom-1 -left-1 cursor-nesw-resize", "-bottom-1 -right-1 cursor-nwse-resize"].map((pos, i) => (
+                  <div key={i} className={`absolute ${pos} w-2 h-2 bg-white/60 rounded-full hover:bg-white/90 transition-colors`}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onWheel={handleWheel("annotationSize", scene.annotationSize, 3, 12)} />
+                ))}
               </div>
             </div>
           )}
 
-          {/* Draggable Telop (wheel to resize) */}
+          {/* Draggable Telop (4 corners = resize, center = grab) */}
           {telopLines.length > 0 && (
             <div
-              className={`absolute z-10 cursor-grab active:cursor-grabbing ${dragTarget === "telop" ? "opacity-70" : ""}`}
+              className={`absolute z-10 ${dragTarget === "telop" ? "opacity-70" : ""}`}
               style={{ left: `${telopPos.x}%`, top: `${telopPos.y}%`, transform: "translate(-50%, -50%)", maxWidth: "92%" }}
-              onPointerDown={handlePointerDown("telop")}
-              onWheel={handleWheel("telopSize", scene.telopSize, 6, 20)}
             >
-              <div className="text-center [cursor:nwse-resize]">
+              <div className="relative text-center cursor-grab active:cursor-grabbing"
+                onPointerDown={handlePointerDown("telop")}>
                 {telopLines.map((line, i) => (
                   <div key={i} className="text-white font-bold leading-tight"
                     style={{ fontSize: `${scene.telopSize}px`, textShadow: "0 0 5px rgba(0,0,0,0.9), 0 1px 3px rgba(0,0,0,0.7)" }}>
                     {line}
                   </div>
                 ))}
+                {/* 4 corner resize handles */}
+                {["-top-1 -left-1 cursor-nwse-resize", "-top-1 -right-1 cursor-nesw-resize", "-bottom-1 -left-1 cursor-nesw-resize", "-bottom-1 -right-1 cursor-nwse-resize"].map((pos, i) => (
+                  <div key={i} className={`absolute ${pos} w-2 h-2 bg-white/40 rounded-full hover:bg-white/80 transition-colors`}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onWheel={handleWheel("telopSize", scene.telopSize, 6, 20)} />
+                ))}
               </div>
             </div>
           )}
 
-          {/* Sub material overlay (resizable via wheel) */}
+          {/* Sub material overlay (4 corners = resize, center = grab) */}
           {scene.subMaterials[0] && (
-            <div className="absolute bottom-12 right-2 z-[6] [cursor:nwse-resize]"
-              onWheel={handleWheel("subMaterialSize", scene.subMaterialSize, 20, 80)}>
-              <div className="bg-black/20 border border-white/20 rounded overflow-hidden"
+            <div className="absolute bottom-12 right-2 z-[6]">
+              <div className="relative bg-black/20 border border-white/20 rounded overflow-visible cursor-grab active:cursor-grabbing"
                 style={{ width: `${scene.subMaterialSize}%` }}>
-                <div className="aspect-[9/16] bg-gradient-to-b from-white/10 to-white/5 flex items-center justify-center">
+                <div className="aspect-[9/16] bg-gradient-to-b from-white/10 to-white/5 flex items-center justify-center overflow-hidden rounded">
                   <span className="text-[5px] text-white/50 text-center px-1">{scene.subMaterials[0]}</span>
                 </div>
+                {/* 4 corner resize handles */}
+                {["-top-1 -left-1 cursor-nwse-resize", "-top-1 -right-1 cursor-nesw-resize", "-bottom-1 -left-1 cursor-nesw-resize", "-bottom-1 -right-1 cursor-nwse-resize"].map((pos, i) => (
+                  <div key={i} className={`absolute ${pos} w-2 h-2 bg-white/40 rounded-full hover:bg-white/80 transition-colors z-10`}
+                    onWheel={handleWheel("subMaterialSize", scene.subMaterialSize, 20, 80)} />
+                ))}
               </div>
             </div>
           )}
