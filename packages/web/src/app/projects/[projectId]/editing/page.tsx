@@ -207,9 +207,10 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate, edit
   onUpdate: (field: string, value: any) => void; editMode?: boolean;
 }) {
   const frameRef = useRef<HTMLDivElement>(null);
-  const [dragTarget, setDragTarget] = useState<"telop" | "annotation" | null>(null);
+  const [dragTarget, setDragTarget] = useState<"telop" | "annotation" | "resize-telop" | "resize-annotation" | "resize-sub" | null>(null);
   const [telopPos, setTelopPos] = useState({ x: 50, y: 55 });
   const [annoPos, setAnnoPos] = useState({ x: 15, y: 12 });
+  const resizeStartRef = useRef<{ startY: number; startSize: number; field: string; min: number; max: number } | null>(null);
 
   const sc = SECTION_COLORS[scene.section] || SECTION_COLORS[""];
   const telopLines = scene.telop.split("\n").filter((l) => l.trim());
@@ -217,29 +218,46 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate, edit
   const currentSec = idx * 2;
   const totalSec = total * 2;
 
+  // Move: grab center area
   const handlePointerDown = useCallback((target: "telop" | "annotation") => (e: React.PointerEvent) => {
     e.preventDefault(); e.stopPropagation();
     setDragTarget(target);
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
   }, []);
 
+  // Resize: drag corner handles
+  const handleResizeDown = useCallback((field: string, currentSize: number, min: number, max: number, dragId: "resize-telop" | "resize-annotation" | "resize-sub") => (e: React.PointerEvent) => {
+    e.preventDefault(); e.stopPropagation();
+    resizeStartRef.current = { startY: e.clientY, startSize: currentSize, field, min, max };
+    setDragTarget(dragId);
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }, []);
+
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!dragTarget || !frameRef.current) return;
+
+    // Resize mode: drag up = bigger, drag down = smaller
+    if (dragTarget.startsWith("resize-") && resizeStartRef.current) {
+      const { startY, startSize, field, min, max } = resizeStartRef.current;
+      const deltaY = startY - e.clientY;
+      const sensitivity = field === "subMaterialSize" ? 0.5 : 0.15;
+      const newSize = Math.max(min, Math.min(max, startSize + deltaY * sensitivity));
+      onUpdate(field, Math.round(newSize * 10) / 10);
+      return;
+    }
+
+    // Move mode
     const rect = frameRef.current.getBoundingClientRect();
     const x = Math.max(5, Math.min(95, ((e.clientX - rect.left) / rect.width) * 100));
     const y = Math.max(5, Math.min(95, ((e.clientY - rect.top) / rect.height) * 100));
     if (dragTarget === "telop") setTelopPos({ x, y });
-    else setAnnoPos({ x, y });
-  }, [dragTarget]);
+    else if (dragTarget === "annotation") setAnnoPos({ x, y });
+  }, [dragTarget, onUpdate]);
 
-  const handlePointerUp = useCallback(() => setDragTarget(null), []);
-
-  // Wheel to resize telop/annotation/subMaterial
-  const handleWheel = useCallback((target: "telopSize" | "annotationSize" | "subMaterialSize", current: number, min: number, max: number) => (e: React.WheelEvent) => {
-    e.stopPropagation();
-    const delta = e.deltaY > 0 ? -0.5 : 0.5;
-    onUpdate(target, Math.max(min, Math.min(max, current + delta)));
-  }, [onUpdate]);
+  const handlePointerUp = useCallback(() => {
+    setDragTarget(null);
+    resizeStartRef.current = null;
+  }, []);
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -280,8 +298,7 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate, edit
                 {/* 4 corner resize handles */}
                 {["-top-1 -left-1 cursor-nwse-resize", "-top-1 -right-1 cursor-nesw-resize", "-bottom-1 -left-1 cursor-nesw-resize", "-bottom-1 -right-1 cursor-nwse-resize"].map((pos, i) => (
                   <div key={i} className={`absolute ${pos} w-2 h-2 bg-white/60 rounded-full hover:bg-white/90 transition-colors`}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onWheel={handleWheel("annotationSize", scene.annotationSize, 3, 12)} />
+                    onPointerDown={handleResizeDown("annotationSize", scene.annotationSize, 3, 12, "resize-annotation")} />
                 ))}
               </div>
             </div>
@@ -304,8 +321,7 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate, edit
                 {/* 4 corner resize handles */}
                 {["-top-1 -left-1 cursor-nwse-resize", "-top-1 -right-1 cursor-nesw-resize", "-bottom-1 -left-1 cursor-nesw-resize", "-bottom-1 -right-1 cursor-nwse-resize"].map((pos, i) => (
                   <div key={i} className={`absolute ${pos} w-2 h-2 bg-white/40 rounded-full hover:bg-white/80 transition-colors`}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onWheel={handleWheel("telopSize", scene.telopSize, 6, 20)} />
+                    onPointerDown={handleResizeDown("telopSize", scene.telopSize, 6, 20, "resize-telop")} />
                 ))}
               </div>
             </div>
@@ -322,7 +338,7 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate, edit
                 {/* 4 corner resize handles */}
                 {["-top-1 -left-1 cursor-nwse-resize", "-top-1 -right-1 cursor-nesw-resize", "-bottom-1 -left-1 cursor-nesw-resize", "-bottom-1 -right-1 cursor-nwse-resize"].map((pos, i) => (
                   <div key={i} className={`absolute ${pos} w-2 h-2 bg-white/40 rounded-full hover:bg-white/80 transition-colors z-10`}
-                    onWheel={handleWheel("subMaterialSize", scene.subMaterialSize, 20, 80)} />
+                    onPointerDown={handleResizeDown("subMaterialSize", scene.subMaterialSize, 20, 80, "resize-sub")} />
                 ))}
               </div>
             </div>
