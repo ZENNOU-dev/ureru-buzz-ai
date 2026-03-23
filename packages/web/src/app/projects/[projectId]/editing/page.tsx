@@ -267,16 +267,16 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate, edit
             )}
           </div>
 
-          {/* Draggable Annotation (shows actual content, clipped to screen) */}
+          {/* Draggable Annotation (shows actual content, fully visible) */}
           {scene.annotation && (
             <div
               className={`absolute z-[8] cursor-grab active:cursor-grabbing ${dragTarget === "annotation" ? "opacity-70" : ""}`}
-              style={{ left: `${Math.max(10, Math.min(90, annoPos.x))}%`, top: `${Math.max(10, Math.min(90, annoPos.y))}%`, transform: "translate(-50%, -50%)", maxWidth: "85%", maxHeight: "40%" }}
+              style={{ left: `${Math.max(5, Math.min(95, annoPos.x))}%`, top: `${Math.max(5, Math.min(95, annoPos.y))}%`, transform: "translate(-50%, -50%)", maxWidth: "90%", wordBreak: "break-word" }}
               onPointerDown={handlePointerDown("annotation")}
-              onWheel={handleWheel("annotationSize", scene.annotationSize, 4, 12)}
+              onWheel={handleWheel("annotationSize", scene.annotationSize, 3, 12)}
             >
-              <div className="border border-white/50 bg-black/40 rounded-sm px-1.5 py-0.5 text-white/80 whitespace-pre-line leading-snug overflow-hidden"
-                style={{ fontSize: `${scene.annotationSize}px`, maxHeight: "100%" }}>
+              <div className="border border-white/50 bg-black/40 rounded-sm px-1.5 py-0.5 text-white/80 whitespace-pre-line leading-snug [cursor:nwse-resize]"
+                style={{ fontSize: `${scene.annotationSize}px` }}>
                 {scene.annotation}
               </div>
             </div>
@@ -290,7 +290,7 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate, edit
               onPointerDown={handlePointerDown("telop")}
               onWheel={handleWheel("telopSize", scene.telopSize, 6, 20)}
             >
-              <div className="text-center">
+              <div className="text-center [cursor:nwse-resize]">
                 {telopLines.map((line, i) => (
                   <div key={i} className="text-white font-bold leading-tight"
                     style={{ fontSize: `${scene.telopSize}px`, textShadow: "0 0 5px rgba(0,0,0,0.9), 0 1px 3px rgba(0,0,0,0.7)" }}>
@@ -303,7 +303,7 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate, edit
 
           {/* Sub material overlay (resizable via wheel) */}
           {scene.subMaterials[0] && (
-            <div className="absolute bottom-12 right-2 z-[6]"
+            <div className="absolute bottom-12 right-2 z-[6] [cursor:nwse-resize]"
               onWheel={handleWheel("subMaterialSize", scene.subMaterialSize, 20, 80)}>
               <div className="bg-black/20 border border-white/20 rounded overflow-hidden"
                 style={{ width: `${scene.subMaterialSize}%` }}>
