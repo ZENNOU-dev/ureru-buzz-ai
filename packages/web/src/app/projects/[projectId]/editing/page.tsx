@@ -180,23 +180,23 @@ function Bubble({ label, text, color = "bg-[#FAF8F5]" }: { label: string; text: 
 // ─── Concept + Plan cards (正方形バブル型) ─────────────
 function ConceptPlanCards() {
   return (
-    <div className="grid grid-cols-2 gap-2">
-      {/* コンセプト - 正方形 */}
-      <div className="bg-white/90 rounded-xl border border-black/[0.06] p-3 aspect-square flex flex-col">
+    <div className="grid grid-cols-2 gap-2" style={{ gridTemplateRows: "1fr" }}>
+      {/* コンセプト */}
+      <div className="bg-white/90 rounded-xl border border-black/[0.06] p-3 flex flex-col" style={{ aspectRatio: "1/1" }}>
         <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-wider">コンセプト</span>
-        <p className="text-[10px] font-bold text-[#1A1A2E] mt-1 mb-2 leading-snug">AIとSNSを組み合わせた新世代フリーランス</p>
-        <div className="grid grid-cols-2 gap-2 flex-1 place-items-center">
+        <p className="text-[9px] font-bold text-[#1A1A2E] mt-0.5 mb-1 leading-snug line-clamp-2">AIとSNSを組み合わせた新世代フリーランス</p>
+        <div className="grid grid-cols-2 gap-1.5 flex-1 place-items-center">
           <Bubble label="WHO" text="会社員で給料に不満を持つ20〜30代" color="bg-emerald-50" />
           <Bubble label="WHAT" text="AI活用フリーランスで収入UP" color="bg-emerald-50" />
           <Bubble label="WHY" text="AIスキル×SNS運用で短期成果" color="bg-emerald-50" />
           <Bubble label="USP" text="実践AIツール+連続起業家監修" color="bg-emerald-50" />
         </div>
       </div>
-      {/* 広告企画 - 正方形 */}
-      <div className="bg-white/90 rounded-xl border border-black/[0.06] p-3 aspect-square flex flex-col">
+      {/* 広告企画 */}
+      <div className="bg-white/90 rounded-xl border border-black/[0.06] p-3 flex flex-col" style={{ aspectRatio: "1/1" }}>
         <span className="text-[8px] font-bold text-amber-600 uppercase tracking-wider">広告企画</span>
-        <p className="text-[10px] font-bold text-[#1A1A2E] mt-1 mb-2 leading-snug">フリーランス2.0体験談</p>
-        <div className="grid grid-cols-2 gap-2 flex-1 place-items-center">
+        <p className="text-[9px] font-bold text-[#1A1A2E] mt-0.5 mb-1 leading-snug line-clamp-2">フリーランス2.0体験談</p>
+        <div className="grid grid-cols-2 gap-1.5 flex-1 place-items-center">
           <Bubble label="興味の型" text="体験談 / ビフォーアフター" color="bg-amber-50" />
           <Bubble label="構成の型" text="フック→共感→商品紹介→CTA" color="bg-amber-50" />
           <Bubble label="FV" text="未経験ならAIフリーランス" color="bg-amber-50" />
