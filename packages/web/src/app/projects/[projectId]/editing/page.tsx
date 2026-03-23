@@ -176,10 +176,10 @@ function ConceptPlanCards({ globalBgm, globalFont }: { globalBgm: string; global
       {/* コンセプト + 広告企画 横並び */}
       <div className="grid grid-cols-2 gap-2.5">
         {/* コンセプト */}
-        <div className="bg-white/90 rounded-xl border border-black/[0.06] p-3">
+        <div className="bg-white/90 rounded-xl border border-black/[0.06] p-3 aspect-square flex flex-col">
           <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-wider">コンセプト</span>
-          <p className="text-[11px] font-bold text-[#1A1A2E] mt-1 mb-2.5 leading-snug">AIとSNSを組み合わせた新世代フリーランス</p>
-          <div className="flex flex-wrap gap-1.5 justify-center">
+          <p className="text-[11px] font-bold text-[#1A1A2E] mt-1 mb-2 leading-snug">AIとSNSを組み合わせた新世代フリーランス</p>
+          <div className="flex flex-wrap gap-1.5 justify-center flex-1 items-center">
             <Bubble label="WHO" text="会社員で給料に不満を持つ20〜30代" color="bg-emerald-50" />
             <Bubble label="WHAT" text="AI活用フリーランスで収入UP" color="bg-emerald-50" />
             <Bubble label="WHY" text="AIスキル×SNS運用で短期成果" color="bg-emerald-50" />
@@ -187,10 +187,10 @@ function ConceptPlanCards({ globalBgm, globalFont }: { globalBgm: string; global
           </div>
         </div>
         {/* 広告企画 */}
-        <div className="bg-white/90 rounded-xl border border-black/[0.06] p-3">
+        <div className="bg-white/90 rounded-xl border border-black/[0.06] p-3 aspect-square flex flex-col">
           <span className="text-[9px] font-bold text-amber-600 uppercase tracking-wider">広告企画</span>
-          <p className="text-[11px] font-bold text-[#1A1A2E] mt-1 mb-2.5 leading-snug">フリーランス2.0体験談</p>
-          <div className="flex flex-wrap gap-1.5 justify-center">
+          <p className="text-[11px] font-bold text-[#1A1A2E] mt-1 mb-2 leading-snug">フリーランス2.0体験談</p>
+          <div className="flex flex-wrap gap-1.5 justify-center flex-1 items-center">
             <Bubble label="興味の型" text="体験談 / ビフォーアフター" color="bg-amber-50" />
             <Bubble label="構成の型" text="フック→共感→商品紹介→CTA" color="bg-amber-50" />
             <Bubble label="FV" text="未経験ならAIフリーランス" color="bg-amber-50" />
@@ -448,14 +448,12 @@ function getFieldDefs(
       );
     }},
     { key: "mainMat", label: "メイン\n素材名", render: (s: EditingScene) => (
-      <div>
+      <div className="flex flex-col items-center gap-1">
+        <div className="w-[50px] aspect-[9/16] rounded-[4px] border border-black/[0.08] bg-gradient-to-b from-[#1a1a2e]/10 to-[#1a1a2e]/20 flex items-center justify-center overflow-hidden">
+          <span className="text-[5px] text-[#1A1A2E]/30 text-center px-0.5">{s.mainMaterial || "メイン素材"}</span>
+        </div>
         <input value={s.mainMaterial} onChange={(e) => updateScene(s.id, "mainMaterial", e.target.value)}
-          placeholder="メイン素材" className="w-full text-[10px] text-[#1A1A2E]/70 bg-transparent border border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 rounded-lg px-2 py-1 outline-none placeholder:text-[#1A1A2E]/20" />
-        {s.mainMaterial && (
-          <div className="mt-1 w-[50px] aspect-[9/16] rounded-[4px] border border-black/[0.08] bg-gradient-to-b from-[#1a1a2e]/10 to-[#1a1a2e]/20 flex items-center justify-center overflow-hidden">
-            <span className="text-[5px] text-[#1A1A2E]/30 text-center px-0.5">{s.mainMaterial}</span>
-          </div>
-        )}
+          placeholder="素材名を入力" className="w-full text-[10px] text-[#1A1A2E]/70 bg-transparent border border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 rounded-lg px-2 py-1 outline-none placeholder:text-[#1A1A2E]/20 text-center" />
       </div>
     )},
     { key: "subMat", label: "サブ\n素材名", render: (s: EditingScene) => (
@@ -697,7 +695,7 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
                       const isActive = idx === activeIdx;
                       return (
                         <div key={s.id}
-                          className={`shrink-0 p-2 border-r border-black/[0.02] last:border-r-0 transition-colors ${isActive ? "bg-[#9333EA]/[0.02]" : ""}`}
+                          className={`shrink-0 p-2 border-r border-black/[0.02] last:border-r-0 transition-colors text-center ${isActive ? "bg-[#9333EA]/[0.02]" : ""}`}
                           style={{ width: cardWidth }}>
                           {field.render(s, idx)}
                         </div>
