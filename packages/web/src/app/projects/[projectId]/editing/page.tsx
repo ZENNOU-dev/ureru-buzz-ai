@@ -170,54 +170,37 @@ function SmartSelect({ value, options, topCount = 3, onChange, placeholder }: {
 // ─── Bubble item helper ──────────────────────────────
 function Bubble({ label, text, color = "bg-[#FAF8F5]" }: { label: string; text: string; color?: string }) {
   return (
-    <div className={`${color} w-[60px] h-[60px] rounded-full inline-flex flex-col items-center justify-center p-1 shrink-0 shadow-sm`}>
-      <span className="text-[5px] font-bold text-[#1A1A2E]/50 uppercase">{label}</span>
-      <p className="text-[5px] text-[#1A1A2E] font-medium leading-tight text-center mt-0.5 line-clamp-3">{text}</p>
+    <div className={`${color} w-full aspect-square rounded-full inline-flex flex-col items-center justify-center p-1.5 shrink-0 shadow-sm max-w-[72px]`}>
+      <span className="text-[6px] font-bold text-[#1A1A2E]/50 uppercase">{label}</span>
+      <p className="text-[6px] text-[#1A1A2E] font-medium leading-tight text-center mt-0.5 line-clamp-3">{text}</p>
     </div>
   );
 }
 
-// ─── Concept + Plan cards (バブル型) ─────────────────
-function ConceptPlanCards({ globalBgm, globalFont }: { globalBgm: string; globalFont: string }) {
+// ─── Concept + Plan cards (正方形バブル型) ─────────────
+function ConceptPlanCards() {
   return (
-    <div className="space-y-2">
-      {/* コンセプト + 広告企画 横並び */}
-      <div className="grid grid-cols-2 gap-2.5">
-        {/* コンセプト */}
-        <div className="bg-white/90 rounded-xl border border-black/[0.06] p-2 flex flex-col">
-          <span className="text-[7px] font-bold text-emerald-600 uppercase tracking-wider">コンセプト</span>
-          <p className="text-[9px] font-bold text-[#1A1A2E] mt-0.5 mb-1 leading-snug">AIとSNSを組み合わせた新世代フリーランス</p>
-          <div className="flex flex-wrap gap-1 justify-center flex-1 items-center">
-            <Bubble label="WHO" text="会社員で給料に不満を持つ20〜30代" color="bg-emerald-50" />
-            <Bubble label="WHAT" text="AI活用フリーランスで収入UP" color="bg-emerald-50" />
-            <Bubble label="WHY" text="AIスキル×SNS運用で短期成果" color="bg-emerald-50" />
-            <Bubble label="USP" text="実践AIツール+連続起業家監修" color="bg-emerald-50" />
-          </div>
-        </div>
-        {/* 広告企画 */}
-        <div className="bg-white/90 rounded-xl border border-black/[0.06] p-2 flex flex-col">
-          <span className="text-[7px] font-bold text-amber-600 uppercase tracking-wider">広告企画</span>
-          <p className="text-[9px] font-bold text-[#1A1A2E] mt-0.5 mb-1 leading-snug">フリーランス2.0体験談</p>
-          <div className="flex flex-wrap gap-1 justify-center flex-1 items-center">
-            <Bubble label="興味の型" text="体験談 / ビフォーアフター" color="bg-amber-50" />
-            <Bubble label="構成の型" text="フック→共感→商品紹介→CTA" color="bg-amber-50" />
-            <Bubble label="FV" text="未経験ならAIフリーランス" color="bg-amber-50" />
-            <Bubble label="話者設定" text="ずんだもん（機械音声）" color="bg-amber-50" />
-          </div>
+    <div className="grid grid-cols-2 gap-2">
+      {/* コンセプト - 正方形 */}
+      <div className="bg-white/90 rounded-xl border border-black/[0.06] p-3 aspect-square flex flex-col">
+        <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-wider">コンセプト</span>
+        <p className="text-[10px] font-bold text-[#1A1A2E] mt-1 mb-2 leading-snug">AIとSNSを組み合わせた新世代フリーランス</p>
+        <div className="grid grid-cols-2 gap-2 flex-1 place-items-center">
+          <Bubble label="WHO" text="会社員で給料に不満を持つ20〜30代" color="bg-emerald-50" />
+          <Bubble label="WHAT" text="AI活用フリーランスで収入UP" color="bg-emerald-50" />
+          <Bubble label="WHY" text="AIスキル×SNS運用で短期成果" color="bg-emerald-50" />
+          <Bubble label="USP" text="実践AIツール+連続起業家監修" color="bg-emerald-50" />
         </div>
       </div>
-      {/* BGM + フォント（線でつなぐ表記） */}
-      <div className="flex items-center gap-3 px-1">
-        <div className="flex items-center gap-1.5">
-          <span className="text-[8px] font-bold text-[#1A1A2E]/40">♪ BGM</span>
-          <div className="h-[1px] w-4 bg-[#1A1A2E]/15" />
-          <span className="text-[9px] font-semibold text-[#1A1A2E]/70">{globalBgm}</span>
-        </div>
-        <div className="h-3 w-[1px] bg-[#1A1A2E]/10" />
-        <div className="flex items-center gap-1.5">
-          <span className="text-[8px] font-bold text-[#1A1A2E]/40">Aa フォント</span>
-          <div className="h-[1px] w-4 bg-[#1A1A2E]/15" />
-          <span className="text-[9px] font-semibold text-[#1A1A2E]/70">{globalFont}</span>
+      {/* 広告企画 - 正方形 */}
+      <div className="bg-white/90 rounded-xl border border-black/[0.06] p-3 aspect-square flex flex-col">
+        <span className="text-[8px] font-bold text-amber-600 uppercase tracking-wider">広告企画</span>
+        <p className="text-[10px] font-bold text-[#1A1A2E] mt-1 mb-2 leading-snug">フリーランス2.0体験談</p>
+        <div className="grid grid-cols-2 gap-2 flex-1 place-items-center">
+          <Bubble label="興味の型" text="体験談 / ビフォーアフター" color="bg-amber-50" />
+          <Bubble label="構成の型" text="フック→共感→商品紹介→CTA" color="bg-amber-50" />
+          <Bubble label="FV" text="未経験ならAIフリーランス" color="bg-amber-50" />
+          <Bubble label="話者設定" text="ずんだもん（機械音声）" color="bg-amber-50" />
         </div>
       </div>
     </div>
@@ -373,11 +356,27 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate, edit
           </span>
         </div>
       ) : (
-        <div className="text-center">
+        <div className="flex flex-col items-center gap-1">
           <span className="text-[9px] text-[#1A1A2E]/40 font-medium">
             {String(idx + 1).padStart(2, "0")} / {String(total).padStart(2, "0")} — 編集中
           </span>
-          <p className="text-[7px] text-[#1A1A2E]/20 mt-0.5">ドラッグ: 移動 / ホイール: サイズ変更</p>
+          {/* Size controls */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 text-[8px] text-[#1A1A2E]/40">
+              <span>テロップ</span>
+              <button onClick={() => onUpdate("telopSize", Math.max(6, scene.telopSize - 1))} className="w-5 h-5 rounded bg-black/[0.04] hover:bg-black/[0.08] flex items-center justify-center text-[10px] font-bold">−</button>
+              <span className="text-[9px] font-mono w-4 text-center">{scene.telopSize}</span>
+              <button onClick={() => onUpdate("telopSize", Math.min(20, scene.telopSize + 1))} className="w-5 h-5 rounded bg-black/[0.04] hover:bg-black/[0.08] flex items-center justify-center text-[10px] font-bold">+</button>
+            </div>
+            <div className="w-[1px] h-3 bg-black/[0.06]" />
+            <div className="flex items-center gap-1 text-[8px] text-[#1A1A2E]/40">
+              <span>注釈</span>
+              <button onClick={() => onUpdate("annotationSize", Math.max(4, scene.annotationSize - 1))} className="w-5 h-5 rounded bg-black/[0.04] hover:bg-black/[0.08] flex items-center justify-center text-[10px] font-bold">−</button>
+              <span className="text-[9px] font-mono w-4 text-center">{scene.annotationSize}</span>
+              <button onClick={() => onUpdate("annotationSize", Math.min(12, scene.annotationSize + 1))} className="w-5 h-5 rounded bg-black/[0.04] hover:bg-black/[0.08] flex items-center justify-center text-[10px] font-bold">+</button>
+            </div>
+          </div>
+          <p className="text-[7px] text-[#1A1A2E]/15">ドラッグで位置調整</p>
         </div>
       )}
     </div>
@@ -640,10 +639,10 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
       {/* ── Main: Preview (left) + Edit Grid (right) ── */}
       <div className="flex-1 flex min-h-0 relative">
         {/* Left: Concept/Plan cards + Phone Preview */}
-        <div className="w-[340px] shrink-0 flex flex-col border-r border-black/[0.06] bg-[#F5F3F0]">
+        <div className="w-[38%] min-w-[300px] max-w-[420px] shrink-0 flex flex-col border-r border-black/[0.06] bg-[#F5F3F0]">
           {/* Concept + Plan cards above phone */}
           <div className="shrink-0 px-3 pt-3">
-            <ConceptPlanCards globalBgm={globalBgm} globalFont={globalFont} />
+            <ConceptPlanCards />
           </div>
           {/* Phone centered (with mode tabs above time) */}
           <div className="flex-1 flex flex-col items-center justify-center px-4 pb-3">
@@ -681,6 +680,21 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
         <div className="flex-1 flex flex-col min-w-0 min-h-0">
           <div ref={editScrollRef} className="flex-1 overflow-auto">
             <div style={{ minWidth: totalWidth }}>
+
+              {/* BGM + フォント（編集概要と同じ連結型） */}
+              <div className="flex items-center gap-4 px-3 py-1.5 bg-white/80 border-b border-black/[0.04]">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[9px] font-bold text-[#1A1A2E]/40">♪ BGM</span>
+                  <div className="h-[1px] w-6 bg-[#1A1A2E]/15" />
+                  <span className="text-[10px] font-semibold text-[#1A1A2E]/70">{globalBgm}</span>
+                </div>
+                <div className="h-3 w-[1px] bg-[#1A1A2E]/10" />
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[9px] font-bold text-[#1A1A2E]/40">Aa フォント</span>
+                  <div className="h-[1px] w-6 bg-[#1A1A2E]/15" />
+                  <span className="text-[10px] font-semibold text-[#1A1A2E]/70">{globalFont}</span>
+                </div>
+              </div>
 
               {/* Sticky top: scene headers with highlight */}
               <div className="flex sticky top-0 z-20 bg-[#FAF8F5] pt-2 pb-1 border-b border-black/[0.04]">
