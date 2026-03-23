@@ -7,7 +7,7 @@ interface ComingSoonProps {
 
 export function ComingSoon({ title, description }: ComingSoonProps) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+    <div className="flex flex-col items-center justify-center flex-1 gap-4">
       <div className="w-16 h-16 rounded-2xl bg-zinc-100 flex items-center justify-center">
         <Construction className="w-8 h-8 text-zinc-400" />
       </div>
