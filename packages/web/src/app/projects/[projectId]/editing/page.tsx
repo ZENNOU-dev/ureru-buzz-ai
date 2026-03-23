@@ -21,7 +21,11 @@ type EditingScene = {
   bgmChange: boolean;
   bgmValue: string;
   mainMaterial: string;
+  mainMaterialStart: string; // "00:03"
+  mainMaterialEnd: string;   // "00:07"
   subMaterials: string[];
+  subMaterialStarts: string[];
+  subMaterialEnds: string[];
   subMaterialSize: number;
   motionEffect: string;
   motionTarget: string; // "テロップ" | "メイン素材" | "サブ素材" | ""
@@ -100,7 +104,11 @@ function makeInitialScenes(): EditingScene[] {
     bgmChange: false,
     bgmValue: "",
     mainMaterial: "",
+    mainMaterialStart: "00:00",
+    mainMaterialEnd: "00:02",
     subMaterials: [""],
+    subMaterialStarts: ["00:00"],
+    subMaterialEnds: ["00:02"],
     subMaterialSize: 50,
     motionEffect: "",
     motionTarget: "",
@@ -282,16 +290,16 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate, edit
             )}
           </div>
 
-          {/* Draggable Annotation (shows actual content) */}
+          {/* Draggable Annotation (shows actual content, clipped to screen) */}
           {scene.annotation && (
             <div
               className={`absolute z-[8] cursor-grab active:cursor-grabbing ${dragTarget === "annotation" ? "opacity-70" : ""}`}
-              style={{ left: `${annoPos.x}%`, top: `${annoPos.y}%`, transform: "translate(-50%, -50%)" }}
+              style={{ left: `${Math.max(10, Math.min(90, annoPos.x))}%`, top: `${Math.max(10, Math.min(90, annoPos.y))}%`, transform: "translate(-50%, -50%)", maxWidth: "85%", maxHeight: "40%" }}
               onPointerDown={handlePointerDown("annotation")}
               onWheel={handleWheel("annotationSize", scene.annotationSize, 4, 12)}
             >
-              <div className="border border-white/50 bg-black/40 rounded-sm px-1.5 py-0.5 text-white/80 max-w-[160px] whitespace-pre-line leading-snug"
-                style={{ fontSize: `${scene.annotationSize}px` }}>
+              <div className="border border-white/50 bg-black/40 rounded-sm px-1.5 py-0.5 text-white/80 whitespace-pre-line leading-snug overflow-hidden"
+                style={{ fontSize: `${scene.annotationSize}px`, maxHeight: "100%" }}>
                 {scene.annotation}
               </div>
             </div>
@@ -454,24 +462,39 @@ function getFieldDefs(
         </div>
         <input value={s.mainMaterial} onChange={(e) => updateScene(s.id, "mainMaterial", e.target.value)}
           placeholder="素材名を入力" className="w-full text-[10px] text-[#1A1A2E]/70 bg-transparent border border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 rounded-lg px-2 py-1 outline-none placeholder:text-[#1A1A2E]/20 text-center" />
+        <div className="flex items-center gap-0.5 text-[8px] text-[#1A1A2E]/40">
+          <input value={s.mainMaterialStart} onChange={(e) => updateScene(s.id, "mainMaterialStart", e.target.value)}
+            className="w-[38px] text-center bg-transparent border border-black/[0.06] rounded px-0.5 py-0.5 outline-none focus:border-[#9333EA]/40 text-[8px]" />
+          <span>〜</span>
+          <input value={s.mainMaterialEnd} onChange={(e) => updateScene(s.id, "mainMaterialEnd", e.target.value)}
+            className="w-[38px] text-center bg-transparent border border-black/[0.06] rounded px-0.5 py-0.5 outline-none focus:border-[#9333EA]/40 text-[8px]" />
+        </div>
       </div>
     )},
     { key: "subMat", label: "サブ\n素材名", render: (s: EditingScene) => (
       <div>
         {s.subMaterials.map((sub, i) => (
-          <div key={i} className="group/sub">
-            <div className="flex items-center gap-0.5">
+          <div key={i} className="group/sub flex flex-col items-center gap-0.5 mb-1">
+            <div className="flex items-center gap-0.5 w-full">
               <input value={sub} onChange={(e) => updateSub(s.id, i, e.target.value)}
-                placeholder="サブ素材" className="w-full text-[10px] text-[#1A1A2E]/60 bg-transparent border border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 rounded-lg px-2 py-0.5 outline-none placeholder:text-[#1A1A2E]/15" />
+                placeholder="サブ素材" className="w-full text-[10px] text-[#1A1A2E]/60 bg-transparent border border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 rounded-lg px-2 py-0.5 outline-none placeholder:text-[#1A1A2E]/15 text-center" />
               {s.subMaterials.length > 1 && (
                 <button onClick={() => removeSub(s.id, i)} className="text-red-400 opacity-0 group-hover/sub:opacity-100 shrink-0"><X className="w-2.5 h-2.5" /></button>
               )}
             </div>
-            {sub && (
-              <div className="mt-0.5 w-[40px] aspect-[9/16] rounded-[3px] border border-black/[0.06] bg-gradient-to-b from-white/50 to-[#1a1a2e]/10 flex items-center justify-center overflow-hidden ml-2">
-                <span className="text-[4px] text-[#1A1A2E]/25 text-center px-0.5">{sub}</span>
-              </div>
-            )}
+            <div className="flex items-center gap-0.5 text-[7px] text-[#1A1A2E]/30">
+              <input value={s.subMaterialStarts?.[i] || "00:00"} onChange={(e) => {
+                const starts = [...(s.subMaterialStarts || s.subMaterials.map(() => "00:00"))]; starts[i] = e.target.value;
+                updateScene(s.id, "subMaterialStarts", starts);
+              }}
+                className="w-[34px] text-center bg-transparent border border-black/[0.06] rounded px-0.5 py-0.5 outline-none focus:border-[#9333EA]/40 text-[7px]" />
+              <span>〜</span>
+              <input value={s.subMaterialEnds?.[i] || "00:02"} onChange={(e) => {
+                const ends = [...(s.subMaterialEnds || s.subMaterials.map(() => "00:02"))]; ends[i] = e.target.value;
+                updateScene(s.id, "subMaterialEnds", ends);
+              }}
+                className="w-[34px] text-center bg-transparent border border-black/[0.06] rounded px-0.5 py-0.5 outline-none focus:border-[#9333EA]/40 text-[7px]" />
+            </div>
           </div>
         ))}
         <button onClick={() => addSub(s.id)}
