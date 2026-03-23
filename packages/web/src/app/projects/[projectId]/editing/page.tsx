@@ -181,48 +181,100 @@ function TopCards() {
   );
 }
 
-// ─── Phone Preview ───────────────────────────────────
-function PhonePreview({ scene, idx, total, playing, onTogglePlay }: {
+// ─── Phone Preview (draggable telop + annotation) ────
+function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate }: {
   scene: EditingScene; idx: number; total: number; playing: boolean; onTogglePlay: () => void;
+  onUpdate: (field: string, value: any) => void;
 }) {
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [dragTarget, setDragTarget] = useState<"telop" | "annotation" | null>(null);
+  const [telopPos, setTelopPos] = useState({ x: 50, y: 55 });
+  const [annoPos, setAnnoPos] = useState({ x: 15, y: 12 });
+
   const sc = SECTION_COLORS[scene.section] || SECTION_COLORS[""];
   const telopLines = scene.telop.split("\n").filter((l) => l.trim());
   const gradientIdx = idx % GRADIENT_COLORS.length;
+  const currentSec = idx * 2;
+  const totalSec = total * 2;
+
+  const handlePointerDown = useCallback((target: "telop" | "annotation") => (e: React.PointerEvent) => {
+    e.preventDefault(); e.stopPropagation();
+    setDragTarget(target);
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }, []);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!dragTarget || !frameRef.current) return;
+    const rect = frameRef.current.getBoundingClientRect();
+    const x = Math.max(5, Math.min(95, ((e.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(5, Math.min(95, ((e.clientY - rect.top) / rect.height) * 100));
+    if (dragTarget === "telop") setTelopPos({ x, y });
+    else setAnnoPos({ x, y });
+  }, [dragTarget]);
+
+  const handlePointerUp = useCallback(() => setDragTarget(null), []);
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className="w-[220px] aspect-[9/16] rounded-[24px] border-[3px] border-[#1A1A2E]/15 bg-[#0a0a0a] relative overflow-hidden flex flex-col shadow-xl">
+      {/* Time display */}
+      <div className="flex items-center gap-2 text-[10px] font-mono text-[#1A1A2E]/40">
+        <span>{String(Math.floor(currentSec / 60)).padStart(2, "0")}:{String(currentSec % 60).padStart(2, "0")}</span>
+        <span>/</span>
+        <span>{String(Math.floor(totalSec / 60)).padStart(2, "0")}:{String(totalSec % 60).padStart(2, "0")}</span>
+      </div>
+
+      {/* Phone frame */}
+      <div ref={frameRef}
+        className="w-[220px] aspect-[9/16] rounded-[24px] border-[3px] border-[#1A1A2E]/15 bg-[#0a0a0a] relative overflow-hidden flex flex-col shadow-xl select-none"
+        onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}>
         <div className="w-[40px] h-[5px] bg-white/15 rounded-full mx-auto mt-[6px] shrink-0 z-10" />
         <div className="flex-1 mx-[3px] mb-[5px] mt-[3px] rounded-[10px] relative overflow-hidden">
           <div className={`absolute inset-0 bg-gradient-to-br ${GRADIENT_COLORS[gradientIdx]}`} />
           <div className="absolute inset-0 bg-[#1a1a2e]/30" />
 
           {/* Scene badge */}
-          <div className="absolute top-2.5 left-0 right-0 z-[15] flex items-center justify-center gap-1">
+          <div className="absolute top-2.5 left-0 right-0 z-[15] flex items-center justify-center gap-1 pointer-events-none">
             <span className="text-[8px] font-bold text-white/50">{String(idx + 1).padStart(2, "0")}</span>
             {scene.section && (
               <span className={`text-[7px] font-bold px-1 py-0.5 rounded ${sc.badgeBg} ${sc.text}`}>{scene.section}</span>
             )}
           </div>
 
-          {/* Annotation */}
+          {/* Draggable Annotation */}
           {scene.annotation && (
-            <div className={`absolute z-[8] ${scene.annotationPlacement === "右下" ? "bottom-10 right-2" : "top-8 left-2"}`}>
-              <div className="border border-white/40 bg-black/30 rounded px-1.5 py-0.5 text-white/70 text-[6px] leading-snug max-w-[140px] whitespace-pre-line">
-                {scene.annotation}
+            <div
+              className={`absolute z-[8] cursor-grab active:cursor-grabbing ${dragTarget === "annotation" ? "opacity-70" : ""}`}
+              style={{ left: `${annoPos.x}%`, top: `${annoPos.y}%`, transform: "translate(-50%, -50%)" }}
+              onPointerDown={handlePointerDown("annotation")}
+            >
+              <div className="border border-white/50 bg-black/30 rounded-sm px-1.5 py-0.5 text-white/70 text-[6px] whitespace-nowrap">
+                注釈
               </div>
             </div>
           )}
 
-          {/* Telop */}
+          {/* Draggable Telop */}
           {telopLines.length > 0 && (
-            <div className="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 z-10 text-center max-w-[90%]">
-              {telopLines.map((line, i) => (
-                <div key={i} className="text-white font-bold leading-tight text-[13px]"
-                  style={{ textShadow: "0 0 5px rgba(0,0,0,0.9), 0 1px 3px rgba(0,0,0,0.7)" }}>
-                  {line}
-                </div>
-              ))}
+            <div
+              className={`absolute z-10 cursor-grab active:cursor-grabbing ${dragTarget === "telop" ? "opacity-70" : ""}`}
+              style={{ left: `${telopPos.x}%`, top: `${telopPos.y}%`, transform: "translate(-50%, -50%)", maxWidth: "92%" }}
+              onPointerDown={handlePointerDown("telop")}
+            >
+              <div className="text-center">
+                {telopLines.map((line, i) => (
+                  <div key={i} className="text-white font-bold leading-tight text-[12px]"
+                    style={{ textShadow: "0 0 5px rgba(0,0,0,0.9), 0 1px 3px rgba(0,0,0,0.7)" }}>
+                    {line}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Material info */}
+          {scene.mainMaterial && (
+            <div className="absolute bottom-8 left-2 right-2 z-[5]">
+              <div className="text-[6px] text-white/50 bg-black/30 rounded px-1.5 py-0.5 text-center truncate">{scene.mainMaterial}</div>
             </div>
           )}
 
@@ -250,6 +302,11 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay }: {
         <span className="text-[10px] text-[#1A1A2E]/40 font-medium">
           {String(idx + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
         </span>
+      </div>
+
+      {/* Drag hint */}
+      <div className="flex justify-center gap-2 text-[7px] text-[#1A1A2E]/20">
+        <span>ドラッグ: テロップ・注釈の位置調整</span>
       </div>
     </div>
   );
@@ -381,12 +438,14 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
     return () => clearInterval(timer);
   }, [playing, scenes.length]);
 
-  // Auto-scroll edit area to active scene column
+  // Auto-scroll edit area to keep active scene visible (centered)
   useEffect(() => {
     if (!editScrollRef.current) return;
-    const labelWidth = 100;
-    const cardWidth = 180;
-    const scrollTo = labelWidth + activeIdx * cardWidth - 20;
+    const lw = 100;
+    const cw = 180;
+    const containerWidth = editScrollRef.current.clientWidth;
+    const sceneCenter = lw + activeIdx * cw + cw / 2;
+    const scrollTo = Math.max(0, sceneCenter - containerWidth / 2);
     editScrollRef.current.scrollTo({ left: scrollTo, behavior: "smooth" });
   }, [activeIdx]);
 
@@ -458,6 +517,7 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
               total={scenes.length}
               playing={playing}
               onTogglePlay={() => setPlaying(!playing)}
+              onUpdate={(f, v) => updateScene(activeScene.id, f, v)}
             />
           )}
         </div>
@@ -513,13 +573,8 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
                 ))}
               </div>
 
-              {/* Global feedback row */}
-              <div className="p-3">
-                <div className="bg-white rounded-xl border border-black/[0.06] p-3">
-                  <span className="text-[11px] font-bold text-[#1A1A2E]/60 block mb-1">全体フィードバック</span>
-                  <AutoTextarea value={globalFeedback} onChange={setGlobalFeedback} placeholder="動画全体へのフィードバック・メモ..." />
-                </div>
-              </div>
+              {/* Bottom padding */}
+              <div className="h-4" />
             </div>
           </div>
         </div>
