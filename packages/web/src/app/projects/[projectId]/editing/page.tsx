@@ -675,19 +675,37 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
           <div ref={editScrollRef} className="flex-1 overflow-auto">
             <div style={{ minWidth: totalWidth }}>
 
-              {/* BGM + フォント（編集概要と同じ連結型） */}
-              <div className="flex items-center gap-4 px-3 py-1.5 bg-white/80 border-b border-black/[0.04]">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[9px] font-bold text-[#1A1A2E]/40">♪ BGM</span>
-                  <div className="h-[1px] w-6 bg-[#1A1A2E]/15" />
-                  <span className="text-[10px] font-semibold text-[#1A1A2E]/70">{globalBgm}</span>
-                </div>
-                <div className="h-3 w-[1px] bg-[#1A1A2E]/10" />
-                <div className="flex items-center gap-1.5">
+              {/* フォント連結表示（BGMと同じスタイル：フォント名 + 線でつなぐ） */}
+              <div className="flex items-center border-b border-black/[0.04] bg-white/80">
+                <div className="sticky left-0 z-30 bg-white/80 shrink-0 px-3 py-1 flex items-center"
+                  style={{ width: labelWidth, minWidth: labelWidth }}>
                   <span className="text-[9px] font-bold text-[#1A1A2E]/40">Aa フォント</span>
-                  <div className="h-[1px] w-6 bg-[#1A1A2E]/15" />
-                  <span className="text-[10px] font-semibold text-[#1A1A2E]/70">{globalFont}</span>
                 </div>
+                {(() => {
+                  // Build font segments: group consecutive scenes with same effective font
+                  const segments: { font: string; startIdx: number; count: number }[] = [];
+                  let currentFont = globalFont;
+                  scenes.forEach((s, i) => {
+                    const effFont = s.fontOverride || currentFont;
+                    if (segments.length === 0 || segments[segments.length - 1].font !== effFont) {
+                      segments.push({ font: effFont, startIdx: i, count: 1 });
+                    } else {
+                      segments[segments.length - 1].count++;
+                    }
+                    if (s.fontOverride) currentFont = s.fontOverride;
+                  });
+                  return segments.map((seg, si) => (
+                    <div key={si} className="shrink-0 flex items-center" style={{ width: seg.count * cardWidth }}>
+                      <div className="flex items-center gap-1 w-full px-1">
+                        <span className="text-[9px] font-semibold text-[#1A1A2E]/60 whitespace-nowrap">{seg.font}</span>
+                        <div className="flex-1 h-[1px] bg-[#1A1A2E]/10" />
+                        {si < segments.length - 1 && (
+                          <div className="w-[3px] h-[3px] rounded-full bg-[#9333EA]/40 shrink-0" />
+                        )}
+                      </div>
+                    </div>
+                  ));
+                })()}
               </div>
 
               {/* Sticky top: scene headers with highlight */}
