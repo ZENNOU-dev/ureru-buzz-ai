@@ -162,9 +162,9 @@ function SmartSelect({ value, options, topCount = 3, onChange, placeholder }: {
 // ─── Bubble item helper ──────────────────────────────
 function Bubble({ label, text, color = "bg-[#FAF8F5]" }: { label: string; text: string; color?: string }) {
   return (
-    <div className={`${color} w-[72px] h-[72px] rounded-full inline-flex flex-col items-center justify-center p-1.5 shrink-0`}>
-      <span className="text-[5px] font-bold text-[#1A1A2E]/30 uppercase">{label}</span>
-      <p className="text-[6px] text-[#1A1A2E]/60 leading-tight text-center mt-0.5">{text}</p>
+    <div className={`${color} w-[90px] h-[90px] rounded-full inline-flex flex-col items-center justify-center p-2 shrink-0 shadow-sm`}>
+      <span className="text-[7px] font-bold text-[#1A1A2E]/50 uppercase">{label}</span>
+      <p className="text-[7px] text-[#1A1A2E] font-medium leading-tight text-center mt-0.5">{text}</p>
     </div>
   );
 }
@@ -174,12 +174,12 @@ function ConceptPlanCards({ globalBgm, globalFont }: { globalBgm: string; global
   return (
     <div className="space-y-2">
       {/* コンセプト + 広告企画 横並び */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2.5">
         {/* コンセプト */}
-        <div className="bg-white/80 rounded-xl border border-black/[0.06] p-2.5">
-          <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-wider">コンセプト</span>
-          <p className="text-[9px] font-bold text-[#1A1A2E] mt-1 mb-2 leading-snug">AIとSNSを組み合わせた新世代フリーランス</p>
-          <div className="flex flex-wrap gap-1">
+        <div className="bg-white/90 rounded-xl border border-black/[0.06] p-3">
+          <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-wider">コンセプト</span>
+          <p className="text-[11px] font-bold text-[#1A1A2E] mt-1 mb-2.5 leading-snug">AIとSNSを組み合わせた新世代フリーランス</p>
+          <div className="flex flex-wrap gap-1.5 justify-center">
             <Bubble label="WHO" text="会社員で給料に不満を持つ20〜30代" color="bg-emerald-50" />
             <Bubble label="WHAT" text="AI活用フリーランスで収入UP" color="bg-emerald-50" />
             <Bubble label="WHY" text="AIスキル×SNS運用で短期成果" color="bg-emerald-50" />
@@ -187,10 +187,10 @@ function ConceptPlanCards({ globalBgm, globalFont }: { globalBgm: string; global
           </div>
         </div>
         {/* 広告企画 */}
-        <div className="bg-white/80 rounded-xl border border-black/[0.06] p-2.5">
-          <span className="text-[8px] font-bold text-amber-600 uppercase tracking-wider">広告企画</span>
-          <p className="text-[9px] font-bold text-[#1A1A2E] mt-1 mb-2 leading-snug">フリーランス2.0体験談</p>
-          <div className="flex flex-wrap gap-1">
+        <div className="bg-white/90 rounded-xl border border-black/[0.06] p-3">
+          <span className="text-[9px] font-bold text-amber-600 uppercase tracking-wider">広告企画</span>
+          <p className="text-[11px] font-bold text-[#1A1A2E] mt-1 mb-2.5 leading-snug">フリーランス2.0体験談</p>
+          <div className="flex flex-wrap gap-1.5 justify-center">
             <Bubble label="興味の型" text="体験談 / ビフォーアフター" color="bg-amber-50" />
             <Bubble label="構成の型" text="フック→共感→商品紹介→CTA" color="bg-amber-50" />
             <Bubble label="FV" text="未経験ならAIフリーランス" color="bg-amber-50" />
@@ -199,17 +199,17 @@ function ConceptPlanCards({ globalBgm, globalFont }: { globalBgm: string; global
         </div>
       </div>
       {/* BGM + フォント（線でつなぐ表記） */}
-      <div className="flex items-center gap-2 px-1">
+      <div className="flex items-center gap-3 px-1">
         <div className="flex items-center gap-1.5">
-          <span className="text-[7px] font-bold text-[#1A1A2E]/30">♪ BGM</span>
-          <div className="h-[1px] w-3 bg-[#1A1A2E]/10" />
-          <span className="text-[8px] font-semibold text-[#1A1A2E]/50">{globalBgm}</span>
+          <span className="text-[8px] font-bold text-[#1A1A2E]/40">♪ BGM</span>
+          <div className="h-[1px] w-4 bg-[#1A1A2E]/15" />
+          <span className="text-[9px] font-semibold text-[#1A1A2E]/70">{globalBgm}</span>
         </div>
         <div className="h-3 w-[1px] bg-[#1A1A2E]/10" />
         <div className="flex items-center gap-1.5">
-          <span className="text-[7px] font-bold text-[#1A1A2E]/30">Aa フォント</span>
-          <div className="h-[1px] w-3 bg-[#1A1A2E]/10" />
-          <span className="text-[8px] font-semibold text-[#1A1A2E]/50">{globalFont}</span>
+          <span className="text-[8px] font-bold text-[#1A1A2E]/40">Aa フォント</span>
+          <div className="h-[1px] w-4 bg-[#1A1A2E]/15" />
+          <span className="text-[9px] font-semibold text-[#1A1A2E]/70">{globalFont}</span>
         </div>
       </div>
     </div>
@@ -619,7 +619,7 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
       {/* ── Main: Preview (left) + Edit Grid (right) ── */}
       <div className="flex-1 flex min-h-0 relative">
         {/* Left: Concept/Plan cards + Phone Preview */}
-        <div className="w-[420px] shrink-0 flex flex-col border-r border-black/[0.06] bg-[#F5F3F0]">
+        <div className="w-[480px] shrink-0 flex flex-col border-r border-black/[0.06] bg-[#F5F3F0]">
           {/* Concept + Plan cards above phone */}
           <div className="shrink-0 px-3 pt-3">
             <ConceptPlanCards globalBgm={globalBgm} globalFont={globalFont} />
