@@ -536,7 +536,7 @@ export default function ScriptDetailPage({
             <div className={`grid ${TABLE_COLS} bg-[#FAF8F5] border-b border-black/[0.06] text-[10px] font-bold text-[#1A1A2E]/40 tracking-wider sticky top-0 z-10 items-center`}>
               <div className="px-1 py-2.5 text-center">#</div>
               <div className="px-1 py-2.5">パート</div>
-              <div className="px-2 py-2.5 text-center">テキスト</div>
+              <div className="px-2 py-2.5 text-center">ナレーション</div>
               <div className="px-0 py-2.5 text-center">文字数</div>
               <div className="px-3 py-2.5">注釈</div>
               <div className="px-2 py-2.5">レギュレーション警告</div>
@@ -643,14 +643,14 @@ export default function ScriptDetailPage({
                           )}
                         </div>
 
-                      {/* テキスト */}
+                      {/* ナレーション */}
                       <div className="px-1 py-0.5 min-h-[32px]">
                         <AutoTextarea
                           value={row.text}
                           onChange={(v) => updateRow(row.id, "text", v)}
                           onKeyDown={(e) => handleKeyDown(e, idx)}
                           onFocus={() => { activeRowIdRef.current = row.id; }}
-                          placeholder="テキスト..."
+                          placeholder="ナレーション..."
                           className="text-xs leading-relaxed w-full text-center"
                           inputRef={(el) => { textRefs.current[row.id] = el; }}
                         />

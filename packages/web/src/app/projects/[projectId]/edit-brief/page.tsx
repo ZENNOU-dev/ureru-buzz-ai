@@ -385,7 +385,7 @@ export default function EditBriefPage({ params }: { params: Promise<{ projectId:
 
   // Field definitions
   const fieldDefinitions: { key: string; label: string; render: (row: EditBriefRow, idx: number) => React.ReactNode }[] = [
-    { key: "text", label: "テキスト", render: (row) => (
+    { key: "text", label: "ナレーション", render: (row) => (
       <AutoTextarea value={row.scriptText} readOnly className="text-[10px]" />
     )},
     { key: "annotation", label: "注釈", render: (row) => (

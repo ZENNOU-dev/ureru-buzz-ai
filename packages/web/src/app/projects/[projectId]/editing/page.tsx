@@ -273,7 +273,7 @@ function getFieldDefs(
   };
 
   return [
-    { key: "text", label: "テキスト", render: (s: EditingScene) => <AutoTextarea value={s.text} readOnly className="text-[10px]" /> },
+    { key: "text", label: "ナレーション", render: (s: EditingScene) => <AutoTextarea value={s.text} readOnly className="text-[10px]" /> },
     { key: "telop", label: "テロップ", render: (s: EditingScene) => <AutoTextarea value={s.telop} onChange={(v) => updateScene(s.id, "telop", v)} placeholder="テロップ" className="text-[10px]" /> },
     { key: "annotation", label: "注釈", render: (s: EditingScene) => (
       <div>
