@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Mic, MicOff, MessageSquare, Pencil } from "lucide-react";
+import { Mic, MicOff, MessageSquare, Pencil, Check, X, Edit3 } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────
 type VoiceMode = "text" | "feedback";
@@ -27,6 +27,9 @@ export function VoiceInputButton({ onTranscript, onFeedback }: VoiceInputButtonP
   const [interimText, setInterimText] = useState("");
   const [showBubble, setShowBubble] = useState(true);
   const [supported, setSupported] = useState(true);
+  const [proposal, setProposal] = useState<{ text: string; mode: VoiceMode } | null>(null);
+  const [editingProposal, setEditingProposal] = useState(false);
+  const [proposalEdit, setProposalEdit] = useState("");
   const recognitionRef = useRef<any>(null);
   const finalTextRef = useRef("");
 
@@ -83,11 +86,9 @@ export function VoiceInputButton({ onTranscript, onFeedback }: VoiceInputButtonP
       setIsRecording(false);
       const text = finalTextRef.current.trim();
       if (text) {
-        if (mode === "feedback" && onFeedback) {
-          onFeedback(text);
-        } else {
-          onTranscript(text);
-        }
+        // Show proposal instead of directly applying
+        setProposal({ text, mode });
+        setProposalEdit(text);
       }
       setInterimText("");
     };
@@ -116,6 +117,24 @@ export function VoiceInputButton({ onTranscript, onFeedback }: VoiceInputButtonP
     setMode((m) => (m === "text" ? "feedback" : "text"));
   }, [isRecording]);
 
+  // Proposal handlers
+  const applyProposal = useCallback(() => {
+    if (!proposal) return;
+    const text = editingProposal ? proposalEdit : proposal.text;
+    if (proposal.mode === "feedback" && onFeedback) {
+      onFeedback(text);
+    } else {
+      onTranscript(text);
+    }
+    setProposal(null);
+    setEditingProposal(false);
+  }, [proposal, proposalEdit, editingProposal, onTranscript, onFeedback]);
+
+  const cancelProposal = useCallback(() => {
+    setProposal(null);
+    setEditingProposal(false);
+  }, []);
+
   if (!supported) return null;
 
   return (
@@ -133,6 +152,47 @@ export function VoiceInputButton({ onTranscript, onFeedback }: VoiceInputButtonP
             <p className="text-sm text-[#1A1A2E]/70 leading-relaxed min-h-[24px]">
               {interimText || "話してください..."}
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* AI Proposal confirmation popup */}
+      {proposal && !isRecording && (
+        <div className="bg-white rounded-2xl shadow-2xl border border-[#9333EA]/20 px-4 py-3 max-w-[320px] w-[320px]">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-5 h-5 rounded-full bg-[#9333EA]/10 flex items-center justify-center">
+              <span className="text-[10px]">🤖</span>
+            </div>
+            <span className="text-[11px] font-bold text-[#1A1A2E]/70">
+              {proposal.mode === "text" ? "テキストに反映しますか？" : "フィードバックに反映しますか？"}
+            </span>
+          </div>
+          {editingProposal ? (
+            <textarea
+              autoFocus
+              value={proposalEdit}
+              onChange={(e) => setProposalEdit(e.target.value)}
+              className="w-full text-[12px] text-[#1A1A2E]/80 bg-[#FAF8F5] border border-[#9333EA]/20 rounded-lg px-3 py-2 outline-none resize-none leading-relaxed"
+              rows={3}
+            />
+          ) : (
+            <div className="bg-[#FAF8F5] rounded-lg px-3 py-2 text-[12px] text-[#1A1A2E]/70 leading-relaxed whitespace-pre-line">
+              {proposal.text}
+            </div>
+          )}
+          <div className="flex items-center gap-2 mt-2">
+            <button onClick={applyProposal}
+              className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-[#9333EA] text-white text-[11px] font-semibold hover:bg-[#7E22CE] transition-colors">
+              <Check className="w-3 h-3" /> 適用
+            </button>
+            <button onClick={() => { setEditingProposal(!editingProposal); if (!editingProposal) setProposalEdit(proposal.text); }}
+              className="flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-[#1A1A2E]/10 text-[11px] font-medium text-[#1A1A2E]/50 hover:text-[#9333EA] hover:border-[#9333EA]/30 transition-all">
+              <Edit3 className="w-3 h-3" /> 修正
+            </button>
+            <button onClick={cancelProposal}
+              className="flex items-center justify-center px-2 py-1.5 rounded-lg border border-[#1A1A2E]/10 text-[#1A1A2E]/30 hover:text-red-500 hover:border-red-300 transition-all">
+              <X className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       )}

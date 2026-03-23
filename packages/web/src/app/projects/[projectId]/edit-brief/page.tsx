@@ -28,6 +28,7 @@ type EditBriefRow = {
   subMaterials: string[];
   materialImageUrl: string;
   motionEffect: string;
+  motionTarget: string;
   soundEffect: string;
 };
 
@@ -114,6 +115,7 @@ function makeInitialRows(): EditBriefRow[] {
     subMaterials: [""],
     materialImageUrl: "",
     motionEffect: "",
+    motionTarget: "",
     soundEffect: "",
   }));
 }
@@ -448,15 +450,27 @@ export default function EditBriefPage({ params }: { params: Promise<{ projectId:
       );
     }},
     { key: "mainMat", label: "メイン\n素材名", render: (row) => (
-      <input value={row.mainMaterial} onChange={(e) => updateRow(row.id, "mainMaterial", e.target.value)}
-        placeholder="メイン素材" className="w-full text-[10px] text-[#1A1A2E]/70 bg-transparent border border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 rounded-lg px-2 py-1 outline-none placeholder:text-[#1A1A2E]/20" />
+      <div className="flex items-start gap-1.5">
+        <input value={row.mainMaterial} onChange={(e) => updateRow(row.id, "mainMaterial", e.target.value)}
+          placeholder="メイン素材" className="flex-1 min-w-0 text-[10px] text-[#1A1A2E]/70 bg-transparent border border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 rounded-lg px-2 py-1 outline-none placeholder:text-[#1A1A2E]/20" />
+        {row.mainMaterial && (
+          <div className="w-[50px] aspect-[9/16] rounded-[4px] border border-[#1A1A2E]/10 bg-gradient-to-b from-[#1a1a2e]/10 to-[#1a1a2e]/20 flex items-center justify-center overflow-hidden shrink-0">
+            <span className="text-[5px] text-[#1A1A2E]/50 text-center leading-tight px-0.5 break-all">{row.mainMaterial}</span>
+          </div>
+        )}
+      </div>
     )},
     { key: "subMat", label: "サブ\n素材名", render: (row) => (
       <div>
         {row.subMaterials.map((sub, i) => (
-          <div key={i} className="flex items-center gap-0.5 group/sub">
+          <div key={i} className="flex items-start gap-0.5 group/sub">
             <input value={sub} onChange={(e) => updateSubMaterial(row.id, i, e.target.value)}
-              placeholder="サブ素材" className="w-full text-[10px] text-[#1A1A2E]/60 bg-transparent border border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 rounded-lg px-2 py-0.5 outline-none placeholder:text-[#1A1A2E]/15" />
+              placeholder="サブ素材" className="flex-1 min-w-0 text-[10px] text-[#1A1A2E]/60 bg-transparent border border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 rounded-lg px-2 py-0.5 outline-none placeholder:text-[#1A1A2E]/15" />
+            {sub && (
+              <div className="w-[40px] aspect-[9/16] rounded-[3px] border border-[#1A1A2E]/10 bg-gradient-to-b from-[#1a1a2e]/10 to-[#1a1a2e]/20 flex items-center justify-center overflow-hidden shrink-0">
+                <span className="text-[4px] text-[#1A1A2E]/50 text-center leading-tight px-0.5 break-all">{sub}</span>
+              </div>
+            )}
             {row.subMaterials.length > 1 && (
               <button onClick={() => removeSubMaterial(row.id, i)} className="text-red-400 opacity-0 group-hover/sub:opacity-100 shrink-0"><X className="w-2.5 h-2.5" /></button>
             )}
@@ -469,7 +483,19 @@ export default function EditBriefPage({ params }: { params: Promise<{ projectId:
       </div>
     )},
     { key: "me", label: "モーション\nエフェクト", render: (row) => (
-      <SmartSelect value={row.motionEffect} options={ME_OPTIONS} topCount={3} onChange={(v) => updateRow(row.id, "motionEffect", v)} placeholder="選択" />
+      <div>
+        <SmartSelect value={row.motionEffect} options={ME_OPTIONS} topCount={3} onChange={(v) => updateRow(row.id, "motionEffect", v)} placeholder="選択" />
+        {row.motionEffect && (
+          <div className="flex gap-0.5 mt-1">
+            {(["テロップ", "メイン素材", "サブ素材"] as const).map((t) => (
+              <button key={t} onClick={() => updateRow(row.id, "motionTarget", row.motionTarget === t ? "" : t)}
+                className={`text-[7px] px-1 py-0.5 rounded ${row.motionTarget === t ? "bg-[#9333EA]/10 text-[#9333EA] font-bold" : "text-[#1A1A2E]/25 hover:text-[#1A1A2E]/50"}`}>
+                {t}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     )},
     { key: "se", label: "サウンド\nエフェクト", render: (row) => (
       <SmartSelect value={row.soundEffect} options={SE_OPTIONS} topCount={3} onChange={(v) => updateRow(row.id, "soundEffect", v)} placeholder="選択" />

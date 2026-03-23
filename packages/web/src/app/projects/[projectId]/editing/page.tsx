@@ -397,13 +397,36 @@ function getFieldDefs(
     { key: "font", label: "フォント\n※変更時", render: (s: EditingScene) => <SmartSelect value={s.fontOverride} options={FONT_OPTIONS} topCount={3} onChange={(v) => updateScene(s.id, "fontOverride", v)} placeholder="変更なし" /> },
     { key: "bgm", label: "BGM", render: (s: EditingScene, idx: number) => {
       const eff = getEffBgm(idx);
+      // Is this the start of a BGM segment? (first scene, or this scene has bgmChange)
+      const isSegmentStart = idx === 0 || s.bgmChange;
+      // Count how many consecutive scenes share this BGM
+      let segLen = 0;
+      if (isSegmentStart) {
+        for (let j = idx; j < scenes.length; j++) {
+          if (j > idx && scenes[j].bgmChange) break;
+          segLen++;
+        }
+      }
       return (
         <div>
-          <div className="text-[8px] text-[#1A1A2E]/25 mb-0.5 truncate px-1">♪ {eff}</div>
+          {isSegmentStart ? (
+            <div className="bg-yellow-50/50 border border-yellow-200/50 rounded-lg px-2 py-1">
+              <div className="text-[8px] font-bold text-yellow-700 truncate">♪ {eff}</div>
+              <div className="text-[7px] text-yellow-600/50 mt-0.5">{segLen}シーン連続</div>
+            </div>
+          ) : (
+            <div className="flex items-center h-full">
+              <div className="w-full h-[2px] bg-yellow-200/60 rounded" />
+            </div>
+          )}
           <button onClick={() => updateScene(s.id, "bgmChange", !s.bgmChange)}
-            className={`text-[9px] px-2 py-1 rounded-lg border transition-all w-full text-left ${s.bgmChange ? "bg-yellow-50 border-yellow-200 text-yellow-700 font-semibold" : "border-[#1A1A2E]/[0.06] text-[#1A1A2E]/30 hover:border-[#1A1A2E]/15"}`}>
-            {s.bgmChange ? "♪ ここから変更中" : "ここからBGM変更"}
+            className={`text-[8px] px-2 py-0.5 rounded border transition-all w-full text-left mt-1 ${s.bgmChange ? "bg-yellow-50 border-yellow-300 text-yellow-700 font-semibold" : "border-transparent text-[#1A1A2E]/20 hover:border-[#1A1A2E]/10 hover:text-[#1A1A2E]/40"}`}>
+            {s.bgmChange ? "♪ ここからBGM変更中" : "BGM変更"}
           </button>
+          {s.bgmChange && (
+            <input value={s.bgmValue} onChange={(e) => updateScene(s.id, "bgmValue", e.target.value)}
+              placeholder="新BGM名" className="w-full text-[8px] text-yellow-800 bg-yellow-50/50 border border-yellow-200 rounded px-1.5 py-0.5 outline-none placeholder:text-yellow-400 mt-0.5" />
+          )}
         </div>
       );
     }},
