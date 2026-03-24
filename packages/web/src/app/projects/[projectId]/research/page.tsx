@@ -5,7 +5,7 @@ import {
   Search, Package, TrendingUp, Users, Globe, Star, Shield, Truck,
   Heart, DollarSign, ExternalLink, Image, Plus, X, ChevronRight,
   ChevronLeft, ChevronDown, ChevronUp, Zap, Palette, BookOpen, Award, Tag, Building,
-  ArrowRight, Calendar, MessageSquare, Play, Check, Eye,
+  ArrowRight, Calendar, MessageSquare, Play, Check, Eye, CheckCircle2,
 } from "lucide-react";
 import { VoiceInputButton } from "@/components/voice-input-button";
 
@@ -20,7 +20,7 @@ type HeroInfo = {
   logoText: string;
   category: string;
   price: string;
-  catchcopy: string;
+  summaryPoints: string[];
   topReview: string;
   usageScene: string;
 };
@@ -132,9 +132,13 @@ function makeHeroInfo(): HeroInfo {
     logoText: "LOGO",
     category: "AIフリーランススクール",
     price: "498,000円",
-    catchcopy: "AI×SNSで稼ぐ新世代フリーランス養成スクール",
+    summaryPoints: [
+      "SNS運用に特化したオリジナルAIツール付き",
+      "連続起業家による直接メンタリング",
+      "3ヶ月で月収超えの実績多数",
+    ],
     topReview: "未経験から3ヶ月で月収を超えました。AIツールのおかげで投稿作成が圧倒的に楽です。",
-    usageScene: "自宅PCでAIツールを使いSNS投稿を半自動作成 → フォロワー増加 → 案件獲得",
+    usageScene: "",
   };
 }
 
@@ -380,8 +384,8 @@ export default function ResearchPage({
 
   // Hero state
   const [heroInfo, setHeroInfo] = useState<HeroInfo>(makeHeroInfo);
-  const [gallery, setGallery] = useState<GalleryItem[]>(makeGalleryItems);
-  const galleryScrollRef = useRef<HTMLDivElement>(null);
+  const [gallery] = useState<GalleryItem[]>(makeGalleryItems);
+  const [galleryIdx, setGalleryIdx] = useState<Record<string, number>>({ "LP": 0, "バナー": 0, "動画": 0 });
 
   // Overview state
   const [functionBubbles, setFunctionBubbles] = useState<FunctionBubble[]>(makeFunctionBubbles);
@@ -489,138 +493,145 @@ export default function ResearchPage({
 
   // ─── Sub-tab 1: 商品 (Hero) ─────────────────────────
   function renderHeroTab() {
+    const lpItems = gallery.filter((g) => g.type === "LP");
+    const bannerItems = gallery.filter((g) => g.type === "バナー");
+    const videoItems = gallery.filter((g) => g.type === "動画");
+
+    function GalleryCarousel({ items, type, aspect }: { items: GalleryItem[]; type: string; aspect: string }) {
+      const idx = galleryIdx[type] || 0;
+      const current = items[idx];
+      if (!items.length) return <div className="flex-1 rounded-lg bg-[#FAF8F5] border border-black/[0.06] flex items-center justify-center h-full"><span className="text-[10px] text-[#1A1A2E]/20">なし</span></div>;
+      return (
+        <div className="flex-1 flex flex-col">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[11px] font-bold text-[#1A1A2E]/60">{type}</span>
+            <span className="text-[9px] text-[#1A1A2E]/25">{idx + 1} / {items.length}</span>
+          </div>
+          <div className="flex-1 relative">
+            {/* Arrows */}
+            {items.length > 1 && (
+              <>
+                <button onClick={() => setGalleryIdx((p) => ({ ...p, [type]: (idx - 1 + items.length) % items.length }))}
+                  className="absolute left-1 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-white/90 shadow flex items-center justify-center text-[#1A1A2E]/40 hover:text-[#9333EA] transition-colors">
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => setGalleryIdx((p) => ({ ...p, [type]: (idx + 1) % items.length }))}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-white/90 shadow flex items-center justify-center text-[#1A1A2E]/40 hover:text-[#9333EA] transition-colors">
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </>
+            )}
+            <div className={`${aspect} rounded-lg overflow-hidden border border-black/[0.06] bg-[#FAF8F5] w-full h-full`}>
+              {current?.url && type === "LP" ? (
+                <iframe src={current.url} className="w-full h-full" title="LP" sandbox="allow-scripts allow-same-origin" />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center">
+                  {type === "動画" ? <Play className="w-6 h-6 text-[#1A1A2E]/15 mb-1" /> : type === "LP" ? <Globe className="w-6 h-6 text-[#1A1A2E]/15 mb-1" /> : <Package className="w-6 h-6 text-[#1A1A2E]/15 mb-1" />}
+                  <span className="text-[9px] text-[#1A1A2E]/25">{current?.label || type}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
-      <div className="space-y-6">
+      <div className="space-y-5">
         {/* ── Product Hero Card ── */}
         <div className="rounded-2xl bg-gradient-to-br from-[#9333EA] to-[#6D28D9] p-6 shadow-lg">
-          <div className="flex gap-6">
-            {/* Left: Product info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start gap-4 mb-4">
+          <div className="flex gap-5">
+            {/* Left: Product info + summary */}
+            <div className="w-[38%] shrink-0">
+              <div className="flex items-start gap-3 mb-3">
                 {/* Logo (auto-fetched) */}
-                <div className="w-16 h-16 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-md overflow-hidden">
-                  <img src={`https://www.google.com/s2/favicons?domain=dot-ai-bootcamp.com&sz=64`} alt="logo" className="w-10 h-10 object-contain"
+                <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-md overflow-hidden">
+                  <img src={`https://www.google.com/s2/favicons?domain=dot-ai-bootcamp.com&sz=64`} alt="logo" className="w-9 h-9 object-contain"
                     onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = "none"; }} />
                 </div>
-                <div className="space-y-1">
-                  <input className="bg-transparent text-white text-2xl font-bold outline-none w-full placeholder-white/40"
+                <div className="space-y-0.5 min-w-0">
+                  <input className="bg-transparent text-white text-xl font-bold outline-none w-full placeholder-white/40"
                     value={heroInfo.productName} onChange={(e) => setHeroInfo((p) => ({ ...p, productName: e.target.value }))} placeholder="商品名" />
-                  <input className="bg-transparent text-white/50 text-[12px] outline-none w-full placeholder-white/30"
+                  <input className="bg-transparent text-white/50 text-[11px] outline-none w-full placeholder-white/30"
                     value={heroInfo.category} onChange={(e) => setHeroInfo((p) => ({ ...p, category: e.target.value }))} placeholder="カテゴリ" />
                 </div>
               </div>
               {/* Price */}
               <div className="flex items-center gap-2 mb-3">
-                <span className="text-white/40 text-[11px]">価格</span>
-                <input className="bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-[14px] text-white font-bold outline-none w-36 placeholder-white/30"
+                <span className="text-white/40 text-[10px]">価格</span>
+                <input className="bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-[13px] text-white font-bold outline-none w-32 placeholder-white/30"
                   value={heroInfo.price} onChange={(e) => setHeroInfo((p) => ({ ...p, price: e.target.value }))} placeholder="価格" />
               </div>
-              {/* Catchcopy */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3">
-                <span className="text-[8px] text-white/30 font-bold uppercase tracking-wider">キャッチコピー</span>
-                <input className="bg-transparent text-white text-[14px] font-bold outline-none w-full mt-0.5 placeholder-white/30"
-                  value={heroInfo.catchcopy} onChange={(e) => setHeroInfo((p) => ({ ...p, catchcopy: e.target.value }))} placeholder="キャッチコピーを入力" />
+              {/* Summary points (3 checkmarks) */}
+              <div className="space-y-1.5">
+                {heroInfo.summaryPoints.map((pt, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-300 shrink-0 mt-0.5" />
+                    <input className="bg-transparent text-white/80 text-[12px] outline-none w-full placeholder-white/30"
+                      value={pt} onChange={(e) => { const pts = [...heroInfo.summaryPoints]; pts[i] = e.target.value; setHeroInfo((p) => ({ ...p, summaryPoints: pts })); }}
+                      placeholder="特徴を入力" />
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Right: Review image + Usage scene image */}
-            <div className="flex gap-3 shrink-0">
-              {/* 代表的な口コミ (SNS screenshot) */}
-              <div className="w-[160px] flex flex-col">
-                <div className="flex items-center gap-1 mb-1.5">
-                  <Star className="w-3 h-3 text-yellow-300" />
-                  <span className="text-[9px] text-white/40 font-bold">口コミ</span>
-                </div>
-                <div className="flex-1 rounded-xl bg-white overflow-hidden flex flex-col">
-                  {/* SNS-like card */}
-                  <div className="bg-gradient-to-b from-gray-50 to-white flex-1 p-3 flex flex-col">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-6 h-6 rounded-full bg-[#9333EA]/20 flex items-center justify-center">
-                        <Users className="w-3 h-3 text-[#9333EA]" />
-                      </div>
-                      <div>
-                        <div className="text-[8px] font-bold text-[#1A1A2E]/70">受講生A</div>
-                        <div className="text-[7px] text-[#1A1A2E]/30">@user_a</div>
-                      </div>
+            {/* Middle: 口コミ (SNS card, bigger) */}
+            <div className="w-[32%] shrink-0 flex flex-col">
+              <div className="flex items-center gap-1 mb-1.5">
+                <Star className="w-3 h-3 text-yellow-300" />
+                <span className="text-[9px] text-white/40 font-bold">代表的な口コミ</span>
+              </div>
+              <div className="flex-1 rounded-xl bg-white overflow-hidden flex flex-col shadow-md">
+                <div className="bg-gradient-to-b from-gray-50 to-white flex-1 p-4 flex flex-col">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-7 h-7 rounded-full bg-[#9333EA]/20 flex items-center justify-center">
+                      <Users className="w-3.5 h-3.5 text-[#9333EA]" />
                     </div>
-                    <p className="text-[10px] text-[#1A1A2E]/70 leading-relaxed flex-1">{heroInfo.topReview}</p>
-                    <div className="flex items-center gap-1 mt-2">
-                      {[1,2,3,4,5].map((s) => (
-                        <Star key={s} className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                      ))}
+                    <div>
+                      <div className="text-[9px] font-bold text-[#1A1A2E]/70">受講生A</div>
+                      <div className="text-[7px] text-[#1A1A2E]/30">@user_a</div>
                     </div>
+                  </div>
+                  <textarea className="text-[11px] text-[#1A1A2E]/70 leading-relaxed flex-1 bg-transparent outline-none resize-none placeholder:text-[#1A1A2E]/20" rows={3}
+                    value={heroInfo.topReview} onChange={(e) => setHeroInfo((p) => ({ ...p, topReview: e.target.value }))} placeholder="口コミ" />
+                  <div className="flex items-center gap-1 mt-2">
+                    {[1,2,3,4,5].map((s) => (
+                      <Star key={s} className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                    ))}
                   </div>
                 </div>
               </div>
-              {/* 代表的な利用シーン (image) */}
-              <div className="w-[160px] flex flex-col">
-                <div className="flex items-center gap-1 mb-1.5">
-                  <Users className="w-3 h-3 text-white/40" />
-                  <span className="text-[9px] text-white/40 font-bold">利用シーン</span>
-                </div>
-                <div className="flex-1 rounded-xl bg-white/10 border border-white/10 overflow-hidden flex items-center justify-center">
-                  <div className="text-center p-4">
-                    <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-2">
-                      <Package className="w-5 h-5 text-white/30" />
-                    </div>
-                    <span className="text-[9px] text-white/30">利用シーン画像</span>
-                    <p className="text-[8px] text-white/20 mt-1">自動取得</p>
+            </div>
+
+            {/* Right: 利用シーン (image, bigger) */}
+            <div className="w-[30%] shrink-0 flex flex-col">
+              <div className="flex items-center gap-1 mb-1.5">
+                <Users className="w-3 h-3 text-white/40" />
+                <span className="text-[9px] text-white/40 font-bold">代表的な利用シーン</span>
+              </div>
+              <div className="flex-1 rounded-xl bg-white/10 border border-white/10 overflow-hidden flex items-center justify-center shadow-md">
+                <div className="text-center p-6">
+                  <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-3">
+                    <Package className="w-7 h-7 text-white/25" />
                   </div>
+                  <span className="text-[10px] text-white/35">利用シーン画像</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ── LP・広告ギャラリー ── */}
+        {/* ── LP・広告ギャラリー (3分割カルーセル) ── */}
         <div className="bg-white rounded-xl border border-black/[0.06] shadow-sm overflow-hidden">
           <div className="px-4 py-3 border-b border-black/[0.06] flex items-center gap-2">
             <Eye className="w-4 h-4 text-[#9333EA]" />
             <span className="text-[12px] font-bold text-[#1A1A2E]">LP・広告ギャラリー</span>
           </div>
           <div className="p-4">
-            <div ref={galleryScrollRef} className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: "thin" }}>
-              {gallery.map((item, i) => (
-                <div key={item.id} className="shrink-0 group relative" style={{ width: item.type === "LP" ? "280px" : item.type === "動画" ? "120px" : "180px" }}>
-                  {/* Type badge */}
-                  <div className="absolute top-2 left-2 z-10">
-                    <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${
-                      item.type === "LP" ? "bg-blue-100 text-blue-700" : item.type === "動画" ? "bg-purple-100 text-purple-700" : "bg-amber-100 text-amber-700"
-                    }`}>{item.type}</span>
-                  </div>
-                  {/* Remove button */}
-                  <button onClick={() => setGallery((p) => p.filter((_, idx) => idx !== i))}
-                    className="absolute -top-1 -right-1 z-10 w-5 h-5 rounded-full bg-white shadow flex items-center justify-center text-[#1A1A2E]/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-                    <X className="w-3 h-3" />
-                  </button>
-                  {/* Preview area */}
-                  {item.type === "LP" ? (
-                    <div className="aspect-[3/4] rounded-lg overflow-hidden border border-black/[0.06] bg-white">
-                      {item.url ? (
-                        <iframe src={item.url} className="w-full h-full" title="LP" sandbox="allow-scripts allow-same-origin" />
-                      ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center bg-[#FAF8F5]">
-                          <Globe className="w-6 h-6 text-[#1A1A2E]/15 mb-1" />
-                          <span className="text-[9px] text-[#1A1A2E]/25">取得中...</span>
-                        </div>
-                      )}
-                    </div>
-                  ) : item.type === "動画" ? (
-                    <div className="aspect-[9/16] rounded-lg border-2 border-dashed border-black/10 bg-[#FAF8F5] flex flex-col items-center justify-center">
-                      <Play className="w-5 h-5 text-[#1A1A2E]/15 mb-1" />
-                      <span className="text-[8px] text-[#1A1A2E]/20">動画</span>
-                    </div>
-                  ) : (
-                    <div className="aspect-video rounded-lg border-2 border-dashed border-black/10 bg-[#FAF8F5] flex flex-col items-center justify-center">
-                      <Package className="w-5 h-5 text-[#1A1A2E]/15 mb-1" />
-                      <span className="text-[8px] text-[#1A1A2E]/20">バナー</span>
-                    </div>
-                  )}
-                  {/* Label */}
-                  <input className="text-[10px] text-[#1A1A2E]/50 bg-transparent outline-none w-full text-center mt-1" value={item.label}
-                    onChange={(e) => { const n = [...gallery]; n[i] = { ...n[i], label: e.target.value }; setGallery(n); }} placeholder="ラベル" />
-                </div>
-              ))}
+            <div className="grid grid-cols-3 gap-4" style={{ minHeight: 220 }}>
+              <GalleryCarousel items={lpItems} type="LP" aspect="aspect-[3/4]" />
+              <GalleryCarousel items={bannerItems} type="バナー" aspect="aspect-video" />
+              <GalleryCarousel items={videoItems} type="動画" aspect="aspect-[9/16]" />
             </div>
           </div>
         </div>
