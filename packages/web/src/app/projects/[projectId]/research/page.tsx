@@ -144,11 +144,21 @@ function makeHeroInfo(): HeroInfo {
 
 function makeGalleryItems(): GalleryItem[] {
   return [
-    { id: 1, type: "LP", label: "メインLP", url: "https://dot-ai-bootcamp.com" },
-    { id: 2, type: "バナー", label: "バナー広告 A", url: "" },
-    { id: 3, type: "バナー", label: "バナー広告 B", url: "" },
-    { id: 4, type: "動画", label: "ショート動画 A", url: "" },
-    { id: 5, type: "動画", label: "ショート動画 B", url: "" },
+    { id: 1, type: "LP", label: "メインLP", url: "" },
+    { id: 2, type: "LP", label: "サブLP A", url: "" },
+    { id: 3, type: "LP", label: "サブLP B", url: "" },
+    { id: 4, type: "LP", label: "キャンペーンLP", url: "" },
+    { id: 5, type: "LP", label: "リニューアルLP", url: "" },
+    { id: 6, type: "バナー", label: "バナー広告 A", url: "" },
+    { id: 7, type: "バナー", label: "バナー広告 B", url: "" },
+    { id: 8, type: "バナー", label: "バナー広告 C", url: "" },
+    { id: 9, type: "バナー", label: "バナー広告 D", url: "" },
+    { id: 10, type: "バナー", label: "バナー広告 E", url: "" },
+    { id: 11, type: "動画", label: "ショート動画 A", url: "" },
+    { id: 12, type: "動画", label: "ショート動画 B", url: "" },
+    { id: 13, type: "動画", label: "ショート動画 C", url: "" },
+    { id: 14, type: "動画", label: "ショート動画 D", url: "" },
+    { id: 15, type: "動画", label: "ショート動画 E", url: "" },
   ];
 }
 
@@ -503,12 +513,11 @@ export default function ResearchPage({
       if (!items.length) return <div className="flex-1 rounded-lg bg-[#FAF8F5] border border-black/[0.06] flex items-center justify-center h-full"><span className="text-[10px] text-[#1A1A2E]/20">なし</span></div>;
       return (
         <div className="flex-1 flex flex-col">
-          <div className="flex items-center justify-between mb-1.5">
+          <div className="mb-1.5">
             <span className="text-[11px] font-bold text-[#1A1A2E]/60">{type}</span>
-            <span className="text-[9px] text-[#1A1A2E]/25">{idx + 1} / {items.length}</span>
           </div>
           <div className="flex-1 relative">
-            {/* Arrows */}
+            {/* Arrows - always show if multiple items */}
             {items.length > 1 && (
               <>
                 <button onClick={() => setGalleryIdx((p) => ({ ...p, [type]: (idx - 1 + items.length) % items.length }))}
@@ -539,11 +548,11 @@ export default function ResearchPage({
     return (
       <div className="space-y-5">
         {/* ── Product Hero Card ── */}
-        <div className="rounded-2xl bg-gradient-to-br from-[#9333EA] to-[#6D28D9] p-6 shadow-lg">
-          <div className="flex gap-5">
+        <div className="rounded-2xl bg-gradient-to-br from-[#9333EA] to-[#6D28D9] p-5 shadow-lg">
+          <div className="flex gap-4">
             {/* Left: Product info + summary */}
             <div className="w-[38%] shrink-0">
-              <div className="flex items-start gap-3 mb-3">
+              <div className="flex items-start gap-3 mb-2">
                 {/* Logo (auto-fetched) */}
                 <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-md overflow-hidden">
                   <img src={`https://www.google.com/s2/favicons?domain=dot-ai-bootcamp.com&sz=64`} alt="logo" className="w-9 h-9 object-contain"
@@ -557,7 +566,7 @@ export default function ResearchPage({
                 </div>
               </div>
               {/* Price */}
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-2">
                 <span className="text-white/40 text-[10px]">価格</span>
                 <input className="bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-[13px] text-white font-bold outline-none w-32 placeholder-white/30"
                   value={heroInfo.price} onChange={(e) => setHeroInfo((p) => ({ ...p, price: e.target.value }))} placeholder="価格" />
@@ -604,17 +613,17 @@ export default function ResearchPage({
             </div>
 
             {/* Right: 利用シーン (image, bigger) */}
-            <div className="w-[30%] shrink-0 flex flex-col">
+            <div className="w-[30%] shrink-0 flex flex-col min-w-0">
               <div className="flex items-center gap-1 mb-1.5">
                 <Users className="w-3 h-3 text-white/40" />
-                <span className="text-[9px] text-white/40 font-bold">代表的な利用シーン</span>
+                <span className="text-[9px] text-white/40 font-bold">利用シーン</span>
               </div>
-              <div className="flex-1 rounded-xl bg-white/10 border border-white/10 overflow-hidden flex items-center justify-center shadow-md">
-                <div className="text-center p-6">
-                  <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-3">
-                    <Package className="w-7 h-7 text-white/25" />
+              <div className="flex-1 rounded-xl bg-white/10 border border-white/10 overflow-hidden flex items-center justify-center shadow-md min-h-0">
+                <div className="text-center p-4">
+                  <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-2">
+                    <Package className="w-6 h-6 text-white/25" />
                   </div>
-                  <span className="text-[10px] text-white/35">利用シーン画像</span>
+                  <span className="text-[9px] text-white/35">利用シーン画像</span>
                 </div>
               </div>
             </div>
