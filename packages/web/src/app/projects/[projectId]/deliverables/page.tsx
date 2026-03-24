@@ -112,68 +112,68 @@ export default function DeliverablesPage({ params }: { params: Promise<{ project
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
-        {/* Card View - horizontal slider with 4 visible cards */}
+        {/* Card View - horizontal slider, 4 compact cards visible */}
         {viewMode === "card" && (
           <div className="relative">
-            {/* Scroll buttons */}
+            {/* Scroll buttons - outside cards */}
             <button onClick={() => scrollBy(-1)}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-lg border border-black/[0.06] flex items-center justify-center text-[#1A1A2E]/40 hover:text-[#9333EA] transition-colors">
-              <ChevronLeft className="w-5 h-5" />
+              className="absolute -left-1 top-[40%] -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white shadow-lg border border-black/[0.06] flex items-center justify-center text-[#1A1A2E]/40 hover:text-[#9333EA] transition-colors">
+              <ChevronLeft className="w-4 h-4" />
             </button>
             <button onClick={() => scrollBy(1)}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-lg border border-black/[0.06] flex items-center justify-center text-[#1A1A2E]/40 hover:text-[#9333EA] transition-colors">
-              <ChevronRight className="w-5 h-5" />
+              className="absolute -right-1 top-[40%] -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white shadow-lg border border-black/[0.06] flex items-center justify-center text-[#1A1A2E]/40 hover:text-[#9333EA] transition-colors">
+              <ChevronRight className="w-4 h-4" />
             </button>
 
-            <div ref={scrollRef} className="overflow-x-auto px-12 pb-4 flex gap-4 snap-x snap-mandatory scrollbar-hide"
+            <div ref={scrollRef} className="overflow-x-auto px-10 pb-3 flex gap-3 snap-x snap-mandatory"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
               {filtered.map((item) => {
                 const ss = STATUS_STYLES[item.status];
                 return (
                   <div key={item.id} onClick={() => setSelectedId(item.id)}
-                    className={`bg-white rounded-xl border border-black/[0.06] overflow-hidden hover:shadow-lg hover:border-[#9333EA]/20 transition-all cursor-pointer group snap-start shrink-0 ${
-                      item.status === "修正中" ? "border-l-4 border-l-amber-400" : item.status === "確認待ち" ? "border-l-4 border-l-blue-400" : ""
+                    className={`bg-white rounded-lg border border-black/[0.06] overflow-hidden hover:shadow-md hover:border-[#9333EA]/20 transition-all cursor-pointer group snap-start shrink-0 ${
+                      item.status === "修正中" ? "border-l-3 border-l-amber-400" : item.status === "確認待ち" ? "border-l-3 border-l-blue-400" : ""
                     }`}
-                    style={{ width: "calc(25% - 12px)", minWidth: "200px" }}>
-                    {/* Vertical thumbnail (9:16) */}
-                    <div className="aspect-[9/16] bg-gradient-to-b from-[#1a1a2e]/60 to-[#1a1a2e]/90 relative flex items-center justify-center">
-                      <Film className="w-8 h-8 text-white/15" />
+                    style={{ width: "calc(25% - 9px)", minWidth: "160px" }}>
+                    {/* Compact vertical thumbnail */}
+                    <div className="aspect-[9/14] bg-gradient-to-b from-[#1a1a2e]/60 to-[#1a1a2e]/90 relative flex items-center justify-center">
+                      <Film className="w-6 h-6 text-white/15" />
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                          <Play className="w-5 h-5 text-white ml-0.5" />
+                        <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                          <Play className="w-4 h-4 text-white ml-0.5" />
                         </div>
                       </div>
-                      <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[9px] font-medium px-1.5 py-0.5 rounded">
+                      <div className="absolute bottom-1.5 right-1.5 bg-black/60 text-white text-[8px] font-medium px-1 py-0.5 rounded">
                         {item.duration}
                       </div>
-                      <div className="absolute top-2 right-2">
-                        <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${ss.bg} ${ss.text}`}>{item.status}</span>
+                      <div className="absolute top-1.5 right-1.5">
+                        <span className={`text-[7px] font-bold px-1.5 py-0.5 rounded-full ${ss.bg} ${ss.text}`}>{item.status}</span>
                       </div>
-                      <div className="absolute bottom-2 left-2 text-[8px] text-white/40 truncate max-w-[70%]">{item.videoName}</div>
                     </div>
-                    {/* Info */}
-                    <div className="p-3">
-                      <h3 className="text-[13px] font-bold text-[#1A1A2E]/80 mb-0.5 group-hover:text-[#9333EA] transition-colors truncate">
+                    {/* Compact info */}
+                    <div className="p-2">
+                      <h3 className="text-[11px] font-bold text-[#1A1A2E]/80 truncate group-hover:text-[#9333EA] transition-colors">
                         {item.adName}
                       </h3>
-                      <p className="text-[10px] text-[#1A1A2E]/40 leading-relaxed mb-1.5 line-clamp-2">{item.intent}</p>
-                      <div className="text-[9px] text-[#1A1A2E]/30 space-y-0.5">
-                        <div className="flex items-center gap-1 truncate"><Megaphone className="w-2.5 h-2.5 shrink-0" />{item.appeal}</div>
-                        <div className="flex items-center gap-1 truncate"><Lightbulb className="w-2.5 h-2.5 shrink-0" />{item.plan}</div>
+                      <p className="text-[8px] text-[#1A1A2E]/35 leading-snug line-clamp-1 mt-0.5">{item.intent}</p>
+                      <div className="flex items-center gap-1.5 mt-1 text-[8px] text-[#1A1A2E]/25">
+                        <span className="truncate">{item.appeal}</span>
+                        <span className="text-[#1A1A2E]/10">|</span>
+                        <span className="truncate">{item.plan}</span>
                       </div>
-                      <div className="flex items-center gap-2 mt-1.5 pt-1.5 border-t border-black/[0.03] text-[9px] text-[#1A1A2E]/25">
-                        <span className="flex items-center gap-0.5"><User className="w-2.5 h-2.5" />{item.person}</span>
-                        {item.completedDate && <span className="flex items-center gap-0.5"><Calendar className="w-2.5 h-2.5" />{item.completedDate}</span>}
+                      <div className="flex items-center gap-1.5 mt-1 pt-1 border-t border-black/[0.02] text-[8px] text-[#1A1A2E]/20">
+                        <span>{item.person}</span>
+                        {item.completedDate && <span>{item.completedDate}</span>}
                       </div>
                     </div>
                   </div>
                 );
               })}
               {/* Add card */}
-              <div className="bg-white/50 rounded-xl border border-dashed border-[#1A1A2E]/10 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/[0.02] transition-all flex flex-col items-center justify-center gap-2 text-[#1A1A2E]/20 hover:text-[#9333EA]/50 cursor-pointer snap-start shrink-0"
-                style={{ width: "calc(25% - 12px)", minWidth: "200px" }}>
-                <Plus className="w-6 h-6" />
-                <span className="text-[11px] font-medium">動画を追加</span>
+              <div className="bg-white/50 rounded-lg border border-dashed border-[#1A1A2E]/10 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/[0.02] transition-all flex flex-col items-center justify-center gap-1.5 text-[#1A1A2E]/20 hover:text-[#9333EA]/50 cursor-pointer snap-start shrink-0"
+                style={{ width: "calc(25% - 9px)", minWidth: "160px" }}>
+                <Plus className="w-5 h-5" />
+                <span className="text-[9px] font-medium">追加</span>
               </div>
             </div>
           </div>

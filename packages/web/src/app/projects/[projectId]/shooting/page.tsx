@@ -232,12 +232,7 @@ export default function ShootingPage({ params }: { params: Promise<{ projectId: 
         {/* ── 香盤票: フォルダ選択 ── */}
         {activeTab === "callsheet" && !selectedDay && (
           <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-[12px] text-[#1A1A2E]/40">撮影日を選択してください</p>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#1A1A2E]/10 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/[0.03] text-[11px] font-medium text-[#1A1A2E]/50 hover:text-[#9333EA] transition-all">
-                <Download className="w-3.5 h-3.5" /> 香盤票ダウンロード
-              </button>
-            </div>
+            <p className="text-[12px] text-[#1A1A2E]/40 mb-4">撮影日を選択してください</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {days.map((day) => (
                 <button key={day.id} onClick={() => setSelectedDayId(day.id)}
