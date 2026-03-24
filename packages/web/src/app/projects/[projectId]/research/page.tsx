@@ -551,15 +551,16 @@ export default function ResearchPage({
       <div className="space-y-5">
         {/* ── Product Hero Card ── */}
         <div className="rounded-2xl bg-gradient-to-br from-[#9333EA] to-[#6D28D9] p-5 shadow-lg">
-          <div className="flex gap-4">
-            {/* Logo (left) */}
-            <div className="w-16 h-16 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-md overflow-hidden self-start">
-              <img src={`https://www.google.com/s2/favicons?domain=dot-ai-bootcamp.com&sz=64`} alt="logo" className="w-10 h-10 object-contain"
+          {/* Logo centered */}
+          <div className="flex justify-center mb-3">
+            <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center shadow-md overflow-hidden">
+              <img src={`https://www.google.com/s2/favicons?domain=dot-ai-bootcamp.com&sz=64`} alt="logo" className="w-9 h-9 object-contain"
                 onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = "none"; }} />
             </div>
-
-            {/* Product info: name + category + price + features */}
-            <div className="flex-[35] min-w-0">
+          </div>
+          <div className="flex gap-3">
+            {/* Product info: name + category + price + features - 右寄せ */}
+            <div className="flex-[30] min-w-0">
               <input className="bg-transparent text-white text-xl font-bold outline-none w-full placeholder-white/40"
                 value={heroInfo.productName} onChange={(e) => setHeroInfo((p) => ({ ...p, productName: e.target.value }))} placeholder="商品名" />
               <input className="bg-transparent text-white/50 text-[11px] outline-none w-full placeholder-white/30 mb-1"
@@ -581,8 +582,8 @@ export default function ResearchPage({
               </div>
             </div>
 
-            {/* Middle: 口コミ (SNS card, bigger) */}
-            <div className="flex-[32] min-w-0 flex flex-col">
+            {/* Middle: 口コミ - 左寄せ */}
+            <div className="flex-[38] min-w-0 flex flex-col">
               <div className="flex items-center gap-1 mb-1.5">
                 <Star className="w-3 h-3 text-yellow-300" />
                 <span className="text-[9px] text-white/40 font-bold">代表的な口コミ</span>
@@ -609,8 +610,8 @@ export default function ResearchPage({
               </div>
             </div>
 
-            {/* Right: 利用シーン (image, bigger) */}
-            <div className="flex-[30] min-w-0 flex flex-col">
+            {/* Right: 利用シーン - 左寄せ */}
+            <div className="flex-[32] min-w-0 flex flex-col">
               <div className="flex items-center gap-1 mb-1.5">
                 <Users className="w-3 h-3 text-white/40" />
                 <span className="text-[9px] text-white/40 font-bold">利用シーン</span>
@@ -639,20 +640,20 @@ export default function ResearchPage({
                 <span className="text-[12px] font-bold text-[#1A1A2E]/70">LP</span>
                 <span className="text-[9px] text-[#1A1A2E]/25 ml-auto">{lpItems.length}件</span>
               </div>
-              <div className="relative" style={{ minHeight: 200 }}>
+              <div className="relative flex justify-center" style={{ minHeight: 200 }}>
                 {lpItems.length > 1 && (
                   <>
                     <button onClick={() => setGalleryIdx((p) => ({ ...p, LP: ((p.LP || 0) - 1 + lpItems.length) % lpItems.length }))}
-                      className="absolute left-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#1A1A2E]/30 hover:text-blue-600 transition-colors">
+                      className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#1A1A2E]/30 hover:text-blue-600 transition-colors">
                       <ChevronLeft className="w-3.5 h-3.5" />
                     </button>
                     <button onClick={() => setGalleryIdx((p) => ({ ...p, LP: ((p.LP || 0) + 1) % lpItems.length }))}
-                      className="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#1A1A2E]/30 hover:text-blue-600 transition-colors">
+                      className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#1A1A2E]/30 hover:text-blue-600 transition-colors">
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </>
                 )}
-                <div className="aspect-[3/4] rounded-xl overflow-hidden border border-blue-100 bg-white shadow-inner">
+                <div className="w-[85%] aspect-[3/4] rounded-xl overflow-hidden border border-blue-100 bg-white shadow-inner">
                   {lpItems[galleryIdx.LP || 0]?.url ? (
                     <iframe src={lpItems[galleryIdx.LP || 0].url} className="w-full h-full" title="LP" sandbox="allow-scripts allow-same-origin" />
                   ) : (
@@ -694,7 +695,7 @@ export default function ResearchPage({
                     </button>
                   </>
                 )}
-                <div className="w-[220px] aspect-square rounded-xl overflow-hidden border border-amber-100 bg-white shadow-inner">
+                <div className="w-[85%] aspect-square rounded-xl overflow-hidden border border-amber-100 bg-white shadow-inner">
                   <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-amber-50/50 to-white">
                     <Package className="w-10 h-10 text-amber-200 mb-2" />
                     <span className="text-[11px] text-amber-300 font-medium">{bannerItems[galleryIdx["バナー"] || 0]?.label || "バナー"}</span>
@@ -732,7 +733,7 @@ export default function ResearchPage({
                   </>
                 )}
                 {/* スマホフレーム */}
-                <div className="w-[140px] aspect-[9/16] rounded-[18px] border-2 border-purple-200 bg-[#0a0a0a] relative overflow-hidden flex flex-col shadow-inner">
+                <div className="w-[55%] aspect-[9/16] rounded-[18px] border-2 border-purple-200 bg-[#0a0a0a] relative overflow-hidden flex flex-col shadow-inner">
                   <div className="w-[24px] h-[4px] bg-white/20 rounded-full mx-auto mt-[5px] shrink-0" />
                   <div className="flex-1 mx-[3px] mb-[5px] mt-[3px] rounded-[8px] bg-gradient-to-b from-purple-900/30 to-purple-900/60 flex flex-col items-center justify-center overflow-hidden">
                     <Play className="w-8 h-8 text-white/20 mb-2" />
