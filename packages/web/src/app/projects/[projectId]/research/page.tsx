@@ -391,6 +391,8 @@ export default function ResearchPage({
 
   // Product sub-tab
   const [productSubTab, setProductSubTab] = useState<ProductSubTab>("hero");
+  const [overviewPanel, setOverviewPanel] = useState(0);
+  const OVERVIEW_PANELS = ["機能", "デザイン", "体験", "ストーリー", "オファー"] as const;
 
   // Hero state
   const [heroInfo, setHeroInfo] = useState<HeroInfo>(makeHeroInfo);
@@ -756,10 +758,279 @@ export default function ResearchPage({
 
   // ─── Sub-tab 2: 商品概要 (5 panels) ─────────────────
   function renderOverviewTab() {
+    const panelName = OVERVIEW_PANELS[overviewPanel];
+    const prevPanel = () => setOverviewPanel((p) => (p - 1 + OVERVIEW_PANELS.length) % OVERVIEW_PANELS.length);
+    const nextPanel = () => setOverviewPanel((p) => (p + 1) % OVERVIEW_PANELS.length);
+    const prevName = OVERVIEW_PANELS[(overviewPanel - 1 + OVERVIEW_PANELS.length) % OVERVIEW_PANELS.length];
+    const nextName = OVERVIEW_PANELS[(overviewPanel + 1) % OVERVIEW_PANELS.length];
+
+    const panelIcons = ["⚡", "🎨", "💫", "📖", "🏷️"];
+    const panelColors = [
+      "from-purple-50 to-white border-purple-100",
+      "from-blue-50 to-white border-blue-100",
+      "from-green-50 to-white border-green-100",
+      "from-amber-50 to-white border-amber-100",
+      "from-rose-50 to-white border-rose-100",
+    ];
+
     return (
-      <div className="space-y-6">
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin">
-          {/* Panel 1: 機能 */}
+      <div className="relative">
+        {/* Panel navigation header */}
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={prevPanel} className="flex items-center gap-1.5 text-[12px] text-[#1A1A2E]/30 hover:text-[#9333EA] transition-colors">
+            <ChevronLeft className="w-4 h-4" />
+            <span>{prevName}</span>
+          </button>
+          <div className="flex items-center gap-3">
+            {OVERVIEW_PANELS.map((name, i) => (
+              <button key={name} onClick={() => setOverviewPanel(i)}
+                className={`text-[11px] font-semibold px-3 py-1.5 rounded-full transition-all ${
+                  i === overviewPanel ? "bg-[#9333EA] text-white shadow-md" : "text-[#1A1A2E]/30 hover:text-[#1A1A2E]/50 hover:bg-black/[0.03]"
+                }`}>
+                {panelIcons[i]} {name}
+              </button>
+            ))}
+          </div>
+          <button onClick={nextPanel} className="flex items-center gap-1.5 text-[12px] text-[#1A1A2E]/30 hover:text-[#9333EA] transition-colors">
+            <span>{nextName}</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Full-screen panel */}
+        <div className={`rounded-2xl bg-gradient-to-b ${panelColors[overviewPanel]} border p-6 min-h-[400px]`}>
+
+        {/* ── 機能パネル ── */}
+        {overviewPanel === 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-[16px] font-bold text-[#1A1A2E]/80">⚡ 機能</h3>
+              <button onClick={() => {
+                const newBubble = { id: Date.now(), name: "", description: "", customerValue: "", effects: [], researchData: [] };
+                setFunctionBubbles((p) => [...p, newBubble]);
+              }} className="flex items-center gap-1 text-[11px] text-[#9333EA] font-semibold hover:underline">
+                <Plus className="w-3 h-3" /> 追加
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-4 justify-center">
+              {functionBubbles.map((bubble, bi) => (
+                <div key={bubble.id}
+                  onClick={() => setExpandedBubble(expandedBubble === bi ? null : bi)}
+                  className={`w-[140px] h-[140px] rounded-full flex flex-col items-center justify-center text-center cursor-pointer transition-all hover:scale-105 ${
+                    expandedBubble === bi
+                      ? "bg-[#9333EA] text-white shadow-xl scale-110"
+                      : "bg-white border-2 border-[#9333EA]/20 hover:border-[#9333EA]/40 shadow-sm"
+                  }`}>
+                  <span className={`text-[13px] font-bold ${expandedBubble === bi ? "text-white" : "text-[#1A1A2E]/80"}`}>
+                    {bubble.name || "機能名"}
+                  </span>
+                  <span className={`text-[9px] mt-1 px-2 leading-snug ${expandedBubble === bi ? "text-white/70" : "text-[#1A1A2E]/40"}`}>
+                    {bubble.description || "説明"}
+                  </span>
+                  <span className={`text-[8px] mt-0.5 px-2 ${expandedBubble === bi ? "text-white/50" : "text-[#9333EA]/50"}`}>
+                    {bubble.customerValue || "顧客価値"}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Expanded bubble detail */}
+            {expandedBubble !== null && functionBubbles[expandedBubble] && (() => {
+              const b = functionBubbles[expandedBubble];
+              const bi = expandedBubble;
+              return (
+                <div className="mt-6 bg-white rounded-xl border border-[#9333EA]/10 p-5 shadow-sm">
+                  <div className="grid grid-cols-3 gap-4 mb-4">
+                    <div>
+                      <label className="text-[9px] font-bold text-[#1A1A2E]/30 uppercase">機能名</label>
+                      <input className="w-full text-[13px] font-bold text-[#1A1A2E]/80 bg-transparent border-b border-black/[0.08] focus:border-[#9333EA]/40 outline-none mt-0.5"
+                        value={b.name} onChange={(e) => { const n = [...functionBubbles]; n[bi] = { ...n[bi], name: e.target.value }; setFunctionBubbles(n); }} />
+                    </div>
+                    <div>
+                      <label className="text-[9px] font-bold text-[#1A1A2E]/30 uppercase">一言説明</label>
+                      <input className="w-full text-[12px] text-[#1A1A2E]/60 bg-transparent border-b border-black/[0.08] focus:border-[#9333EA]/40 outline-none mt-0.5"
+                        value={b.description} onChange={(e) => { const n = [...functionBubbles]; n[bi] = { ...n[bi], description: e.target.value }; setFunctionBubbles(n); }} />
+                    </div>
+                    <div>
+                      <label className="text-[9px] font-bold text-[#1A1A2E]/30 uppercase">顧客価値</label>
+                      <input className="w-full text-[12px] text-[#9333EA]/70 bg-transparent border-b border-black/[0.08] focus:border-[#9333EA]/40 outline-none mt-0.5"
+                        value={b.customerValue} onChange={(e) => { const n = [...functionBubbles]; n[bi] = { ...n[bi], customerValue: e.target.value }; setFunctionBubbles(n); }} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="text-[10px] font-bold text-[#1A1A2E]/40 mb-2">効果・効能</h4>
+                      {b.effects.map((ef, ei) => (
+                        <div key={ei} className="flex items-center gap-2 mb-1.5">
+                          <span className="text-[14px]">{ef.emoji}</span>
+                          <input className="flex-1 text-[11px] text-[#1A1A2E]/60 bg-transparent border-b border-black/[0.06] focus:border-[#9333EA]/40 outline-none"
+                            value={ef.text} onChange={(e) => { const n = [...functionBubbles]; const efs = [...n[bi].effects]; efs[ei] = { ...efs[ei], text: e.target.value }; n[bi] = { ...n[bi], effects: efs }; setFunctionBubbles(n); }} />
+                        </div>
+                      ))}
+                      <button onClick={() => { const n = [...functionBubbles]; n[bi] = { ...n[bi], effects: [...n[bi].effects, { emoji: "✨", text: "" }] }; setFunctionBubbles(n); }}
+                        className="text-[9px] text-[#9333EA]/50 hover:text-[#9333EA] flex items-center gap-1 mt-1"><Plus className="w-2.5 h-2.5" /> 追加</button>
+                    </div>
+                    <div>
+                      <h4 className="text-[10px] font-bold text-[#1A1A2E]/40 mb-2">研究データ</h4>
+                      {b.researchData.map((rd, ri) => (
+                        <div key={ri} className="flex items-start gap-2 mb-1.5 bg-[#FAF8F5] rounded-lg px-2 py-1.5">
+                          <span className="text-[12px]">{rd.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <input className="text-[10px] font-semibold text-[#1A1A2E]/70 bg-transparent outline-none w-full"
+                              value={rd.title} onChange={(e) => { const n = [...functionBubbles]; const rds = [...n[bi].researchData]; rds[ri] = { ...rds[ri], title: e.target.value }; n[bi] = { ...n[bi], researchData: rds }; setFunctionBubbles(n); }} />
+                            <button onClick={() => setResearchModal({ bubbleIdx: bi, dataIdx: ri })}
+                              className="text-[8px] text-[#9333EA] hover:underline mt-0.5">詳細を表示</button>
+                          </div>
+                        </div>
+                      ))}
+                      <button onClick={() => { const n = [...functionBubbles]; n[bi] = { ...n[bi], researchData: [...n[bi].researchData, { icon: "📊", title: "", detail: "", source: "" }] }; setFunctionBubbles(n); }}
+                        className="text-[9px] text-[#9333EA]/50 hover:text-[#9333EA] flex items-center gap-1 mt-1"><Plus className="w-2.5 h-2.5" /> 追加</button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
+        {/* ── デザインパネル ── */}
+        {overviewPanel === 1 && (
+          <div>
+            <h3 className="text-[16px] font-bold text-[#1A1A2E]/80 mb-5">🎨 デザイン</h3>
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <h4 className="text-[11px] font-bold text-[#1A1A2E]/40 mb-3">カラーパレット</h4>
+                <div className="flex gap-4">
+                  {designColors.map((dc, di) => (
+                    <div key={dc.key} className="flex flex-col items-center gap-1.5">
+                      <label htmlFor={`color-${dc.key}`} className="cursor-pointer">
+                        <div className="w-14 h-14 rounded-full border-2 border-white shadow-lg" style={{ backgroundColor: dc.color }} />
+                      </label>
+                      <input id={`color-${dc.key}`} type="color" value={dc.color} className="sr-only"
+                        onChange={(e) => { const n = [...designColors]; n[di] = { ...n[di], color: e.target.value }; setDesignColors(n); }} />
+                      <span className="text-[9px] font-medium text-[#1A1A2E]/50">{dc.label}</span>
+                      <span className="text-[8px] text-[#1A1A2E]/25 font-mono">{dc.color}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-[11px] font-bold text-[#1A1A2E]/40 mb-3">ムードボード</h4>
+                <div className="grid grid-cols-3 gap-2">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="aspect-video rounded-lg border-2 border-dashed border-black/10 bg-white flex items-center justify-center">
+                      <Image className="w-5 h-5 text-[#1A1A2E]/10" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── 体験パネル ── */}
+        {overviewPanel === 2 && (
+          <div>
+            <h3 className="text-[16px] font-bold text-[#1A1A2E]/80 mb-5">💫 体験</h3>
+            <div className="relative bg-white rounded-2xl border border-black/[0.06] p-8 min-h-[280px]">
+              {emotionKeywords.map((kw, ki) => (
+                <div key={kw.id} className="absolute" style={{ left: `${kw.x}%`, top: `${kw.y}%`, transform: "translate(-50%, -50%)" }}>
+                  <div className="flex items-center gap-1 bg-green-50 border border-green-200 rounded-full px-3 py-1.5 shadow-sm cursor-default hover:shadow-md transition-shadow">
+                    <span className="text-[16px]">{kw.emoji}</span>
+                    <input className="text-[11px] font-medium text-[#1A1A2E]/70 bg-transparent outline-none w-16"
+                      value={kw.text} onChange={(e) => { const n = [...emotionKeywords]; n[ki] = { ...n[ki], text: e.target.value }; setEmotionKeywords(n); }} />
+                  </div>
+                </div>
+              ))}
+              <button onClick={() => setEmotionKeywords((p) => [...p, { id: Date.now(), emoji: "💡", text: "", x: 50, y: 50 }])}
+                className="absolute bottom-3 right-3 text-[9px] text-[#1A1A2E]/20 hover:text-[#9333EA] flex items-center gap-1"><Plus className="w-3 h-3" /> キーワード追加</button>
+            </div>
+            <div className="mt-4 space-y-2">
+              <h4 className="text-[11px] font-bold text-[#1A1A2E]/40">体験の声</h4>
+              {experienceQuotes.map((q, qi) => (
+                <div key={q.id} className="bg-white rounded-lg border border-black/[0.06] px-4 py-2.5 flex items-start gap-2">
+                  <span className="text-[14px] shrink-0">💬</span>
+                  <div className="flex-1 min-w-0">
+                    <textarea className="text-[11px] text-[#1A1A2E]/60 bg-transparent outline-none w-full resize-none" rows={1}
+                      value={q.text} onChange={(e) => { const n = [...experienceQuotes]; n[qi] = { ...n[qi], text: e.target.value }; setExperienceQuotes(n); }} />
+                    <input className="text-[9px] text-[#1A1A2E]/30 bg-transparent outline-none"
+                      value={q.author} onChange={(e) => { const n = [...experienceQuotes]; n[qi] = { ...n[qi], author: e.target.value }; setExperienceQuotes(n); }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── ストーリーパネル ── */}
+        {overviewPanel === 3 && (
+          <div>
+            <h3 className="text-[16px] font-bold text-[#1A1A2E]/80 mb-5">📖 ストーリー</h3>
+            <div className="relative flex items-start gap-0 overflow-x-auto pb-4">
+              {storyNodes.map((node, ni) => (
+                <div key={node.id} className="flex items-start shrink-0">
+                  <div className="flex flex-col items-center" style={{ width: 160 }}>
+                    <div className="w-10 h-10 rounded-full bg-[#9333EA] text-white flex items-center justify-center text-[13px] font-bold shadow-md">
+                      {ni + 1}
+                    </div>
+                    <input className="text-[11px] font-bold text-[#9333EA] bg-transparent outline-none text-center mt-2 w-24"
+                      value={node.year} onChange={(e) => { const n = [...storyNodes]; n[ni] = { ...n[ni], year: e.target.value }; setStoryNodes(n); }} />
+                    <textarea className="text-[10px] text-[#1A1A2E]/60 bg-transparent outline-none text-center resize-none mt-1 w-[140px]" rows={2}
+                      value={node.description} onChange={(e) => { const n = [...storyNodes]; n[ni] = { ...n[ni], description: e.target.value }; setStoryNodes(n); }} />
+                  </div>
+                  {ni < storyNodes.length - 1 && (
+                    <div className="w-12 h-0.5 bg-[#9333EA]/30 mt-5 shrink-0" />
+                  )}
+                </div>
+              ))}
+              <button onClick={() => setStoryNodes((p) => [...p, { id: Date.now(), year: "", description: "" }])}
+                className="shrink-0 w-10 h-10 rounded-full border-2 border-dashed border-[#9333EA]/20 hover:border-[#9333EA]/40 flex items-center justify-center mt-0 ml-2 text-[#9333EA]/30 hover:text-[#9333EA] transition-all">
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── オファーパネル ── */}
+        {overviewPanel === 4 && (
+          <div>
+            <h3 className="text-[16px] font-bold text-[#1A1A2E]/80 mb-5">🏷️ オファー</h3>
+            <div className="grid grid-cols-2 gap-6">
+              {offerPlans.map((plan, pi) => (
+                <div key={pi} className={`rounded-xl border-2 p-5 ${pi === 1 ? "border-[#9333EA] bg-[#9333EA]/[0.02] shadow-lg" : "border-black/[0.06] bg-white"}`}>
+                  {pi === 1 && <span className="text-[9px] font-bold text-[#9333EA] bg-[#9333EA]/10 px-2 py-0.5 rounded-full mb-2 inline-block">おすすめ</span>}
+                  <input className="text-[15px] font-bold text-[#1A1A2E]/80 bg-transparent outline-none w-full mb-1"
+                    value={plan.title} onChange={(e) => { const n = [...offerPlans]; n[pi] = { ...n[pi], title: e.target.value }; setOfferPlans(n); }} />
+                  <input className="text-[20px] font-bold text-[#9333EA] bg-transparent outline-none w-full mb-3"
+                    value={plan.price} onChange={(e) => { const n = [...offerPlans]; n[pi] = { ...n[pi], price: e.target.value }; setOfferPlans(n); }} />
+                  <div className="space-y-1.5">
+                    {plan.items.map((item, ii) => (
+                      <div key={ii} className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                        <input className="text-[11px] text-[#1A1A2E]/60 bg-transparent outline-none flex-1"
+                          value={item} onChange={(e) => { const n = [...offerPlans]; const items = [...n[pi].items]; items[ii] = e.target.value; n[pi] = { ...n[pi], items }; setOfferPlans(n); }} />
+                      </div>
+                    ))}
+                    <button onClick={() => { const n = [...offerPlans]; n[pi] = { ...n[pi], items: [...n[pi].items, ""] }; setOfferPlans(n); }}
+                      className="text-[9px] text-[#9333EA]/40 hover:text-[#9333EA] flex items-center gap-1 mt-1"><Plus className="w-2.5 h-2.5" /> 追加</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        </div>
+      </div>
+    );
+  }
+
+  // (legacy panels removed - now full-screen panel switching)
+  // ─── Sub-tab 2 end ─────────────────────────────────────
+  const _overviewTabEnd = null; // placeholder to maintain structure
+  void _overviewTabEnd;
+
+  {/* Panel 1: 機能 */}
           <div className="min-w-[280px] max-w-[280px] bg-purple-50/60 rounded-2xl border border-purple-100 p-5 flex flex-col shrink-0" style={{ minHeight: 300 }}>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-[#9333EA]/10 flex items-center justify-center">
