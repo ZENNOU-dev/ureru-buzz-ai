@@ -1,13 +1,15 @@
 "use client";
 
 import { use, useState } from "react";
-import { Search, Film, Image, Music, Calendar, Clock, Smartphone, LayoutList, LayoutGrid, Volume2 } from "lucide-react";
+import { Search, Film, Image, Music, Calendar, Clock, Smartphone, LayoutList, LayoutGrid, Volume2, X, Play, Scissors } from "lucide-react";
 import { VoiceInputButton } from "@/components/voice-input-button";
 
 // ─── Types ────────────────────────────────────────────
 type MaterialKind = "動画" | "画像" | "BGM" | "SE";
 
 type MaterialSource = "提供" | "自社撮影" | "フリー";
+
+type UsedSection = { label: string; start: string; end: string };
 
 type MaterialItem = {
   id: string;
@@ -17,6 +19,7 @@ type MaterialItem = {
   source: MaterialSource;
   duration?: string;
   addedAt: string;
+  usedSections?: UsedSection[]; // よく使われる利用箇所
 };
 
 const SOURCE_STYLES: Record<MaterialSource, { bg: string; text: string }> = {
@@ -27,18 +30,18 @@ const SOURCE_STYLES: Record<MaterialSource, { bg: string; text: string }> = {
 
 // ─── Sample Data ──────────────────────────────────────
 const MATERIALS: MaterialItem[] = [
-  { id: "m-001", name: "AI副業_メイン訴求A.mp4", summary: "AIツールで副業を始めた体験者のインタビュー正面カット", kind: "動画", source: "自社撮影", duration: "0:32", addedAt: "2026-03-20" },
-  { id: "m-002", name: "フリーランス体験談_B.mp4", summary: "フリーランス転身後の生活変化を語るインタビュー", kind: "動画", source: "自社撮影", duration: "0:28", addedAt: "2026-03-19" },
-  { id: "m-003", name: "女性2.0_インタビュー.mp4", summary: "女性フリーランスの成功体験インタビュー", kind: "動画", source: "自社撮影", duration: "0:45", addedAt: "2026-03-18" },
+  { id: "m-001", name: "AI副業_メイン訴求A.mp4", summary: "AIツールで副業を始めた体験者のインタビュー正面カット", kind: "動画", source: "自社撮影", duration: "0:32", addedAt: "2026-03-20", usedSections: [{ label: "フック", start: "00:00", end: "00:05" }, { label: "ベネフィット", start: "00:12", end: "00:20" }] },
+  { id: "m-002", name: "フリーランス体験談_B.mp4", summary: "フリーランス転身後の生活変化を語るインタビュー", kind: "動画", source: "自社撮影", duration: "0:28", addedAt: "2026-03-19", usedSections: [{ label: "共感パート", start: "00:03", end: "00:10" }] },
+  { id: "m-003", name: "女性2.0_インタビュー.mp4", summary: "女性フリーランスの成功体験インタビュー", kind: "動画", source: "自社撮影", duration: "0:45", addedAt: "2026-03-18", usedSections: [{ label: "フック", start: "00:00", end: "00:08" }, { label: "商品紹介", start: "00:15", end: "00:30" }, { label: "CTA", start: "00:38", end: "00:45" }] },
   { id: "m-004", name: "サムネイル_AI副業.png", summary: "AI副業訴求用のサムネイル画像", kind: "画像", source: "自社撮影", addedAt: "2026-03-20" },
   { id: "m-005", name: "テロップ背景_グラデ.png", summary: "テロップ用グラデーション背景素材", kind: "画像", source: "フリー", addedAt: "2026-03-19" },
-  { id: "m-006", name: "BGM_アップテンポ01.mp3", summary: "明るくポジティブなアップテンポBGM", kind: "BGM", source: "フリー", duration: "1:20", addedAt: "2026-03-17" },
-  { id: "m-007", name: "SE_決定音.mp3", summary: "CTA部分で使用する決定音エフェクト", kind: "SE", source: "フリー", duration: "0:02", addedAt: "2026-03-17" },
-  { id: "m-008", name: "特典推し_撮影素材.mp4", summary: "特典内容を紹介する撮影済み動画素材", kind: "動画", source: "提供", duration: "0:38", addedAt: "2026-03-16" },
+  { id: "m-006", name: "BGM_アップテンポ01.mp3", summary: "明るくポジティブなアップテンポBGM", kind: "BGM", source: "フリー", duration: "1:20", addedAt: "2026-03-17", usedSections: [{ label: "フック〜商品紹介", start: "00:00", end: "00:45" }, { label: "サビ部分", start: "00:30", end: "00:50" }] },
+  { id: "m-007", name: "SE_決定音.mp3", summary: "CTA部分で使用する決定音エフェクト", kind: "SE", source: "フリー", duration: "0:02", addedAt: "2026-03-17", usedSections: [{ label: "CTA", start: "00:00", end: "00:02" }] },
+  { id: "m-008", name: "特典推し_撮影素材.mp4", summary: "特典内容を紹介する撮影済み動画素材", kind: "動画", source: "提供", duration: "0:38", addedAt: "2026-03-16", usedSections: [{ label: "オファー", start: "00:05", end: "00:25" }] },
   { id: "m-009", name: "ロゴ_BONNOU_白.png", summary: "BONNOUロゴ（白背景版）", kind: "画像", source: "提供", addedAt: "2026-03-15" },
-  { id: "m-010", name: "BGM_落ち着き系02.mp3", summary: "権威性パートで使用する落ち着いた曲", kind: "BGM", source: "フリー", duration: "1:45", addedAt: "2026-03-15" },
-  { id: "m-011", name: "SE_キラキラ.mp3", summary: "ベネフィット表示時のキラキラ効果音", kind: "SE", source: "フリー", duration: "0:01", addedAt: "2026-03-14" },
-  { id: "m-012", name: "SE_ドン.mp3", summary: "フック部分のインパクト効果音", kind: "SE", source: "提供", duration: "0:01", addedAt: "2026-03-14" },
+  { id: "m-010", name: "BGM_落ち着き系02.mp3", summary: "権威性パートで使用する落ち着いた曲", kind: "BGM", source: "フリー", duration: "1:45", addedAt: "2026-03-15", usedSections: [{ label: "権威性パート", start: "00:10", end: "00:40" }] },
+  { id: "m-011", name: "SE_キラキラ.mp3", summary: "ベネフィット表示時のキラキラ効果音", kind: "SE", source: "フリー", duration: "0:01", addedAt: "2026-03-14", usedSections: [{ label: "ベネフィット", start: "00:00", end: "00:01" }] },
+  { id: "m-012", name: "SE_ドン.mp3", summary: "フック部分のインパクト効果音", kind: "SE", source: "提供", duration: "0:01", addedAt: "2026-03-14", usedSections: [{ label: "フック", start: "00:00", end: "00:01" }] },
 ];
 
 const KIND_CONFIG: Record<MaterialKind, { icon: typeof Film; color: string; bg: string }> = {
@@ -54,6 +57,8 @@ export default function MaterialsPage({ params }: { params: Promise<{ projectId:
   const [search, setSearch] = useState("");
   const [kindFilter, setKindFilter] = useState<MaterialKind | "">("");
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectedItem = MATERIALS.find((m) => m.id === selectedId);
 
   const filtered = MATERIALS.filter((m) => {
     if (search && !m.name.toLowerCase().includes(search.toLowerCase()) && !m.summary.toLowerCase().includes(search.toLowerCase())) return false;
@@ -116,7 +121,7 @@ export default function MaterialsPage({ params }: { params: Promise<{ projectId:
               const cfg = KIND_CONFIG[item.kind];
               const KindIcon = cfg.icon;
               return (
-                <div key={item.id} className="bg-white rounded-xl border border-black/[0.06] overflow-hidden hover:shadow-md hover:border-[#9333EA]/20 transition-all cursor-pointer group">
+                <div key={item.id} onClick={() => setSelectedId(item.id)} className="bg-white rounded-xl border border-black/[0.06] overflow-hidden hover:shadow-md hover:border-[#9333EA]/20 transition-all cursor-pointer group">
                   <div className="relative bg-gradient-to-br from-[#1A1A2E]/5 to-[#9333EA]/5 flex items-center justify-center py-6">
                     <div className="w-[60px] h-[100px] rounded-xl border-2 border-[#1A1A2E]/10 bg-white flex items-center justify-center group-hover:border-[#9333EA]/30 transition-colors">
                       <KindIcon className={`w-6 h-6 ${cfg.color} opacity-40 group-hover:opacity-70 transition-opacity`} />
@@ -166,7 +171,7 @@ export default function MaterialsPage({ params }: { params: Promise<{ projectId:
                 const ss = SOURCE_STYLES[item.source];
                 const KindIcon = cfg.icon;
                 return (
-                  <div key={item.id} className="grid grid-cols-[50px_60px_70px_1fr_1fr_80px_100px] border-b border-black/[0.03] hover:bg-black/[0.01] transition-colors cursor-pointer group">
+                  <div key={item.id} onClick={() => setSelectedId(item.id)} className="grid grid-cols-[50px_60px_70px_1fr_1fr_80px_100px] border-b border-black/[0.03] hover:bg-black/[0.01] transition-colors cursor-pointer group">
                     <div className="px-2 py-3 flex items-center justify-center">
                       <div className={`w-8 h-8 rounded-lg ${cfg.bg} flex items-center justify-center`}>
                         <KindIcon className={`w-3.5 h-3.5 ${cfg.color}`} />
@@ -204,6 +209,78 @@ export default function MaterialsPage({ params }: { params: Promise<{ projectId:
           </div>
         )}
       </div>
+      {/* Detail modal */}
+      {selectedItem && (() => {
+        const cfg = KIND_CONFIG[selectedItem.kind];
+        const ss = SOURCE_STYLES[selectedItem.source];
+        const KindIcon = cfg.icon;
+        const hasTimeline = selectedItem.kind === "動画" || selectedItem.kind === "BGM" || selectedItem.kind === "SE";
+        return (
+          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-6" onClick={() => setSelectedId(null)}>
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              {/* Preview area */}
+              <div className={`relative flex items-center justify-center ${
+                selectedItem.kind === "動画" ? "aspect-video" : "py-10"
+              } bg-gradient-to-br from-[#1a1a2e]/70 to-[#1a1a2e]/90`}>
+                <KindIcon className="w-16 h-16 text-white/15" />
+                {(selectedItem.kind === "動画" || selectedItem.kind === "BGM" || selectedItem.kind === "SE") && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center cursor-pointer hover:bg-white/30 transition-colors">
+                      <Play className="w-7 h-7 text-white ml-1" />
+                    </div>
+                  </div>
+                )}
+                {selectedItem.duration && (
+                  <div className="absolute bottom-3 right-3 bg-black/60 text-white text-[11px] font-medium px-2 py-1 rounded">{selectedItem.duration}</div>
+                )}
+                <button onClick={() => setSelectedId(null)} className="absolute top-3 left-3 w-8 h-8 rounded-full bg-black/30 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/50 transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Info */}
+              <div className="p-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded ${cfg.bg} ${cfg.color}`}>{selectedItem.kind}</span>
+                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded ${ss.bg} ${ss.text}`}>{selectedItem.source}</span>
+                  <span className="text-[10px] text-[#1A1A2E]/30 ml-auto flex items-center gap-1"><Calendar className="w-3 h-3" />{selectedItem.addedAt}</span>
+                </div>
+                <h2 className="text-[16px] font-bold text-[#1A1A2E] mb-1">{selectedItem.name}</h2>
+                <p className="text-[12px] text-[#1A1A2E]/50 leading-relaxed mb-4">{selectedItem.summary}</p>
+
+                {/* Used sections (for 動画/BGM/SE) */}
+                {hasTimeline && selectedItem.usedSections && selectedItem.usedSections.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-1.5 text-[10px] text-[#1A1A2E]/30 font-bold mb-2">
+                      <Scissors className="w-3 h-3" /> よく使われる利用箇所
+                    </div>
+                    <div className="space-y-1.5">
+                      {selectedItem.usedSections.map((sec, i) => (
+                        <div key={i} className="flex items-center gap-3 bg-[#FAF8F5] rounded-lg px-3 py-2">
+                          <span className="text-[10px] font-bold text-[#9333EA] bg-[#9333EA]/[0.08] px-1.5 py-0.5 rounded whitespace-nowrap">{sec.label}</span>
+                          <div className="flex-1 h-1.5 bg-[#1A1A2E]/[0.06] rounded-full relative overflow-hidden">
+                            {/* Visual bar showing the used portion */}
+                            {selectedItem.duration && (() => {
+                              const parseSec = (t: string) => { const [m, s] = t.split(":").map(Number); return (m || 0) * 60 + (s || 0); };
+                              const total = parseSec(selectedItem.duration);
+                              const s = parseSec(sec.start);
+                              const e = parseSec(sec.end);
+                              if (total === 0) return null;
+                              return <div className="absolute h-full bg-[#9333EA]/40 rounded-full" style={{ left: `${(s / total) * 100}%`, width: `${((e - s) / total) * 100}%` }} />;
+                            })()}
+                          </div>
+                          <span className="text-[10px] text-[#1A1A2E]/40 font-mono whitespace-nowrap">{sec.start} 〜 {sec.end}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       <VoiceInputButton onTranscript={(text) => console.log("voice:", text)} />
     </div>
   );
