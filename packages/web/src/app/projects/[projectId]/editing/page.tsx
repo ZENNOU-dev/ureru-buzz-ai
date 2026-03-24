@@ -8,6 +8,8 @@ import Link from "next/link";
 import { VoiceInputButton } from "@/components/voice-input-button";
 
 // ─── Types ────────────────────────────────────────────
+type AiStatus = "pending" | "processing" | "done" | "approved" | "manual";
+
 type EditingScene = {
   id: number;
   section: string;
@@ -31,6 +33,12 @@ type EditingScene = {
   motionTarget: string; // "テロップ" | "メイン素材" | "サブ素材" | ""
   soundEffect: string;
   comment: string;
+  aiCutStatus: AiStatus;
+  aiTelopStatus: AiStatus;
+  aiImageStatus: AiStatus;
+  aiCutPoints: number[];
+  aiTelopSuggestion: string;
+  aiImageSuggestion: string;
 };
 
 // ─── Constants ───────────────────────────────────────
@@ -114,6 +122,12 @@ function makeInitialScenes(): EditingScene[] {
     motionTarget: "",
     soundEffect: "",
     comment: "",
+    aiCutStatus: "done" as AiStatus,
+    aiTelopStatus: "done" as AiStatus,
+    aiImageStatus: "done" as AiStatus,
+    aiCutPoints: [],
+    aiTelopSuggestion: "",
+    aiImageSuggestion: "",
   }));
 }
 
@@ -173,6 +187,93 @@ function Bubble({ label, text, color = "bg-[#FAF8F5]" }: { label: string; text: 
     <div className={`${color} w-[72px] h-[72px] rounded-full inline-flex flex-col items-center justify-center p-2 shrink-0 shadow-sm`}>
       <span className="text-[7px] font-bold text-[#1A1A2E]/50 uppercase">{label}</span>
       <p className="text-[6px] text-[#1A1A2E] font-medium leading-tight text-center mt-0.5 line-clamp-3">{text}</p>
+    </div>
+  );
+}
+
+// ─── AI Badge ────────────────────────────────────────
+function AiBadge({ status, onApprove, onEdit }: { status: string; onApprove: () => void; onEdit: () => void }) {
+  const [showActions, setShowActions] = useState(false);
+  if (status === "manual") return null;
+  return (
+    <div className="inline-flex items-center gap-0.5 relative">
+      <button onClick={() => setShowActions(!showActions)}
+        className={`text-[7px] font-bold px-1 py-0.5 rounded ${
+          status === "done" ? "bg-[#9333EA]/10 text-[#9333EA]" :
+          status === "approved" ? "bg-emerald-50 text-emerald-600" : "bg-gray-100 text-gray-400"
+        }`}>
+        🤖 {status === "approved" ? "承認済" : "AI"}
+      </button>
+      {showActions && (
+        <div className="absolute top-full left-0 mt-1 z-20 bg-white rounded-lg shadow-lg border border-black/[0.08] p-1 flex gap-1">
+          <button onClick={() => { onApprove(); setShowActions(false); }} className="text-[8px] px-2 py-1 rounded bg-emerald-50 text-emerald-600 hover:bg-emerald-100 whitespace-nowrap">✓ 承認</button>
+          <button onClick={() => { onEdit(); setShowActions(false); }} className="text-[8px] px-2 py-1 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 whitespace-nowrap">✏ 修正</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── AI Step Bar ─────────────────────────────────────
+const AI_STEPS = ["素材アップロード", "AIカット", "AIテロップ", "AI画像提案", "確認・調整", "演出", "納品"];
+
+function AiStepBar({ currentStep }: { currentStep: number }) {
+  return (
+    <div className="flex items-center justify-center gap-0 px-4 py-2">
+      {AI_STEPS.map((label, i) => {
+        const isDone = i < currentStep;
+        const isCurrent = i === currentStep;
+        const isFuture = i > currentStep;
+        return (
+          <div key={label} className="flex items-center">
+            <div className="flex flex-col items-center gap-0.5">
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold border-2 transition-all ${
+                isDone ? "bg-emerald-500 border-emerald-500 text-white" :
+                isCurrent ? "bg-[#9333EA] border-[#9333EA] text-white" :
+                "bg-white border-gray-200 text-gray-300"
+              }`}>
+                {isDone ? <Check className="w-3 h-3" /> : i + 1}
+              </div>
+              <span className={`text-[7px] font-medium whitespace-nowrap ${
+                isDone ? "text-emerald-600" : isCurrent ? "text-[#9333EA] font-bold" : "text-gray-300"
+              }`}>{label}</span>
+            </div>
+            {i < AI_STEPS.length - 1 && (
+              <div className={`w-6 h-[2px] mx-0.5 mt-[-10px] ${isDone ? "bg-emerald-400" : isCurrent ? "bg-[#9333EA]/30" : "bg-gray-200"}`} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── AI Processing Buttons ───────────────────────────
+function AiProcessingButtons({ onAiCut, onAiTelop, onAiImage, processing }: {
+  onAiCut: () => void; onAiTelop: () => void; onAiImage: () => void;
+  processing: { cut: boolean; telop: boolean; image: boolean };
+}) {
+  const Spinner = () => (
+    <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24" fill="none">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+    </svg>
+  );
+  return (
+    <div className="flex items-center justify-center gap-2 px-4 py-1.5">
+      <span className="text-[9px] font-bold text-[#1A1A2E]/40 mr-1">AIで自動処理:</span>
+      <button onClick={onAiCut} disabled={processing.cut}
+        className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#9333EA]/10 text-[#9333EA] text-[10px] font-semibold hover:bg-[#9333EA]/20 disabled:opacity-50 transition-all">
+        {processing.cut ? <Spinner /> : "🎬"} AIカット
+      </button>
+      <button onClick={onAiTelop} disabled={processing.telop}
+        className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#9333EA]/10 text-[#9333EA] text-[10px] font-semibold hover:bg-[#9333EA]/20 disabled:opacity-50 transition-all">
+        {processing.telop ? <Spinner /> : "📝"} AIテロップ
+      </button>
+      <button onClick={onAiImage} disabled={processing.image}
+        className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#9333EA]/10 text-[#9333EA] text-[10px] font-semibold hover:bg-[#9333EA]/20 disabled:opacity-50 transition-all">
+        {processing.image ? <Spinner /> : "🖼"} AI画像提案
+      </button>
     </div>
   );
 }
@@ -360,6 +461,15 @@ function PhonePreview({ scene, idx, total, playing, onTogglePlay, onUpdate, edit
             </button>
           )}
 
+          {/* AI Cut Points visualization */}
+          {scene.aiCutPoints && scene.aiCutPoints.length > 0 && (
+            <div className="absolute bottom-2 left-2 right-2 z-[17] h-[6px] bg-black/20 rounded-full overflow-hidden">
+              {scene.aiCutPoints.map((cp, cpi) => (
+                <div key={cpi} className="absolute top-0 bottom-0 w-[2px] bg-yellow-400" style={{ left: `${Math.min(100, (cp / 3) * 100)}%` }} title={`Cut: ${cp}s`} />
+              ))}
+            </div>
+          )}
+
           {/* Progress */}
           <div className="absolute bottom-0 left-0 right-0 z-[18] h-1 bg-white/10">
             <div className="h-full bg-[#9333EA]/80 transition-all duration-500" style={{ width: `${((idx + 1) / total) * 100}%` }} />
@@ -425,8 +535,22 @@ function getFieldDefs(
   };
 
   return [
-    { key: "text", label: "ナレーション", render: (s: EditingScene) => <AutoTextarea value={s.text} readOnly className="text-[10px]" /> },
-    { key: "telop", label: "テロップ", render: (s: EditingScene) => <AutoTextarea value={s.telop} onChange={(v) => updateScene(s.id, "telop", v)} placeholder="テロップ" className="text-[10px]" /> },
+    { key: "text", label: "ナレーション", render: (s: EditingScene) => (
+      <div>
+        <div className="flex items-center gap-1 mb-0.5">
+          <AiBadge status={s.aiTelopStatus} onApprove={() => updateScene(s.id, "aiTelopStatus", "approved")} onEdit={() => updateScene(s.id, "aiTelopStatus", "manual")} />
+        </div>
+        <AutoTextarea value={s.text} readOnly className="text-[10px]" />
+      </div>
+    )},
+    { key: "telop", label: "テロップ", render: (s: EditingScene) => (
+      <div>
+        <div className="flex items-center gap-1 mb-0.5">
+          <AiBadge status={s.aiTelopStatus} onApprove={() => updateScene(s.id, "aiTelopStatus", "approved")} onEdit={() => updateScene(s.id, "aiTelopStatus", "manual")} />
+        </div>
+        <AutoTextarea value={s.telop} onChange={(v) => updateScene(s.id, "telop", v)} placeholder="テロップ" className="text-[10px]" />
+      </div>
+    )},
     { key: "annotation", label: "注釈", render: (s: EditingScene) => (
       <div>
         {s.annotation ? (
@@ -558,6 +682,8 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
   const [globalBgm] = useState("BGM-01: アップテンポ・ポジティブ");
   const [globalFont] = useState("ゴシック体");
   const [globalFeedback, setGlobalFeedback] = useState("");
+  const [currentStep, setCurrentStep] = useState(4);
+  const [aiProcessing, setAiProcessing] = useState({ cut: false, telop: false, image: false });
 
   const editScrollRef = useRef<HTMLDivElement | null>(null);
   const activeSceneIdRef = useRef<number | null>(null);
@@ -630,6 +756,46 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
     setGlobalFeedback((prev) => prev ? prev + "\n" + text : text);
   }, []);
 
+  // AI processing handlers
+  const handleAiCut = useCallback(() => {
+    setAiProcessing((p) => ({ ...p, cut: true }));
+    setScenes((prev) => prev.map((s) => ({ ...s, aiCutStatus: "processing" as AiStatus })));
+    setTimeout(() => {
+      setScenes((prev) => prev.map((s) => ({
+        ...s,
+        aiCutStatus: "done" as AiStatus,
+        aiCutPoints: [0.5, 1.2, 1.8].map((v) => +(v + Math.random() * 0.3).toFixed(1)),
+      })));
+      setAiProcessing((p) => ({ ...p, cut: false }));
+    }, 1000);
+  }, []);
+
+  const handleAiTelop = useCallback(() => {
+    setAiProcessing((p) => ({ ...p, telop: true }));
+    setScenes((prev) => prev.map((s) => ({ ...s, aiTelopStatus: "processing" as AiStatus })));
+    setTimeout(() => {
+      setScenes((prev) => prev.map((s) => ({
+        ...s,
+        aiTelopStatus: "done" as AiStatus,
+        aiTelopSuggestion: s.text,
+      })));
+      setAiProcessing((p) => ({ ...p, telop: false }));
+    }, 1000);
+  }, []);
+
+  const handleAiImage = useCallback(() => {
+    setAiProcessing((p) => ({ ...p, image: true }));
+    setScenes((prev) => prev.map((s) => ({ ...s, aiImageStatus: "processing" as AiStatus })));
+    setTimeout(() => {
+      setScenes((prev) => prev.map((s) => ({
+        ...s,
+        aiImageStatus: "done" as AiStatus,
+        aiImageSuggestion: `${s.section}のイメージ画像`,
+      })));
+      setAiProcessing((p) => ({ ...p, image: false }));
+    }, 1000);
+  }, []);
+
   const activeScene = scenes[activeIdx];
   const labelWidth = 100;
   const cardWidth = 220;
@@ -657,6 +823,14 @@ export default function EditingPage({ params }: { params: Promise<{ projectId: s
           <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#9333EA] text-white text-[12px] font-semibold hover:bg-[#7E22CE] transition-colors shadow-sm">
             <Package className="w-3.5 h-3.5" /> 納品
           </button>
+        </div>
+        {/* AI Step Bar */}
+        <div className="border-t border-black/[0.04]">
+          <AiStepBar currentStep={currentStep} />
+        </div>
+        {/* AI Processing Buttons */}
+        <div className="border-t border-black/[0.04]">
+          <AiProcessingButtons onAiCut={handleAiCut} onAiTelop={handleAiTelop} onAiImage={handleAiImage} processing={aiProcessing} />
         </div>
       </div>
 
