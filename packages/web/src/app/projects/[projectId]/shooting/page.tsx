@@ -38,8 +38,8 @@ type CallSheetRow = {
 // ─── Auto-classify category from description/name ────
 function autoClassify(name: string, desc: string): string {
   const t = (name + " " + desc).toLowerCase();
-  if (t.includes("インタビュー") || t.includes("話者") || t.includes("正面") || t.includes("アングル")) return "取材";
   if (t.includes("リアクション") || t.includes("うなずき")) return "反応";
+  if (t.includes("インタビュー") || t.includes("話者") || t.includes("正面") || t.includes("アングル")) return "取材";
   if (t.includes("pc") || t.includes("操作") || t.includes("ツール") || t.includes("商品") || t.includes("利用")) return "商品";
   if (t.includes("画面") || t.includes("録画") || t.includes("スクショ") || t.includes("スマホ")) return "録画";
   if (t.includes("成果") || t.includes("売上") || t.includes("フォロワー") || t.includes("ベネフィット")) return "実績";
@@ -192,7 +192,7 @@ export default function ShootingPage({ params }: { params: Promise<{ projectId: 
                   item.status === "撮影済" ? "bg-emerald-50/20" : ""
                 }`}>
                   <div className="px-3 py-3 flex items-center">
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#9333EA]/[0.08] text-[#9333EA]">{item.category}</span>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#9333EA]/[0.08] text-[#9333EA] whitespace-nowrap">{item.category}</span>
                   </div>
                   <div className="px-2 py-3 flex items-center">
                     <input value={item.materialName} onChange={(e) => updateMaterial(item.id, "materialName", e.target.value)}
@@ -331,19 +331,25 @@ export default function ShootingPage({ params }: { params: Promise<{ projectId: 
                             <div className="flex items-center gap-1.5 text-[10px] text-[#1A1A2E]/30 mb-0.5">
                               <MapPin className="w-3 h-3" /><span className="font-medium">場所</span>
                             </div>
-                            <p className="text-[12px] text-[#1A1A2E]/70">{group.location || "未定"}</p>
+                            <input value={group.location} onChange={(e) => {
+                              group.rows.forEach((r) => updateRow(selectedDay.id, r.id, "location", e.target.value));
+                            }} placeholder="場所" className="text-[12px] text-[#1A1A2E]/70 bg-transparent border-b border-transparent hover:border-black/[0.1] focus:border-[#9333EA]/40 outline-none w-full" />
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5 text-[10px] text-[#1A1A2E]/30 mb-0.5">
                               <User className="w-3 h-3" /><span className="font-medium">出演者</span>
                             </div>
-                            <p className="text-[12px] text-[#1A1A2E]/70">{group.cast || "—"}</p>
+                            <input value={group.cast} onChange={(e) => {
+                              group.rows.forEach((r) => updateRow(selectedDay.id, r.id, "cast", e.target.value));
+                            }} placeholder="出演者" className="text-[12px] text-[#1A1A2E]/70 bg-transparent border-b border-transparent hover:border-black/[0.1] focus:border-[#9333EA]/40 outline-none w-full" />
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5 text-[10px] text-[#1A1A2E]/30 mb-0.5">
                               <Shirt className="w-3 h-3" /><span className="font-medium">衣装</span>
                             </div>
-                            <p className="text-[12px] text-[#1A1A2E]/70">{group.costume || "—"}</p>
+                            <input value={group.costume} onChange={(e) => {
+                              group.rows.forEach((r) => updateRow(selectedDay.id, r.id, "costume", e.target.value));
+                            }} placeholder="衣装" className="text-[12px] text-[#1A1A2E]/70 bg-transparent border-b border-transparent hover:border-black/[0.1] focus:border-[#9333EA]/40 outline-none w-full" />
                           </div>
                           {group.rows.length > 1 && (
                             <p className="text-[9px] text-[#9333EA]/50 font-bold mt-1">{group.rows.length}カット連続</p>
