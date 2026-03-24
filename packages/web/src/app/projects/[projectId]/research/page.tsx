@@ -5,26 +5,57 @@ import {
   Search, Package, TrendingUp, Users, Globe, Star, Shield, Truck,
   Heart, DollarSign, ExternalLink, Image, Plus, X, ChevronRight,
   ChevronLeft, ChevronDown, ChevronUp, Zap, Palette, BookOpen, Award, Tag, Building,
-  ArrowRight, Calendar, MessageSquare,
+  ArrowRight, Calendar, MessageSquare, Play, Check, Eye,
 } from "lucide-react";
 import { VoiceInputButton } from "@/components/voice-input-button";
 
 // ─── Types ────────────────────────────────────────────
 type TabKey = "product" | "market" | "customer";
-type ProductSubTab = "overview" | "reviews" | "operations" | "experienceLog";
+type ProductSubTab = "hero" | "overview" | "reviews" | "operations" | "experienceLog" | "usp";
 type CustomerSub = "potential" | "existing";
 
-// Product Overview types
+// Product Hero types
 type HeroInfo = {
   productName: string;
   logoText: string;
   category: string;
   prevYearSales: string;
   offer: string;
+  lpUrl: string;
 };
 
-type FunctionItem = { name: string; description: string; effect: string };
-type ResearchItem = { data: string };
+type AdPreview = { id: number; label: string };
+
+// Product Overview types — Function bubble
+type FunctionBubble = {
+  id: number;
+  name: string;
+  description: string;
+  customerValue: string;
+  effects: { emoji: string; text: string }[];
+  researchData: { icon: string; title: string; detail: string; source: string }[];
+};
+
+// Design panel
+type DesignColor = { label: string; key: string; color: string };
+
+// Experience panel
+type EmotionKeyword = { id: number; emoji: string; text: string; x: number; y: number };
+type ExperienceQuote = { id: number; text: string; author: string };
+
+// Story panel
+type StoryNode = { id: number; year: string; description: string };
+
+// Offer panel
+type OfferPlan = {
+  title: string;
+  price: string;
+  items: string[];
+  isSpecial: boolean;
+  badge?: string;
+};
+
+// Reviews / Authority types
 type ReviewCard = {
   id: number;
   rating: number;
@@ -35,27 +66,25 @@ type ReviewCard = {
 };
 type AwardBubble = { id: number; name: string; year: string };
 type MediaBubble = { id: number; name: string; date: string };
+
+// Operations types
 type FlowNode = { id: number; text: string };
 type FlowSection = { title: string; nodes: FlowNode[] };
+
+// Experience Log types
 type ExperienceLog = {
   id: number;
   date: string;
   tags: string[];
   text: string;
 };
+
+// USP types
 type USPCard = {
   id: number;
   title: string;
   functionTags: string[];
   benefit: string;
-};
-
-type ValueCardData = {
-  key: string;
-  title: string;
-  icon: React.ReactNode;
-  summary: string;
-  expanded: boolean;
 };
 
 // Market types
@@ -74,10 +103,12 @@ const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
 ];
 
 const PRODUCT_SUB_TABS: { key: ProductSubTab; label: string }[] = [
+  { key: "hero", label: "商品" },
   { key: "overview", label: "商品概要" },
   { key: "reviews", label: "口コミ・権威性" },
   { key: "operations", label: "提供体制" },
-  { key: "experienceLog", label: "製品体験ログ" },
+  { key: "experienceLog", label: "製品体験" },
+  { key: "usp", label: "USP" },
 ];
 
 const MARKET_COLUMNS = ["商品市場", "仲裁市場", "周辺市場"];
@@ -101,70 +132,101 @@ function makeHeroInfo(): HeroInfo {
     category: "AIフリーランススクール",
     prevYearSales: "—",
     offer: "無料相談 + 限定特典",
+    lpUrl: "",
   };
 }
 
-function makeValueCards(): ValueCardData[] {
+function makeAdPreviews(): AdPreview[] {
   return [
-    { key: "function", title: "機能", icon: <Zap className="w-5 h-5" />, summary: "AIツール提供 + SNS運用スキル + 案件獲得サポート", expanded: false },
-    { key: "design", title: "デザイン", icon: <Palette className="w-5 h-5" />, summary: "ダークネイビー × パープル × ゴールドのプレミアム感", expanded: false },
-    { key: "experience", title: "体験", icon: <Heart className="w-5 h-5" />, summary: "直感的AIツールで初心者でも最先端を体感", expanded: false },
-    { key: "story", title: "ストーリー", icon: <BookOpen className="w-5 h-5" />, summary: "連続起業家が自らの経験から生み出した実践型AI教育", expanded: false },
-    { key: "authority", title: "権威性", icon: <Award className="w-5 h-5" />, summary: "AIスクールランキング1位・Forbes掲載・累計500名", expanded: false },
-    { key: "offer", title: "オファー", icon: <Tag className="w-5 h-5" />, summary: "498,000円（税込）・無料相談+AIツール永久利用権", expanded: false },
-    { key: "operations", title: "提供体制", icon: <Building className="w-5 h-5" />, summary: "オンライン完結型・専属メンター・LINEサポート24h", expanded: false },
+    { id: 1, label: "バナー広告 A" },
+    { id: 2, label: "ショート動画 A" },
   ];
 }
 
-function makeFunctionItems(): FunctionItem[] {
+function makeFunctionBubbles(): FunctionBubble[] {
   return [
-    { name: "AIツール提供", description: "独自開発のAIツールセット", effect: "SNS投稿の半自動化" },
-    { name: "SNS運用スキル", description: "実践的なSNSマーケティング講座", effect: "フォロワー獲得・案件受注" },
-    { name: "案件獲得サポート", description: "メンターによる案件紹介", effect: "受講3ヶ月以内に80%が案件獲得" },
+    {
+      id: 1, name: "AIツール提供", description: "SNS運用に特化したAI", customerValue: "未経験でも投稿作成可能",
+      effects: [
+        { emoji: "🎯", text: "SNS投稿の半自動化" },
+        { emoji: "✨", text: "高品質コンテンツ量産" },
+      ],
+      researchData: [
+        { icon: "📊", title: "AIツール利用満足度調査", detail: "受講生の92%がAIツールに満足と回答。特に投稿生成機能の評価が高い。", source: "社内アンケート 2025年12月" },
+      ],
+    },
+    {
+      id: 2, name: "SNS運用スキル", description: "実践的なノウハウ", customerValue: "短期間で成果を出せる",
+      effects: [
+        { emoji: "💡", text: "フォロワー獲得メソッド" },
+        { emoji: "🔧", text: "案件受注テクニック" },
+      ],
+      researchData: [
+        { icon: "📊", title: "受講後成果データ", detail: "受講3ヶ月後の平均フォロワー増加数: +2,500名。案件獲得率80%。", source: "受講生追跡調査 2025年" },
+      ],
+    },
+    {
+      id: 3, name: "起業家メンター", description: "連続起業家が直接指導", customerValue: "実務レベルのアドバイス",
+      effects: [
+        { emoji: "🎯", text: "個別戦略立案サポート" },
+        { emoji: "✨", text: "業界コネクション紹介" },
+      ],
+      researchData: [],
+    },
   ];
 }
 
-function makeDesignColors() {
-  return {
-    base: "#1A1A2E",
-    main: "#9333EA",
-    accent: "#F59E0B",
-    text: "#FFFFFF",
-    brandImage: "AI時代の先駆者・実践派。最先端テクノロジーを身近にするプレミアムブランド。",
-  };
+function makeDesignColors(): DesignColor[] {
+  return [
+    { label: "ベースカラー", key: "base", color: "#1a1a2e" },
+    { label: "メインカラー", key: "main", color: "#9333EA" },
+    { label: "アクセントカラー", key: "accent", color: "#22D3EE" },
+    { label: "テキストカラー", key: "text", color: "#FFFFFF" },
+  ];
 }
 
-function makeExperienceData() {
-  return {
-    usability: "直感的なAIツールで初心者でも簡単に操作可能。チュートリアルも充実。",
-    feeling: "最先端を使いこなしている感覚。未来のスキルを手にしている実感。",
-  };
+function makeEmotionKeywords(): EmotionKeyword[] {
+  return [
+    { id: 1, emoji: "✨", text: "ワクワク", x: 10, y: 10 },
+    { id: 2, emoji: "💪", text: "自信", x: 40, y: 40 },
+    { id: 3, emoji: "😌", text: "安心", x: 70, y: 70 },
+    { id: 4, emoji: "🎯", text: "集中", x: 70, y: 15 },
+    { id: 5, emoji: "🚀", text: "成長実感", x: 15, y: 70 },
+  ];
 }
 
-function makeStoryData() {
-  return {
-    story: "「AIで人生を変える」—連続起業家が自らの失敗と成功を経て、本当に使えるAIスキルを教えるために立ち上げたプロジェクト。従来のプログラミングスクールでは実践に結びつかないことに疑問を感じ、ツール提供と実務直結型カリキュラムを融合。",
-    brandStory: "テクノロジーは一部の人のものではない。誰でもAIを使いこなし、新しい働き方を実現できる世界を創る。",
-  };
+function makeExperienceQuotes(): ExperienceQuote[] {
+  return [
+    { id: 1, text: "AIツールを使った瞬間、未来のスキルを手にした感覚があった", author: "田中さん" },
+    { id: 2, text: "メンターの指導で、3ヶ月で人生が変わった", author: "佐藤さん" },
+  ];
 }
 
-function makeAuthorityData() {
-  return {
-    celebrity: "連続起業家監修",
-    salesRecord: "累計受講者500名突破",
-    researchData: [
-      { data: "受講生の80%が3ヶ月以内に案件獲得" },
-      { data: "受講後の平均月収+15万円" },
-    ] as ResearchItem[],
-  };
+function makeStoryNodes(): StoryNode[] {
+  return [
+    { id: 1, year: "2023", description: "創業者がAI×マーケに着目" },
+    { id: 2, year: "2024", description: "DOT-AI BOOTCAMP ローンチ" },
+    { id: 3, year: "2025", description: "受講者500名突破" },
+    { id: 4, year: "2026", description: "法人向けサービス開始" },
+  ];
 }
 
-function makeOfferData() {
-  return {
-    normalPrice: "498,000円（税込）",
-    offerContent: "無料相談 + 特典（AIツール永久利用権）\n入会金50%OFF（先着30名）",
-    exclusivity: "毎月先着30名限定",
-  };
+function makeOfferPlans(): OfferPlan[] {
+  return [
+    {
+      title: "通常",
+      price: "498,000円",
+      items: ["AIツール利用（1年間）", "オンライン講座全コース", "月2回グループメンタリング", "コミュニティ参加"],
+      isSpecial: false,
+    },
+    {
+      title: "特別オファー",
+      price: "398,000円",
+      items: ["AIツール永久利用権", "オンライン講座全コース", "月4回個別メンタリング", "コミュニティ参加", "案件紹介サポート", "無料相談 + 限定特典付き"],
+      isSpecial: true,
+      badge: "先着30名限定",
+    },
+  ];
 }
 
 function makeUSPCards(): USPCard[] {
@@ -309,18 +371,22 @@ export default function ResearchPage({
   const [activeTab, setActiveTab] = useState<TabKey>("product");
 
   // Product sub-tab
-  const [productSubTab, setProductSubTab] = useState<ProductSubTab>("overview");
+  const [productSubTab, setProductSubTab] = useState<ProductSubTab>("hero");
 
-  // Product Overview state
+  // Hero state
   const [heroInfo, setHeroInfo] = useState<HeroInfo>(makeHeroInfo);
-  const [valueCards, setValueCards] = useState<ValueCardData[]>(makeValueCards);
-  const [functionItems, setFunctionItems] = useState<FunctionItem[]>(makeFunctionItems);
-  const [designColors, setDesignColors] = useState(makeDesignColors);
-  const [experienceData, setExperienceData] = useState(makeExperienceData);
-  const [storyData, setStoryData] = useState(makeStoryData);
-  const [authorityData, setAuthorityData] = useState(makeAuthorityData);
-  const [offerData, setOfferData] = useState(makeOfferData);
-  const [uspCards, setUSPCards] = useState<USPCard[]>(makeUSPCards);
+  const [adPreviews, setAdPreviews] = useState<AdPreview[]>(makeAdPreviews);
+
+  // Overview state
+  const [functionBubbles, setFunctionBubbles] = useState<FunctionBubble[]>(makeFunctionBubbles);
+  const [expandedBubble, setExpandedBubble] = useState<number | null>(null);
+  const [researchModal, setResearchModal] = useState<{ bubbleId: number; dataIdx: number } | null>(null);
+  const [designColors, setDesignColors] = useState<DesignColor[]>(makeDesignColors);
+  const [moodboardSlots] = useState(6);
+  const [emotionKeywords, setEmotionKeywords] = useState<EmotionKeyword[]>(makeEmotionKeywords);
+  const [experienceQuotes, setExperienceQuotes] = useState<ExperienceQuote[]>(makeExperienceQuotes);
+  const [storyNodes, setStoryNodes] = useState<StoryNode[]>(makeStoryNodes);
+  const [offerPlans, setOfferPlans] = useState<OfferPlan[]>(makeOfferPlans);
 
   // Reviews & Authority state
   const [reviewCards, setReviewCards] = useState<ReviewCard[]>(makeReviewCards);
@@ -333,6 +399,9 @@ export default function ResearchPage({
 
   // Experience Log state
   const [experienceLogs, setExperienceLogs] = useState<ExperienceLog[]>(makeExperienceLogs);
+
+  // USP state
+  const [uspCards, setUSPCards] = useState<USPCard[]>(makeUSPCards);
 
   // Market state
   const [marketRows, setMarketRows] = useState<MarketRow[]>(makeMarketRows);
@@ -387,10 +456,6 @@ export default function ResearchPage({
 
   const surveys = customerSub === "potential" ? potentialSurveys : existingSurveys;
 
-  const toggleValueCard = (idx: number) => {
-    setValueCards((prev) => prev.map((c, i) => i === idx ? { ...c, expanded: !c.expanded } : c));
-  };
-
   // ─── Render helpers ─────────────────────────────────
   const inputClass =
     "w-full bg-white/80 border border-black/[0.06] rounded-lg px-3 py-2 text-[13px] text-[#1A1A2E] placeholder-[#1A1A2E]/30 outline-none focus:ring-2 focus:ring-[#9333EA]/20 focus:border-[#9333EA]/40 transition-all";
@@ -416,319 +481,513 @@ export default function ResearchPage({
     </div>
   );
 
-  // ─── Sub-tab: 商品概要 ───────────────────────────────
-  function renderOverviewTab() {
+  // ─── Sub-tab 1: 商品 (Hero) ─────────────────────────
+  function renderHeroTab() {
     return (
-      <div className="space-y-8">
-        {/* Hero Section */}
-        <section className="rounded-2xl bg-gradient-to-r from-[#9333EA] to-[#6D28D9] p-8 shadow-lg">
-          <div className="flex items-start gap-6">
-            {/* Logo placeholder */}
-            <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center shrink-0 shadow-md">
-              <input
-                className="w-full h-full text-center text-[#9333EA] font-bold text-sm bg-transparent outline-none rounded-2xl"
-                value={heroInfo.logoText}
-                onChange={(e) => setHeroInfo((p) => ({ ...p, logoText: e.target.value }))}
-              />
-            </div>
-            <div className="flex-1 space-y-3">
-              <input
-                className="bg-transparent text-white text-3xl font-bold outline-none w-full placeholder-white/40"
-                value={heroInfo.productName}
-                onChange={(e) => setHeroInfo((p) => ({ ...p, productName: e.target.value }))}
-                placeholder="商品名を入力"
-              />
-              <div className="flex items-center gap-4 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <span className="text-white/70 text-[12px]">カテゴリー:</span>
+      <div className="flex gap-6">
+        {/* Left side 60% */}
+        <div className="w-[60%] shrink-0">
+          <div className="rounded-2xl bg-gradient-to-br from-[#9333EA] to-[#6D28D9] p-8 shadow-lg min-h-[360px] flex flex-col justify-between">
+            <div className="space-y-5">
+              {/* Logo + product name */}
+              <div className="flex items-start gap-5">
+                <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center shrink-0 shadow-md">
                   <input
-                    className="bg-white/10 border border-white/20 rounded-lg px-3 py-1 text-[12px] text-white outline-none w-48 placeholder-white/30"
-                    value={heroInfo.category}
-                    onChange={(e) => setHeroInfo((p) => ({ ...p, category: e.target.value }))}
+                    className="w-full h-full text-center text-[#9333EA] font-bold text-sm bg-transparent outline-none rounded-2xl"
+                    value={heroInfo.logoText}
+                    onChange={(e) => setHeroInfo((p) => ({ ...p, logoText: e.target.value }))}
                   />
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-white/70 text-[12px]">前年度売上:</span>
+                <div className="flex-1 space-y-2">
                   <input
-                    className="bg-white/10 border border-white/20 rounded-lg px-3 py-1 text-[12px] text-white outline-none w-24 placeholder-white/30"
-                    value={heroInfo.prevYearSales}
-                    onChange={(e) => setHeroInfo((p) => ({ ...p, prevYearSales: e.target.value }))}
+                    className="bg-transparent text-white text-3xl font-bold outline-none w-full placeholder-white/40"
+                    value={heroInfo.productName}
+                    onChange={(e) => setHeroInfo((p) => ({ ...p, productName: e.target.value }))}
+                    placeholder="商品名を入力"
                   />
+                  <p className="text-white/70 text-[13px]">
+                    <input
+                      className="bg-transparent text-white/70 text-[13px] outline-none w-full placeholder-white/30"
+                      value={heroInfo.category}
+                      onChange={(e) => setHeroInfo((p) => ({ ...p, category: e.target.value }))}
+                      placeholder="カテゴリ"
+                    />
+                  </p>
                 </div>
               </div>
-              <div>
-                <span className="inline-flex items-center gap-1 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
-                  <Tag className="w-3 h-3 text-white/80" />
-                  <input
-                    className="bg-transparent text-white text-[11px] font-semibold outline-none w-40 placeholder-white/40"
-                    value={heroInfo.offer}
-                    onChange={(e) => setHeroInfo((p) => ({ ...p, offer: e.target.value }))}
-                    placeholder="オファー"
-                  />
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        {/* 価値カード - 7 cards horizontal scrollable */}
-        <section>
-          {sectionHeader("価値カード", "7つの視点で商品価値を分析")}
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin">
-            {valueCards.map((card, ci) => (
-              <div key={card.key} className="min-w-[220px] max-w-[220px] bg-white rounded-xl border border-black/[0.06] shadow-sm flex flex-col">
-                {/* Card header */}
-                <div className="p-4 flex flex-col items-center text-center">
-                  <div className="w-10 h-10 rounded-xl bg-[#9333EA]/10 flex items-center justify-center text-[#9333EA] mb-2">
-                    {card.icon}
-                  </div>
-                  <h3 className="text-[13px] font-bold text-[#1A1A2E] mb-2">{card.title}</h3>
-                  {/* Image area */}
-                  <div className="w-[160px] h-[100px] border-2 border-dashed border-black/10 rounded-lg flex items-center justify-center bg-[#FAF8F5] mb-2">
-                    <span className="text-[10px] text-[#1A1A2E]/30">画像をアップロード</span>
-                  </div>
-                  {/* Summary */}
-                  <textarea
-                    className="w-full text-[11px] text-[#1A1A2E]/70 bg-transparent outline-none resize-none text-center"
-                    rows={2}
-                    value={card.summary}
-                    onChange={(e) => setValueCards((prev) => prev.map((c, i) => i === ci ? { ...c, summary: e.target.value } : c))}
-                  />
-                </div>
-                {/* Expand toggle */}
-                <button
-                  onClick={() => toggleValueCard(ci)}
-                  className="flex items-center justify-center gap-1 py-2 border-t border-black/[0.04] text-[11px] text-[#9333EA] font-semibold hover:bg-[#9333EA]/5 transition-colors"
-                >
-                  {card.expanded ? "閉じる" : "詳細を見る"}
-                  {card.expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                </button>
-                {/* Expanded content */}
-                {card.expanded && (
-                  <div className="px-4 pb-4 border-t border-black/[0.04] pt-3 space-y-3">
-                    {card.key === "function" && (
-                      <>
-                        {functionItems.map((item, fi) => (
-                          <div key={fi} className="space-y-1 bg-[#FAF8F5] rounded-lg p-2">
-                            <input className={inputClass + " text-[11px] font-semibold"} placeholder="機能名" value={item.name} onChange={(e) => {
-                              const next = [...functionItems]; next[fi] = { ...next[fi], name: e.target.value }; setFunctionItems(next);
-                            }} />
-                            <input className={inputClass + " text-[11px]"} placeholder="説明" value={item.description} onChange={(e) => {
-                              const next = [...functionItems]; next[fi] = { ...next[fi], description: e.target.value }; setFunctionItems(next);
-                            }} />
-                            <input className={inputClass + " text-[11px]"} placeholder="効果・効能" value={item.effect} onChange={(e) => {
-                              const next = [...functionItems]; next[fi] = { ...next[fi], effect: e.target.value }; setFunctionItems(next);
-                            }} />
-                          </div>
-                        ))}
-                        <button onClick={() => setFunctionItems((p) => [...p, { name: "", description: "", effect: "" }])}
-                          className="flex items-center gap-1 text-[11px] text-[#9333EA] font-semibold hover:underline">
-                          <Plus className="w-3 h-3" /> 追加
-                        </button>
-                      </>
-                    )}
-                    {card.key === "design" && (
-                      <>
-                        <div className="flex items-center gap-3 flex-wrap">
-                          {([["ベース", "base"], ["メイン", "main"], ["アクセント", "accent"], ["テキスト", "text"]] as const).map(([label, key]) => (
-                            <div key={key} className="flex flex-col items-center gap-1">
-                              <input
-                                type="color"
-                                className="w-8 h-8 rounded-full border-2 border-white shadow cursor-pointer"
-                                value={designColors[key]}
-                                onChange={(e) => setDesignColors((p) => ({ ...p, [key]: e.target.value }))}
-                              />
-                              <span className="text-[9px] text-[#1A1A2E]/50">{label}</span>
-                            </div>
-                          ))}
-                        </div>
-                        <div>
-                          <label className="text-[10px] text-[#1A1A2E]/50 font-semibold">ブランドイメージ</label>
-                          <textarea className={inputClass + " text-[11px] resize-none mt-1"} rows={3} value={designColors.brandImage}
-                            onChange={(e) => setDesignColors((p) => ({ ...p, brandImage: e.target.value }))} />
-                        </div>
-                      </>
-                    )}
-                    {card.key === "experience" && (
-                      <>
-                        <div>
-                          <label className="text-[10px] text-[#1A1A2E]/50 font-semibold">使用感</label>
-                          <textarea className={inputClass + " text-[11px] resize-none mt-1"} rows={3} value={experienceData.usability}
-                            onChange={(e) => setExperienceData((p) => ({ ...p, usability: e.target.value }))} />
-                        </div>
-                        <div>
-                          <label className="text-[10px] text-[#1A1A2E]/50 font-semibold">体感</label>
-                          <textarea className={inputClass + " text-[11px] resize-none mt-1"} rows={3} value={experienceData.feeling}
-                            onChange={(e) => setExperienceData((p) => ({ ...p, feeling: e.target.value }))} />
-                        </div>
-                      </>
-                    )}
-                    {card.key === "story" && (
-                      <>
-                        <div>
-                          <label className="text-[10px] text-[#1A1A2E]/50 font-semibold">ストーリー</label>
-                          <textarea className={inputClass + " text-[11px] resize-none mt-1"} rows={5} value={storyData.story}
-                            onChange={(e) => setStoryData((p) => ({ ...p, story: e.target.value }))} />
-                        </div>
-                        <div>
-                          <label className="text-[10px] text-[#1A1A2E]/50 font-semibold">ブランドストーリー</label>
-                          <textarea className={inputClass + " text-[11px] resize-none mt-1"} rows={3} value={storyData.brandStory}
-                            onChange={(e) => setStoryData((p) => ({ ...p, brandStory: e.target.value }))} />
-                        </div>
-                      </>
-                    )}
-                    {card.key === "authority" && (
-                      <>
-                        <div>
-                          <label className="text-[10px] text-[#1A1A2E]/50 font-semibold">有名人</label>
-                          <input className={inputClass + " text-[11px] mt-1"} value={authorityData.celebrity}
-                            onChange={(e) => setAuthorityData((p) => ({ ...p, celebrity: e.target.value }))} />
-                        </div>
-                        <div>
-                          <label className="text-[10px] text-[#1A1A2E]/50 font-semibold">売上/企業実績</label>
-                          <input className={inputClass + " text-[11px] mt-1"} value={authorityData.salesRecord}
-                            onChange={(e) => setAuthorityData((p) => ({ ...p, salesRecord: e.target.value }))} />
-                        </div>
-                        <div>
-                          <label className="text-[10px] text-[#1A1A2E]/50 font-semibold">研究データ</label>
-                          {authorityData.researchData.map((rd, ri) => (
-                            <div key={ri} className="flex items-center gap-1 mt-1">
-                              <input className={inputClass + " text-[11px] flex-1"} value={rd.data}
-                                onChange={(e) => {
-                                  const next = { ...authorityData, researchData: [...authorityData.researchData] };
-                                  next.researchData[ri] = { data: e.target.value };
-                                  setAuthorityData(next);
-                                }} />
-                              <button onClick={() => {
-                                const next = { ...authorityData, researchData: authorityData.researchData.filter((_, i) => i !== ri) };
-                                setAuthorityData(next);
-                              }} className="text-red-400 hover:text-red-600"><X className="w-3 h-3" /></button>
-                            </div>
-                          ))}
-                          <button onClick={() => setAuthorityData((p) => ({ ...p, researchData: [...p.researchData, { data: "" }] }))}
-                            className="flex items-center gap-1 text-[11px] text-[#9333EA] font-semibold hover:underline mt-1">
-                            <Plus className="w-3 h-3" /> 追加
-                          </button>
-                        </div>
-                      </>
-                    )}
-                    {card.key === "offer" && (
-                      <>
-                        <div>
-                          <label className="text-[10px] text-[#1A1A2E]/50 font-semibold">通常価格</label>
-                          <input className={inputClass + " text-[11px] mt-1"} value={offerData.normalPrice}
-                            onChange={(e) => setOfferData((p) => ({ ...p, normalPrice: e.target.value }))} />
-                        </div>
-                        <div>
-                          <label className="text-[10px] text-[#1A1A2E]/50 font-semibold">オファー内容</label>
-                          <textarea className={inputClass + " text-[11px] resize-none mt-1"} rows={3} value={offerData.offerContent}
-                            onChange={(e) => setOfferData((p) => ({ ...p, offerContent: e.target.value }))} />
-                        </div>
-                        <div>
-                          <label className="text-[10px] text-[#1A1A2E]/50 font-semibold">限定性</label>
-                          <input className={inputClass + " text-[11px] mt-1"} value={offerData.exclusivity}
-                            onChange={(e) => setOfferData((p) => ({ ...p, exclusivity: e.target.value }))} />
-                        </div>
-                      </>
-                    )}
-                    {card.key === "operations" && (
-                      <div className="text-[11px] text-[#1A1A2E]/60">
-                        <p>オンライン完結型 / 専属メンター制（LINEサポート24h）/ LP + SNS広告 + 無料セミナー</p>
-                        <button onClick={() => setProductSubTab("operations")}
-                          className="flex items-center gap-1 text-[#9333EA] font-semibold hover:underline mt-2">
-                          提供体制タブで詳細を見る <ChevronRight className="w-3 h-3" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* USPカード */}
-        <section>
-          {sectionHeader("USPカード", "独自の強み・差別化ポイント")}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {uspCards.map((usp, ui) => (
-              <div key={usp.id} className="bg-white rounded-xl border border-black/[0.06] shadow-sm p-5 relative group">
-                <button
-                  onClick={() => setUSPCards((p) => p.filter((_, i) => i !== ui))}
-                  className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white shadow flex items-center justify-center text-[#1A1A2E]/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+              {/* Revenue */}
+              <div className="flex items-center gap-3">
+                <span className="text-white/60 text-[12px]">前年度売上:</span>
                 <input
-                  className="text-[16px] font-bold text-[#1A1A2E] bg-transparent outline-none w-full mb-3 placeholder-[#1A1A2E]/20"
-                  value={usp.title}
-                  onChange={(e) => setUSPCards((p) => p.map((c, i) => i === ui ? { ...c, title: e.target.value } : c))}
-                  placeholder="USPタイトル"
+                  className="bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-[13px] text-white outline-none w-40 placeholder-white/30"
+                  value={heroInfo.prevYearSales}
+                  onChange={(e) => setHeroInfo((p) => ({ ...p, prevYearSales: e.target.value }))}
+                  placeholder="金額を入力"
                 />
-                <div className="mb-3">
-                  <label className="text-[10px] text-[#1A1A2E]/50 font-semibold mb-1 block">紐づく機能価値</label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {usp.functionTags.map((tag, ti) => (
-                      <span key={ti} className="inline-flex items-center gap-1 bg-[#9333EA]/10 text-[#9333EA] text-[10px] font-semibold rounded-full px-2.5 py-1">
-                        <input
-                          className="bg-transparent outline-none text-[10px] w-20"
-                          value={tag}
-                          onChange={(e) => {
-                            const next = [...uspCards];
-                            const tags = [...next[ui].functionTags];
-                            tags[ti] = e.target.value;
-                            next[ui] = { ...next[ui], functionTags: tags };
-                            setUSPCards(next);
-                          }}
-                        />
-                        <button onClick={() => {
-                          const next = [...uspCards];
-                          next[ui] = { ...next[ui], functionTags: next[ui].functionTags.filter((_, i) => i !== ti) };
-                          setUSPCards(next);
-                        }}>
-                          <X className="w-2.5 h-2.5" />
-                        </button>
-                      </span>
-                    ))}
-                    <button
-                      onClick={() => {
-                        const next = [...uspCards];
-                        next[ui] = { ...next[ui], functionTags: [...next[ui].functionTags, ""] };
-                        setUSPCards(next);
+              </div>
+            </div>
+
+            {/* Offer badge */}
+            <div className="mt-6">
+              <span className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
+                <Tag className="w-4 h-4 text-white/80" />
+                <input
+                  className="bg-transparent text-white text-[13px] font-semibold outline-none w-48 placeholder-white/40"
+                  value={heroInfo.offer}
+                  onChange={(e) => setHeroInfo((p) => ({ ...p, offer: e.target.value }))}
+                  placeholder="オファー"
+                />
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right side 40% */}
+        <div className="w-[40%] space-y-5">
+          {/* LP Preview */}
+          <div className="bg-white rounded-xl border border-black/[0.06] shadow-sm overflow-hidden">
+            <div className="px-4 py-3 border-b border-black/[0.06] flex items-center gap-2">
+              <Eye className="w-4 h-4 text-[#9333EA]" />
+              <span className="text-[12px] font-bold text-[#1A1A2E]">LPプレビュー</span>
+            </div>
+            <div className="p-3 space-y-2">
+              <input
+                className={inputClass + " text-[12px]"}
+                placeholder="LPのURLを入力"
+                value={heroInfo.lpUrl}
+                onChange={(e) => setHeroInfo((p) => ({ ...p, lpUrl: e.target.value }))}
+              />
+              {heroInfo.lpUrl ? (
+                <div className="aspect-[4/3] rounded-lg overflow-hidden border border-black/[0.06]">
+                  <iframe
+                    src={heroInfo.lpUrl}
+                    className="w-full h-full"
+                    title="LP Preview"
+                    sandbox="allow-scripts allow-same-origin"
+                  />
+                </div>
+              ) : (
+                <div className="aspect-[4/3] rounded-lg border-2 border-dashed border-black/10 flex flex-col items-center justify-center bg-[#FAF8F5]">
+                  <Globe className="w-8 h-8 text-[#1A1A2E]/15 mb-2" />
+                  <span className="text-[11px] text-[#1A1A2E]/30">LPのURLを入力</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Ad Previews */}
+          <div className="bg-white rounded-xl border border-black/[0.06] shadow-sm overflow-hidden">
+            <div className="px-4 py-3 border-b border-black/[0.06] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Play className="w-4 h-4 text-[#9333EA]" />
+                <span className="text-[12px] font-bold text-[#1A1A2E]">広告プレビュー</span>
+              </div>
+              <button
+                onClick={() => setAdPreviews((p) => [...p, { id: Date.now(), label: "" }])}
+                className="flex items-center gap-1 text-[11px] text-[#9333EA] font-semibold hover:underline"
+              >
+                <Plus className="w-3 h-3" /> 広告を追加
+              </button>
+            </div>
+            <div className="p-3">
+              <div className="flex gap-3 overflow-x-auto pb-1">
+                {adPreviews.map((ad, ai) => (
+                  <div key={ad.id} className="min-w-[140px] shrink-0 group relative">
+                    <div className="aspect-video rounded-lg border-2 border-dashed border-black/10 bg-[#FAF8F5] flex items-center justify-center mb-1.5">
+                      <Play className="w-6 h-6 text-[#1A1A2E]/15" />
+                    </div>
+                    <input
+                      className="text-[10px] text-[#1A1A2E]/60 bg-transparent outline-none w-full text-center"
+                      value={ad.label}
+                      onChange={(e) => {
+                        const next = [...adPreviews];
+                        next[ai] = { ...next[ai], label: e.target.value };
+                        setAdPreviews(next);
                       }}
-                      className="inline-flex items-center gap-0.5 text-[10px] text-[#9333EA]/60 hover:text-[#9333EA] font-semibold"
+                      placeholder="ラベル"
+                    />
+                    <button
+                      onClick={() => setAdPreviews((p) => p.filter((_, i) => i !== ai))}
+                      className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-white shadow flex items-center justify-center text-[#1A1A2E]/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                     >
-                      <Plus className="w-3 h-3" /> タグ追加
+                      <X className="w-3 h-3" />
                     </button>
                   </div>
-                </div>
-                <div>
-                  <label className="text-[10px] text-[#1A1A2E]/50 font-semibold mb-1 block">提供便益</label>
-                  <textarea
-                    className={inputClass + " text-[12px] resize-none"}
-                    rows={2}
-                    value={usp.benefit}
-                    onChange={(e) => setUSPCards((p) => p.map((c, i) => i === ui ? { ...c, benefit: e.target.value } : c))}
-                    placeholder="提供便益を入力"
-                  />
-                </div>
+                ))}
               </div>
-            ))}
-            {/* Add USP card */}
-            <button
-              onClick={() => setUSPCards((p) => [...p, { id: Date.now(), title: "", functionTags: [], benefit: "" }])}
-              className="bg-white/50 rounded-xl border-2 border-dashed border-black/[0.08] flex flex-col items-center justify-center gap-2 py-12 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/5 transition-all group"
-            >
-              <Plus className="w-6 h-6 text-[#1A1A2E]/20 group-hover:text-[#9333EA]/50 transition-colors" />
-              <span className="text-[12px] font-medium text-[#1A1A2E]/30 group-hover:text-[#9333EA]/50 transition-colors">USP追加</span>
-            </button>
+            </div>
           </div>
-        </section>
+        </div>
       </div>
     );
   }
 
-  // ─── Sub-tab: 口コミ・権威性 ─────────────────────────
+  // ─── Sub-tab 2: 商品概要 (5 panels) ─────────────────
+  function renderOverviewTab() {
+    return (
+      <div className="space-y-6">
+        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin">
+          {/* Panel 1: 機能 */}
+          <div className="min-w-[280px] max-w-[280px] bg-purple-50/60 rounded-2xl border border-purple-100 p-5 flex flex-col shrink-0" style={{ minHeight: 300 }}>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-[#9333EA]/10 flex items-center justify-center">
+                <Zap className="w-4 h-4 text-[#9333EA]" />
+              </div>
+              <h3 className="text-[14px] font-bold text-[#1A1A2E]">機能</h3>
+            </div>
+
+            {/* Bubbles */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {functionBubbles.map((bubble) => (
+                <button
+                  key={bubble.id}
+                  onClick={() => setExpandedBubble(expandedBubble === bubble.id ? null : bubble.id)}
+                  className={`rounded-full px-4 py-2.5 text-center transition-all border ${
+                    expandedBubble === bubble.id
+                      ? "bg-[#9333EA] text-white border-[#9333EA] shadow-md"
+                      : "bg-white border-purple-200 hover:border-[#9333EA]/40 hover:shadow-sm"
+                  }`}
+                >
+                  <div className={`text-[11px] font-bold ${expandedBubble === bubble.id ? "text-white" : "text-[#1A1A2E]"}`}>
+                    {bubble.name}
+                  </div>
+                  <div className={`text-[9px] mt-0.5 ${expandedBubble === bubble.id ? "text-white/70" : "text-[#1A1A2E]/50"}`}>
+                    {bubble.description}
+                  </div>
+                  <div className={`text-[8px] mt-0.5 ${expandedBubble === bubble.id ? "text-white/60" : "text-[#9333EA]/60"}`}>
+                    {bubble.customerValue}
+                  </div>
+                </button>
+              ))}
+              <button
+                onClick={() => setFunctionBubbles((p) => [...p, { id: Date.now(), name: "", description: "", customerValue: "", effects: [], researchData: [] }])}
+                className="w-10 h-10 rounded-full border-2 border-dashed border-purple-200 flex items-center justify-center hover:border-[#9333EA]/40 transition-all"
+              >
+                <Plus className="w-4 h-4 text-purple-300" />
+              </button>
+            </div>
+
+            {/* Expanded content */}
+            {expandedBubble && (() => {
+              const bubble = functionBubbles.find((b) => b.id === expandedBubble);
+              if (!bubble) return null;
+              const bi = functionBubbles.findIndex((b) => b.id === expandedBubble);
+              return (
+                <div className="mt-2 space-y-3 border-t border-purple-200 pt-3 flex-1 overflow-y-auto">
+                  {/* Editable name/desc/value */}
+                  <input className={inputClass + " text-[11px] font-semibold"} value={bubble.name} placeholder="機能名"
+                    onChange={(e) => { const n = [...functionBubbles]; n[bi] = { ...n[bi], name: e.target.value }; setFunctionBubbles(n); }} />
+                  <input className={inputClass + " text-[11px]"} value={bubble.description} placeholder="説明"
+                    onChange={(e) => { const n = [...functionBubbles]; n[bi] = { ...n[bi], description: e.target.value }; setFunctionBubbles(n); }} />
+                  <input className={inputClass + " text-[11px]"} value={bubble.customerValue} placeholder="顧客価値"
+                    onChange={(e) => { const n = [...functionBubbles]; n[bi] = { ...n[bi], customerValue: e.target.value }; setFunctionBubbles(n); }} />
+
+                  {/* Effects */}
+                  <div>
+                    <label className="text-[10px] text-[#1A1A2E]/50 font-semibold">効果効能</label>
+                    {bubble.effects.map((eff, ei) => (
+                      <div key={ei} className="flex items-center gap-1.5 mt-1 bg-white rounded-lg p-1.5">
+                        <input className="w-6 text-center text-[14px] bg-transparent outline-none" value={eff.emoji}
+                          onChange={(e) => {
+                            const n = [...functionBubbles]; const effs = [...n[bi].effects]; effs[ei] = { ...effs[ei], emoji: e.target.value };
+                            n[bi] = { ...n[bi], effects: effs }; setFunctionBubbles(n);
+                          }} />
+                        <input className={inputClass + " text-[11px] flex-1"} value={eff.text}
+                          onChange={(e) => {
+                            const n = [...functionBubbles]; const effs = [...n[bi].effects]; effs[ei] = { ...effs[ei], text: e.target.value };
+                            n[bi] = { ...n[bi], effects: effs }; setFunctionBubbles(n);
+                          }} />
+                        <button onClick={() => {
+                          const n = [...functionBubbles]; n[bi] = { ...n[bi], effects: n[bi].effects.filter((_, i) => i !== ei) }; setFunctionBubbles(n);
+                        }} className="text-red-400 hover:text-red-600"><X className="w-3 h-3" /></button>
+                      </div>
+                    ))}
+                    <button onClick={() => {
+                      const n = [...functionBubbles]; n[bi] = { ...n[bi], effects: [...n[bi].effects, { emoji: "🎯", text: "" }] }; setFunctionBubbles(n);
+                    }} className="flex items-center gap-1 text-[10px] text-[#9333EA] font-semibold hover:underline mt-1">
+                      <Plus className="w-3 h-3" /> 追加
+                    </button>
+                  </div>
+
+                  {/* Research Data */}
+                  <div>
+                    <label className="text-[10px] text-[#1A1A2E]/50 font-semibold">研究データ</label>
+                    {bubble.researchData.map((rd, ri) => (
+                      <div key={ri} className="flex items-center gap-1.5 mt-1 bg-white rounded-lg p-1.5">
+                        <span className="text-[14px]">{rd.icon}</span>
+                        <span className="text-[11px] text-[#1A1A2E] flex-1 truncate">{rd.title}</span>
+                        <button onClick={() => setResearchModal({ bubbleId: bubble.id, dataIdx: ri })}
+                          className="text-[10px] text-[#9333EA] font-semibold hover:underline shrink-0">詳細</button>
+                        <button onClick={() => {
+                          const n = [...functionBubbles]; n[bi] = { ...n[bi], researchData: n[bi].researchData.filter((_, i) => i !== ri) }; setFunctionBubbles(n);
+                        }} className="text-red-400 hover:text-red-600 shrink-0"><X className="w-3 h-3" /></button>
+                      </div>
+                    ))}
+                    <button onClick={() => {
+                      const n = [...functionBubbles]; n[bi] = { ...n[bi], researchData: [...n[bi].researchData, { icon: "📊", title: "", detail: "", source: "" }] }; setFunctionBubbles(n);
+                    }} className="flex items-center gap-1 text-[10px] text-[#9333EA] font-semibold hover:underline mt-1">
+                      <Plus className="w-3 h-3" /> 追加
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* Panel 2: デザイン */}
+          <div className="min-w-[280px] max-w-[280px] bg-blue-50/60 rounded-2xl border border-blue-100 p-5 flex flex-col shrink-0" style={{ minHeight: 300 }}>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <Palette className="w-4 h-4 text-blue-600" />
+              </div>
+              <h3 className="text-[14px] font-bold text-[#1A1A2E]">デザイン</h3>
+            </div>
+
+            {/* Color palette */}
+            <div className="mb-5">
+              <label className="text-[10px] text-[#1A1A2E]/50 font-semibold mb-2 block">カラーパレット</label>
+              <div className="flex items-center gap-4">
+                {designColors.map((dc, di) => (
+                  <div key={dc.key} className="flex flex-col items-center gap-1.5">
+                    <label className="relative cursor-pointer">
+                      <div className="w-[50px] h-[50px] rounded-full shadow-md border-2 border-white" style={{ backgroundColor: dc.color }} />
+                      <input
+                        type="color"
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                        value={dc.color}
+                        onChange={(e) => {
+                          const n = [...designColors]; n[di] = { ...n[di], color: e.target.value }; setDesignColors(n);
+                        }}
+                      />
+                    </label>
+                    <span className="text-[9px] text-[#1A1A2E]/50 text-center">{dc.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Mood board */}
+            <div>
+              <label className="text-[10px] text-[#1A1A2E]/50 font-semibold mb-2 block">ムードボード</label>
+              <div className="grid grid-cols-3 gap-2">
+                {Array.from({ length: moodboardSlots }).map((_, i) => (
+                  <div key={i} className="aspect-video border-2 border-dashed border-blue-200 rounded-lg flex items-center justify-center bg-white/60">
+                    <span className="text-[9px] text-[#1A1A2E]/25">画像</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Panel 3: 体験 */}
+          <div className="min-w-[280px] max-w-[280px] bg-green-50/60 rounded-2xl border border-green-100 p-5 flex flex-col shrink-0" style={{ minHeight: 300 }}>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                <Heart className="w-4 h-4 text-green-600" />
+              </div>
+              <h3 className="text-[14px] font-bold text-[#1A1A2E]">体験</h3>
+            </div>
+
+            {/* Emotion map */}
+            <div className="relative bg-white/60 rounded-xl border border-green-200 mb-4" style={{ height: 160 }}>
+              {emotionKeywords.map((kw, ki) => (
+                <div
+                  key={kw.id}
+                  className="absolute group"
+                  style={{ left: `${kw.x}%`, top: `${kw.y}%` }}
+                >
+                  <div className="flex items-center gap-1 bg-white rounded-full px-2 py-1 shadow-sm border border-green-200">
+                    <input className="w-5 text-center text-[14px] bg-transparent outline-none" value={kw.emoji}
+                      onChange={(e) => { const n = [...emotionKeywords]; n[ki] = { ...n[ki], emoji: e.target.value }; setEmotionKeywords(n); }} />
+                    <input className="text-[10px] font-semibold text-[#1A1A2E] bg-transparent outline-none w-14" value={kw.text}
+                      onChange={(e) => { const n = [...emotionKeywords]; n[ki] = { ...n[ki], text: e.target.value }; setEmotionKeywords(n); }} />
+                  </div>
+                  <button
+                    onClick={() => setEmotionKeywords((p) => p.filter((_, i) => i !== ki))}
+                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white shadow flex items-center justify-center text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all"
+                  >
+                    <X className="w-2.5 h-2.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => setEmotionKeywords((p) => [...p, { id: Date.now(), emoji: "💫", text: "", x: Math.random() * 60 + 10, y: Math.random() * 60 + 10 }])}
+              className="flex items-center gap-1 text-[10px] text-green-600 font-semibold hover:underline mb-4"
+            >
+              <Plus className="w-3 h-3" /> キーワード追加
+            </button>
+
+            {/* Experience quotes */}
+            <div>
+              <label className="text-[10px] text-[#1A1A2E]/50 font-semibold mb-2 block">体験の声</label>
+              <div className="space-y-2">
+                {experienceQuotes.map((q, qi) => (
+                  <div key={q.id} className="bg-white rounded-lg p-2 border border-green-100 group relative">
+                    <textarea className="w-full text-[10px] text-[#1A1A2E]/80 bg-transparent outline-none resize-none" rows={2} value={q.text}
+                      onChange={(e) => { const n = [...experienceQuotes]; n[qi] = { ...n[qi], text: e.target.value }; setExperienceQuotes(n); }} placeholder="体験の声..." />
+                    <input className="text-[9px] text-[#1A1A2E]/40 bg-transparent outline-none w-full" value={q.author}
+                      onChange={(e) => { const n = [...experienceQuotes]; n[qi] = { ...n[qi], author: e.target.value }; setExperienceQuotes(n); }} placeholder="名前" />
+                    <button onClick={() => setExperienceQuotes((p) => p.filter((_, i) => i !== qi))}
+                      className="absolute top-1 right-1 w-4 h-4 rounded-full bg-white shadow flex items-center justify-center text-red-400 opacity-0 group-hover:opacity-100 transition-all">
+                      <X className="w-2.5 h-2.5" />
+                    </button>
+                  </div>
+                ))}
+                <button onClick={() => setExperienceQuotes((p) => [...p, { id: Date.now(), text: "", author: "" }])}
+                  className="flex items-center gap-1 text-[10px] text-green-600 font-semibold hover:underline">
+                  <Plus className="w-3 h-3" /> 追加
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Panel 4: ストーリー */}
+          <div className="min-w-[280px] max-w-[280px] bg-amber-50/60 rounded-2xl border border-amber-100 p-5 flex flex-col shrink-0" style={{ minHeight: 300 }}>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                <BookOpen className="w-4 h-4 text-amber-600" />
+              </div>
+              <h3 className="text-[14px] font-bold text-[#1A1A2E]">ストーリー</h3>
+            </div>
+
+            {/* Timeline */}
+            <div className="flex-1 relative">
+              {/* Vertical line */}
+              <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-amber-200" />
+              <div className="space-y-4 pl-10 relative">
+                {storyNodes.map((node, ni) => (
+                  <div key={node.id} className="relative group">
+                    {/* Node circle */}
+                    <div className="absolute -left-10 top-1 w-8 h-8 rounded-full bg-white border-2 border-amber-300 flex items-center justify-center text-[10px] font-bold text-amber-600 shadow-sm">
+                      {ni + 1}
+                    </div>
+                    <div className="bg-white rounded-lg p-2.5 border border-amber-100 shadow-sm">
+                      <input className="text-[11px] font-bold text-amber-600 bg-transparent outline-none w-full mb-1" value={node.year}
+                        onChange={(e) => { const n = [...storyNodes]; n[ni] = { ...n[ni], year: e.target.value }; setStoryNodes(n); }} placeholder="年" />
+                      <input className="text-[11px] text-[#1A1A2E] bg-transparent outline-none w-full" value={node.description}
+                        onChange={(e) => { const n = [...storyNodes]; n[ni] = { ...n[ni], description: e.target.value }; setStoryNodes(n); }} placeholder="イベント" />
+                    </div>
+                    <button onClick={() => setStoryNodes((p) => p.filter((_, i) => i !== ni))}
+                      className="absolute top-1 right-1 w-4 h-4 rounded-full bg-white shadow flex items-center justify-center text-red-400 opacity-0 group-hover:opacity-100 transition-all">
+                      <X className="w-2.5 h-2.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <button
+              onClick={() => setStoryNodes((p) => [...p, { id: Date.now(), year: "", description: "" }])}
+              className="flex items-center gap-1 text-[10px] text-amber-600 font-semibold hover:underline mt-3"
+            >
+              <Plus className="w-3 h-3" /> ノード追加
+            </button>
+          </div>
+
+          {/* Panel 5: オファー */}
+          <div className="min-w-[320px] max-w-[320px] bg-rose-50/60 rounded-2xl border border-rose-100 p-5 flex flex-col shrink-0" style={{ minHeight: 300 }}>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center">
+                <Tag className="w-4 h-4 text-rose-600" />
+              </div>
+              <h3 className="text-[14px] font-bold text-[#1A1A2E]">オファー</h3>
+            </div>
+
+            {/* Side-by-side comparison */}
+            <div className="flex gap-3 flex-1">
+              {offerPlans.map((plan, pi) => (
+                <div
+                  key={pi}
+                  className={`flex-1 rounded-xl p-3 flex flex-col ${
+                    plan.isSpecial
+                      ? "bg-white border-2 border-[#9333EA] shadow-md"
+                      : "bg-white border border-rose-200"
+                  }`}
+                >
+                  {plan.badge && (
+                    <span className="inline-block text-[9px] font-bold text-white bg-[#9333EA] rounded-full px-2 py-0.5 mb-2 w-fit">{plan.badge}</span>
+                  )}
+                  <input
+                    className={`text-[12px] font-bold bg-transparent outline-none w-full mb-1 ${plan.isSpecial ? "text-[#9333EA]" : "text-[#1A1A2E]"}`}
+                    value={plan.title}
+                    onChange={(e) => { const n = [...offerPlans]; n[pi] = { ...n[pi], title: e.target.value }; setOfferPlans(n); }}
+                    placeholder="プラン名"
+                  />
+                  <input
+                    className="text-[16px] font-bold text-[#1A1A2E] bg-transparent outline-none w-full mb-2"
+                    value={plan.price}
+                    onChange={(e) => { const n = [...offerPlans]; n[pi] = { ...n[pi], price: e.target.value }; setOfferPlans(n); }}
+                    placeholder="価格"
+                  />
+                  <div className="space-y-1.5 flex-1">
+                    {plan.items.map((item, ii) => (
+                      <div key={ii} className="flex items-start gap-1.5 group">
+                        <Check className={`w-3 h-3 mt-0.5 shrink-0 ${plan.isSpecial ? "text-[#9333EA]" : "text-rose-400"}`} />
+                        <input className="text-[10px] text-[#1A1A2E]/70 bg-transparent outline-none flex-1" value={item}
+                          onChange={(e) => { const n = [...offerPlans]; const items = [...n[pi].items]; items[ii] = e.target.value; n[pi] = { ...n[pi], items }; setOfferPlans(n); }} />
+                        <button onClick={() => { const n = [...offerPlans]; n[pi] = { ...n[pi], items: n[pi].items.filter((_, i) => i !== ii) }; setOfferPlans(n); }}
+                          className="text-red-400 opacity-0 group-hover:opacity-100 transition-all"><X className="w-2.5 h-2.5" /></button>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => { const n = [...offerPlans]; n[pi] = { ...n[pi], items: [...n[pi].items, ""] }; setOfferPlans(n); }}
+                    className="flex items-center gap-1 text-[9px] text-rose-500 font-semibold hover:underline mt-2"
+                  >
+                    <Plus className="w-3 h-3" /> 項目追加
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Research data modal */}
+        {researchModal && (() => {
+          const bubble = functionBubbles.find((b) => b.id === researchModal.bubbleId);
+          if (!bubble) return null;
+          const bi = functionBubbles.findIndex((b) => b.id === researchModal.bubbleId);
+          const rd = bubble.researchData[researchModal.dataIdx];
+          if (!rd) return null;
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setResearchModal(null)}>
+              <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4 p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-[16px] font-bold text-[#1A1A2E]">研究データ詳細</h3>
+                  <button onClick={() => setResearchModal(null)} className="w-8 h-8 rounded-full hover:bg-black/5 flex items-center justify-center">
+                    <X className="w-5 h-5 text-[#1A1A2E]/50" />
+                  </button>
+                </div>
+                <input className={inputClass + " text-[13px] font-semibold"} value={rd.title} placeholder="タイトル"
+                  onChange={(e) => {
+                    const n = [...functionBubbles]; const rds = [...n[bi].researchData]; rds[researchModal.dataIdx] = { ...rds[researchModal.dataIdx], title: e.target.value };
+                    n[bi] = { ...n[bi], researchData: rds }; setFunctionBubbles(n);
+                  }} />
+                <textarea className={inputClass + " text-[12px] resize-none"} rows={6} value={rd.detail} placeholder="研究データの詳細内容..."
+                  onChange={(e) => {
+                    const n = [...functionBubbles]; const rds = [...n[bi].researchData]; rds[researchModal.dataIdx] = { ...rds[researchModal.dataIdx], detail: e.target.value };
+                    n[bi] = { ...n[bi], researchData: rds }; setFunctionBubbles(n);
+                  }} />
+                <input className={inputClass + " text-[12px]"} value={rd.source} placeholder="ソース・出典"
+                  onChange={(e) => {
+                    const n = [...functionBubbles]; const rds = [...n[bi].researchData]; rds[researchModal.dataIdx] = { ...rds[researchModal.dataIdx], source: e.target.value };
+                    n[bi] = { ...n[bi], researchData: rds }; setFunctionBubbles(n);
+                  }} />
+                <div className="flex justify-end">
+                  <button onClick={() => setResearchModal(null)} className="px-4 py-2 rounded-lg bg-[#9333EA] text-white text-[12px] font-semibold hover:bg-[#7C22CB] transition-colors">
+                    閉じる
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+      </div>
+    );
+  }
+
+  // ─── Sub-tab 3: 口コミ・権威性 ─────────────────────────
   function renderReviewsTab() {
     const maxScroll = Math.max(0, reviewCards.length - 3);
     return (
@@ -737,7 +996,6 @@ export default function ResearchPage({
         <section>
           {sectionHeader("口コミ・レビュー", "ユーザーの声を収集・管理")}
           <div className="relative">
-            {/* Scroll arrows */}
             {reviewScrollIdx > 0 && (
               <button
                 onClick={() => setReviewScrollIdx((p) => Math.max(0, p - 1))}
@@ -779,11 +1037,9 @@ export default function ResearchPage({
                           const next = [...reviewCards]; next[ri] = { ...next[ri], text: e.target.value }; setReviewCards(next);
                         }}
                       />
-                      {/* Screenshot area */}
                       <div className="aspect-video border-2 border-dashed border-black/10 rounded-lg flex items-center justify-center bg-[#FAF8F5]">
                         <span className="text-[10px] text-[#1A1A2E]/30">スクリーンショット</span>
                       </div>
-                      {/* Source badge */}
                       <div className="flex items-center justify-between">
                         <span className="inline-flex items-center gap-1 bg-[#9333EA]/10 text-[#9333EA] text-[10px] font-semibold rounded-full px-2 py-0.5">
                           <Globe className="w-3 h-3" />
@@ -797,27 +1053,14 @@ export default function ResearchPage({
                         </span>
                       </div>
                       <div className="flex items-center justify-between text-[10px] text-[#1A1A2E]/40">
-                        <input
-                          className="bg-transparent outline-none text-[10px] w-20"
-                          value={card.author}
-                          onChange={(e) => {
-                            const next = [...reviewCards]; next[ri] = { ...next[ri], author: e.target.value }; setReviewCards(next);
-                          }}
-                          placeholder="投稿者名"
-                        />
-                        <input
-                          className="bg-transparent outline-none text-[10px] w-24 text-right"
-                          value={card.date}
-                          onChange={(e) => {
-                            const next = [...reviewCards]; next[ri] = { ...next[ri], date: e.target.value }; setReviewCards(next);
-                          }}
-                          placeholder="日付"
-                        />
+                        <input className="bg-transparent outline-none text-[10px] w-20" value={card.author}
+                          onChange={(e) => { const next = [...reviewCards]; next[ri] = { ...next[ri], author: e.target.value }; setReviewCards(next); }} placeholder="投稿者名" />
+                        <input className="bg-transparent outline-none text-[10px] w-24 text-right" value={card.date}
+                          onChange={(e) => { const next = [...reviewCards]; next[ri] = { ...next[ri], date: e.target.value }; setReviewCards(next); }} placeholder="日付" />
                       </div>
                     </div>
                   </div>
                 ))}
-                {/* Add card */}
                 <button
                   onClick={() => setReviewCards((p) => [...p, { id: Date.now(), rating: 5, text: "", source: "", author: "", date: "" }])}
                   className="min-w-[280px] max-w-[280px] bg-white/50 rounded-xl border-2 border-dashed border-black/[0.08] flex flex-col items-center justify-center gap-2 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/5 transition-all group"
@@ -846,18 +1089,11 @@ export default function ResearchPage({
                   <textarea
                     className="w-16 h-12 bg-transparent text-white text-[10px] font-bold text-center outline-none resize-none flex items-center justify-center"
                     value={aw.name}
-                    onChange={(e) => {
-                      const next = [...awards]; next[ai] = { ...next[ai], name: e.target.value }; setAwards(next);
-                    }}
+                    onChange={(e) => { const next = [...awards]; next[ai] = { ...next[ai], name: e.target.value }; setAwards(next); }}
                   />
                 </div>
-                <input
-                  className="text-[11px] text-[#1A1A2E]/60 font-semibold bg-transparent outline-none text-center w-16"
-                  value={aw.year}
-                  onChange={(e) => {
-                    const next = [...awards]; next[ai] = { ...next[ai], year: e.target.value }; setAwards(next);
-                  }}
-                />
+                <input className="text-[11px] text-[#1A1A2E]/60 font-semibold bg-transparent outline-none text-center w-16" value={aw.year}
+                  onChange={(e) => { const next = [...awards]; next[ai] = { ...next[ai], year: e.target.value }; setAwards(next); }} />
               </div>
             ))}
             <button
@@ -885,18 +1121,11 @@ export default function ResearchPage({
                   <textarea
                     className="w-16 h-12 bg-transparent text-white text-[10px] font-bold text-center outline-none resize-none"
                     value={m.name}
-                    onChange={(e) => {
-                      const next = [...media]; next[mi] = { ...next[mi], name: e.target.value }; setMedia(next);
-                    }}
+                    onChange={(e) => { const next = [...media]; next[mi] = { ...next[mi], name: e.target.value }; setMedia(next); }}
                   />
                 </div>
-                <input
-                  className="text-[11px] text-[#1A1A2E]/60 font-semibold bg-transparent outline-none text-center w-20"
-                  value={m.date}
-                  onChange={(e) => {
-                    const next = [...media]; next[mi] = { ...next[mi], date: e.target.value }; setMedia(next);
-                  }}
-                />
+                <input className="text-[11px] text-[#1A1A2E]/60 font-semibold bg-transparent outline-none text-center w-20" value={m.date}
+                  onChange={(e) => { const next = [...media]; next[mi] = { ...next[mi], date: e.target.value }; setMedia(next); }} />
               </div>
             ))}
             <button
@@ -911,7 +1140,7 @@ export default function ResearchPage({
     );
   }
 
-  // ─── Sub-tab: 提供体制 ───────────────────────────────
+  // ─── Sub-tab 4: 提供体制 ───────────────────────────────
   function renderOperationsTab() {
     return (
       <div className="space-y-8">
@@ -952,7 +1181,6 @@ export default function ResearchPage({
                     )}
                   </div>
                 ))}
-                {/* Add node */}
                 <button
                   onClick={() => {
                     const next = [...flowSections];
@@ -971,7 +1199,7 @@ export default function ResearchPage({
     );
   }
 
-  // ─── Sub-tab: 製品体験ログ ───────────────────────────
+  // ─── Sub-tab 5: 製品体験ログ ───────────────────────────
   function renderExperienceLogTab() {
     const tagColors = ["bg-purple-100 text-purple-700", "bg-blue-100 text-blue-700", "bg-green-100 text-green-700", "bg-amber-100 text-amber-700", "bg-pink-100 text-pink-700"];
     return (
@@ -994,69 +1222,105 @@ export default function ResearchPage({
                 <X className="w-3.5 h-3.5" />
               </button>
               <div className="p-4 space-y-3">
-                {/* Date */}
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-[#9333EA]" />
                   <input
                     type="date"
                     className="text-[14px] font-bold text-[#1A1A2E] bg-transparent outline-none"
                     value={log.date}
-                    onChange={(e) => {
-                      const next = [...experienceLogs]; next[li] = { ...next[li], date: e.target.value }; setExperienceLogs(next);
-                    }}
+                    onChange={(e) => { const next = [...experienceLogs]; next[li] = { ...next[li], date: e.target.value }; setExperienceLogs(next); }}
                   />
                 </div>
-                {/* Tags */}
                 <div className="flex flex-wrap gap-1.5">
                   {log.tags.map((tag, ti) => (
                     <span key={ti} className={`inline-flex items-center gap-1 text-[10px] font-semibold rounded-full px-2 py-0.5 ${tagColors[ti % tagColors.length]}`}>
-                      <input
-                        className="bg-transparent outline-none text-[10px] w-16"
-                        value={tag}
-                        onChange={(e) => {
-                          const next = [...experienceLogs];
-                          const tags = [...next[li].tags]; tags[ti] = e.target.value;
-                          next[li] = { ...next[li], tags };
-                          setExperienceLogs(next);
-                        }}
-                      />
-                      <button onClick={() => {
-                        const next = [...experienceLogs];
-                        next[li] = { ...next[li], tags: next[li].tags.filter((_, i) => i !== ti) };
-                        setExperienceLogs(next);
-                      }}>
+                      <input className="bg-transparent outline-none text-[10px] w-16" value={tag}
+                        onChange={(e) => { const next = [...experienceLogs]; const tags = [...next[li].tags]; tags[ti] = e.target.value; next[li] = { ...next[li], tags }; setExperienceLogs(next); }} />
+                      <button onClick={() => { const next = [...experienceLogs]; next[li] = { ...next[li], tags: next[li].tags.filter((_, i) => i !== ti) }; setExperienceLogs(next); }}>
                         <X className="w-2.5 h-2.5" />
                       </button>
                     </span>
                   ))}
-                  <button
-                    onClick={() => {
-                      const next = [...experienceLogs];
-                      next[li] = { ...next[li], tags: [...next[li].tags, ""] };
-                      setExperienceLogs(next);
-                    }}
-                    className="text-[10px] text-[#9333EA]/60 hover:text-[#9333EA] font-semibold flex items-center gap-0.5"
-                  >
+                  <button onClick={() => { const next = [...experienceLogs]; next[li] = { ...next[li], tags: [...next[li].tags, ""] }; setExperienceLogs(next); }}
+                    className="text-[10px] text-[#9333EA]/60 hover:text-[#9333EA] font-semibold flex items-center gap-0.5">
                     <Plus className="w-3 h-3" /> タグ
                   </button>
                 </div>
-                {/* Image area */}
                 <div className="aspect-video border-2 border-dashed border-black/10 rounded-lg flex items-center justify-center bg-[#FAF8F5]">
                   <span className="text-[10px] text-[#1A1A2E]/30">画像をアップロード（任意）</span>
                 </div>
-                {/* Text body */}
                 <textarea
                   className={inputClass + " text-[12px] resize-none"}
                   rows={4}
                   value={log.text}
-                  onChange={(e) => {
-                    const next = [...experienceLogs]; next[li] = { ...next[li], text: e.target.value }; setExperienceLogs(next);
-                  }}
+                  onChange={(e) => { const next = [...experienceLogs]; next[li] = { ...next[li], text: e.target.value }; setExperienceLogs(next); }}
                   placeholder="体験内容を記録..."
                 />
               </div>
             </div>
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Sub-tab 6: USP ──────────────────────────────────
+  function renderUSPTab() {
+    return (
+      <div className="space-y-6">
+        {sectionHeader("USPカード", "独自の強み・差別化ポイント")}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {uspCards.map((usp, ui) => (
+            <div key={usp.id} className="bg-white rounded-xl border border-black/[0.06] shadow-sm p-5 relative group">
+              <button
+                onClick={() => setUSPCards((p) => p.filter((_, i) => i !== ui))}
+                className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white shadow flex items-center justify-center text-[#1A1A2E]/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+              <input
+                className="text-[16px] font-bold text-[#1A1A2E] bg-transparent outline-none w-full mb-3 placeholder-[#1A1A2E]/20"
+                value={usp.title}
+                onChange={(e) => setUSPCards((p) => p.map((c, i) => i === ui ? { ...c, title: e.target.value } : c))}
+                placeholder="USPタイトル"
+              />
+              <div className="mb-3">
+                <label className="text-[10px] text-[#1A1A2E]/50 font-semibold mb-1 block">紐づく機能価値</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {usp.functionTags.map((tag, ti) => (
+                    <span key={ti} className="inline-flex items-center gap-1 bg-[#9333EA]/10 text-[#9333EA] text-[10px] font-semibold rounded-full px-2.5 py-1">
+                      <input className="bg-transparent outline-none text-[10px] w-20" value={tag}
+                        onChange={(e) => { const next = [...uspCards]; const tags = [...next[ui].functionTags]; tags[ti] = e.target.value; next[ui] = { ...next[ui], functionTags: tags }; setUSPCards(next); }} />
+                      <button onClick={() => { const next = [...uspCards]; next[ui] = { ...next[ui], functionTags: next[ui].functionTags.filter((_, i) => i !== ti) }; setUSPCards(next); }}>
+                        <X className="w-2.5 h-2.5" />
+                      </button>
+                    </span>
+                  ))}
+                  <button onClick={() => { const next = [...uspCards]; next[ui] = { ...next[ui], functionTags: [...next[ui].functionTags, ""] }; setUSPCards(next); }}
+                    className="inline-flex items-center gap-0.5 text-[10px] text-[#9333EA]/60 hover:text-[#9333EA] font-semibold">
+                    <Plus className="w-3 h-3" /> タグ追加
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] text-[#1A1A2E]/50 font-semibold mb-1 block">提供便益</label>
+                <textarea
+                  className={inputClass + " text-[12px] resize-none"}
+                  rows={2}
+                  value={usp.benefit}
+                  onChange={(e) => setUSPCards((p) => p.map((c, i) => i === ui ? { ...c, benefit: e.target.value } : c))}
+                  placeholder="提供便益を入力"
+                />
+              </div>
+            </div>
+          ))}
+          <button
+            onClick={() => setUSPCards((p) => [...p, { id: Date.now(), title: "", functionTags: [], benefit: "" }])}
+            className="bg-white/50 rounded-xl border-2 border-dashed border-black/[0.08] flex flex-col items-center justify-center gap-2 py-12 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/5 transition-all group"
+          >
+            <Plus className="w-6 h-6 text-[#1A1A2E]/20 group-hover:text-[#9333EA]/50 transition-colors" />
+            <span className="text-[12px] font-medium text-[#1A1A2E]/30 group-hover:text-[#9333EA]/50 transition-colors">USP追加</span>
+          </button>
         </div>
       </div>
     );
@@ -1083,10 +1347,12 @@ export default function ResearchPage({
           ))}
         </div>
 
+        {productSubTab === "hero" && renderHeroTab()}
         {productSubTab === "overview" && renderOverviewTab()}
         {productSubTab === "reviews" && renderReviewsTab()}
         {productSubTab === "operations" && renderOperationsTab()}
         {productSubTab === "experienceLog" && renderExperienceLogTab()}
+        {productSubTab === "usp" && renderUSPTab()}
       </div>
     );
   }
@@ -1111,11 +1377,7 @@ export default function ResearchPage({
                         <input
                           className="bg-transparent border-none outline-none text-[11px] font-bold text-[#9333EA]/70 w-full"
                           value={col}
-                          onChange={(e) => {
-                            const next = [...marketCols];
-                            next[ci] = e.target.value;
-                            setMarketCols(next);
-                          }}
+                          onChange={(e) => { const next = [...marketCols]; next[ci] = e.target.value; setMarketCols(next); }}
                         />
                       </th>
                     ))}
@@ -1150,7 +1412,6 @@ export default function ResearchPage({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {refCreatives.map((cr, idx) => (
               <div key={cr.id} className="bg-white rounded-xl border border-black/[0.06] shadow-sm overflow-hidden group">
-                {/* Thumbnail placeholder */}
                 <div className="aspect-video bg-gradient-to-br from-[#9333EA]/10 to-[#9333EA]/5 flex items-center justify-center relative">
                   <Image className="w-8 h-8 text-[#9333EA]/30" />
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -1166,65 +1427,29 @@ export default function ResearchPage({
                   <input
                     className={inputClass + " font-semibold text-[13px]"}
                     value={cr.name}
-                    onChange={(e) => {
-                      const next = [...refCreatives];
-                      next[idx] = { ...next[idx], name: e.target.value };
-                      setRefCreatives(next);
-                    }}
+                    onChange={(e) => { const next = [...refCreatives]; next[idx] = { ...next[idx], name: e.target.value }; setRefCreatives(next); }}
                     placeholder="クリエイティブ名"
                   />
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-[#9333EA]/10 text-[#9333EA] text-[10px] font-semibold shrink-0">
                       <Globe className="w-3 h-3" />
-                      <input
-                        className="bg-transparent outline-none w-16 text-[10px]"
-                        value={cr.platform}
-                        onChange={(e) => {
-                          const next = [...refCreatives];
-                          next[idx] = { ...next[idx], platform: e.target.value };
-                          setRefCreatives(next);
-                        }}
-                      />
+                      <input className="bg-transparent outline-none w-16 text-[10px]" value={cr.platform}
+                        onChange={(e) => { const next = [...refCreatives]; next[idx] = { ...next[idx], platform: e.target.value }; setRefCreatives(next); }} />
                     </div>
-                    <input
-                      className={inputClass + " text-[11px] flex-1"}
-                      value={cr.url}
-                      onChange={(e) => {
-                        const next = [...refCreatives];
-                        next[idx] = { ...next[idx], url: e.target.value };
-                        setRefCreatives(next);
-                      }}
-                      placeholder="URL"
-                    />
+                    <input className={inputClass + " text-[11px] flex-1"} value={cr.url}
+                      onChange={(e) => { const next = [...refCreatives]; next[idx] = { ...next[idx], url: e.target.value }; setRefCreatives(next); }} placeholder="URL" />
                   </div>
-                  <textarea
-                    className={inputClass + " text-[11px] resize-none"}
-                    rows={2}
-                    value={cr.notes}
-                    onChange={(e) => {
-                      const next = [...refCreatives];
-                      next[idx] = { ...next[idx], notes: e.target.value };
-                      setRefCreatives(next);
-                    }}
-                    placeholder="メモ・特徴"
-                  />
+                  <textarea className={inputClass + " text-[11px] resize-none"} rows={2} value={cr.notes}
+                    onChange={(e) => { const next = [...refCreatives]; next[idx] = { ...next[idx], notes: e.target.value }; setRefCreatives(next); }} placeholder="メモ・特徴" />
                 </div>
               </div>
             ))}
-            {/* Add card */}
             <button
-              onClick={() =>
-                setRefCreatives((prev) => [
-                  ...prev,
-                  { id: Date.now(), name: "", platform: "", url: "", notes: "" },
-                ])
-              }
+              onClick={() => setRefCreatives((prev) => [...prev, { id: Date.now(), name: "", platform: "", url: "", notes: "" }])}
               className="bg-white/50 rounded-xl border-2 border-dashed border-black/[0.08] flex flex-col items-center justify-center gap-2 py-12 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/5 transition-all group"
             >
               <Plus className="w-6 h-6 text-[#1A1A2E]/20 group-hover:text-[#9333EA]/50 transition-colors" />
-              <span className="text-[12px] font-medium text-[#1A1A2E]/30 group-hover:text-[#9333EA]/50 transition-colors">
-                追加
-              </span>
+              <span className="text-[12px] font-medium text-[#1A1A2E]/30 group-hover:text-[#9333EA]/50 transition-colors">追加</span>
             </button>
           </div>
         </section>
@@ -1236,7 +1461,6 @@ export default function ResearchPage({
   function renderCustomerTab() {
     return (
       <div className="space-y-6">
-        {/* Sub toggle */}
         <div className="flex items-center gap-1 bg-white rounded-xl border border-black/[0.06] p-1 w-fit shadow-sm">
           {(["potential", "existing"] as const).map((key) => (
             <button
@@ -1253,7 +1477,6 @@ export default function ResearchPage({
           ))}
         </div>
 
-        {/* Survey tables */}
         {surveys.map((sec, si) => (
           <section key={sec.title}>
             <div className="mb-2">
@@ -1268,40 +1491,18 @@ export default function ResearchPage({
                       <th className="text-left text-[10px] font-bold text-[#1A1A2E]/50 px-3 py-2 w-[140px] min-w-[140px]">ソース</th>
                       <th className="text-left text-[10px] font-bold text-[#1A1A2E]/50 px-3 py-2 w-[200px] min-w-[200px]">項目</th>
                       {PERCENTAGE_COLUMNS.map((pc) => (
-                        <th key={pc} className="text-center text-[10px] font-bold text-[#9333EA]/60 px-3 py-2 min-w-[80px]">
-                          {pc}
-                        </th>
+                        <th key={pc} className="text-center text-[10px] font-bold text-[#9333EA]/60 px-3 py-2 min-w-[80px]">{pc}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {sec.rows.map((row, ri) => (
                       <tr key={ri} className={ri % 2 === 0 ? "bg-white" : "bg-[#FAF8F5]/50"}>
-                        <td className="sticky left-0 z-10 bg-inherit px-3 py-2 text-[11px] font-semibold text-[#1A1A2E]/40 border-r border-black/[0.04]">
-                          {row.label}
-                        </td>
-                        <td className="px-2 py-1.5">
-                          <input
-                            className={inputClass + " text-[11px]"}
-                            value={row.source}
-                            onChange={(e) => updateSurveyCell(si, ri, "source", e.target.value)}
-                          />
-                        </td>
-                        <td className="px-2 py-1.5">
-                          <input
-                            className={inputClass + " text-[11px]"}
-                            value={row.item}
-                            onChange={(e) => updateSurveyCell(si, ri, "item", e.target.value)}
-                          />
-                        </td>
+                        <td className="sticky left-0 z-10 bg-inherit px-3 py-2 text-[11px] font-semibold text-[#1A1A2E]/40 border-r border-black/[0.04]">{row.label}</td>
+                        <td className="px-2 py-1.5"><input className={inputClass + " text-[11px]"} value={row.source} onChange={(e) => updateSurveyCell(si, ri, "source", e.target.value)} /></td>
+                        <td className="px-2 py-1.5"><input className={inputClass + " text-[11px]"} value={row.item} onChange={(e) => updateSurveyCell(si, ri, "item", e.target.value)} /></td>
                         {row.percentages.map((pct, pi) => (
-                          <td key={pi} className="px-2 py-1.5">
-                            <input
-                              className={inputClass + " text-[11px] text-center"}
-                              value={pct}
-                              onChange={(e) => updateSurveyPercentage(si, ri, pi, e.target.value)}
-                            />
-                          </td>
+                          <td key={pi} className="px-2 py-1.5"><input className={inputClass + " text-[11px] text-center"} value={pct} onChange={(e) => updateSurveyPercentage(si, ri, pi, e.target.value)} /></td>
                         ))}
                       </tr>
                     ))}
@@ -1319,8 +1520,6 @@ export default function ResearchPage({
   return (
     <div className="min-h-screen bg-[#FAF8F5]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        {/* Header removed - tab nav already shows page name */}
-
         {/* Tabs */}
         <div className="flex items-center gap-1 bg-white rounded-xl border border-black/[0.06] p-1 mb-6 shadow-sm w-fit">
           {TABS.map((tab) => (
