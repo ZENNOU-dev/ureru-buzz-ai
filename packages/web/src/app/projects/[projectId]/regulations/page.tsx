@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
-import { ArrowLeft, CheckCircle2, XCircle, AlertTriangle, Plus, Search, FileText, Video, Tag, ChevronRight, ExternalLink } from "lucide-react";
+import { ArrowLeft, Plus, Search, FileText, Video, Tag, ExternalLink, LayoutList, LayoutGrid, X } from "lucide-react";
 import Link from "next/link";
 import { VoiceInputButton } from "@/components/voice-input-button";
 
@@ -10,7 +10,7 @@ type RegItem = {
   no: number;
   date: string;
   person: string;
-  type: string; // "CR台本" | "ショート動画" | "記事/LP台本" | "記事" etc.
+  type: string;
   appeal: string;
   plan: string;
   url: string;
@@ -29,11 +29,11 @@ type KnowledgeItem = {
 };
 
 // ─── Constants ────────────────────────────────────────
-const RESULT_STYLES: Record<string, { bg: string; text: string }> = {
-  "OK": { bg: "bg-emerald-50", text: "text-emerald-700" },
-  "NG": { bg: "bg-red-50", text: "text-red-700" },
-  "修正依頼": { bg: "bg-amber-50", text: "text-amber-700" },
-  "": { bg: "bg-gray-50", text: "text-gray-400" },
+const RESULT_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
+  "OK": { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
+  "NG": { bg: "bg-red-50", text: "text-red-700", dot: "bg-red-500" },
+  "修正依頼": { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
+  "": { bg: "bg-gray-50", text: "text-gray-400", dot: "bg-gray-300" },
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -43,7 +43,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "素材権利": "bg-purple-50 text-purple-600",
 };
 
-// ─── Sample Data (from spreadsheet) ───────────────────
+// ─── Sample Data ──────────────────────────────────────
 const REG_ITEMS: RegItem[] = [
   { no: 1, date: "2025/12/15", person: "横野", type: "記事/LP台本", appeal: "AI活用型訴求", plan: "成功談記事", url: "【制作管理】DOT-AI×BONNOU", note: "", checkDate: "", result: "OK" },
   { no: 2, date: "2025/12/15", person: "横野", type: "CR台本", appeal: "AI活用型訴求", plan: "AI副業", url: "【制作管理】DOT-AI×BONNOU", note: "", checkDate: "", result: "OK" },
@@ -71,7 +71,6 @@ const KNOWLEDGE: KnowledgeItem[] = [
   { id: 5, tags: ["素材権利"], ngExpression: "他社ロゴの無断使用", correction: "使用許諾を取得するか、モザイク処理", source: "クライアント指摘", createdAt: "2026-03-15" },
 ];
 
-// ─── Helpers ──────────────────────────────────────────
 function isScriptType(type: string) {
   return type.includes("台本") || type.includes("記事");
 }
@@ -80,8 +79,10 @@ function isScriptType(type: string) {
 export default function RegulationsPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = use(params);
   const [activeTab, setActiveTab] = useState<"script" | "video" | "knowledge">("script");
+  const [viewMode, setViewMode] = useState<"table" | "card">("table");
   const [knowledgeSearch, setKnowledgeSearch] = useState("");
   const [knowledgeTagFilter, setKnowledgeTagFilter] = useState("");
+  const [showRegSheet, setShowRegSheet] = useState(false);
 
   const scriptItems = REG_ITEMS.filter((r) => isScriptType(r.type));
   const videoItems = REG_ITEMS.filter((r) => !isScriptType(r.type));
@@ -107,6 +108,19 @@ export default function RegulationsPage({ params }: { params: Promise<{ projectI
             <p className="text-[11px] text-[#1A1A2E]/30 font-medium mb-0.5">レギュレーション</p>
             <h1 className="text-lg font-bold text-[#1A1A2E]">レギュ確認リスト</h1>
           </div>
+          {/* View toggle (table/card) - only for list tabs */}
+          {activeTab !== "knowledge" && (
+            <div className="flex items-center bg-[#FAF8F5] rounded-lg p-0.5 border border-black/[0.04]">
+              <button onClick={() => setViewMode("table")}
+                className={`p-1.5 rounded-md transition-all ${viewMode === "table" ? "bg-white shadow-sm text-[#9333EA]" : "text-[#1A1A2E]/30 hover:text-[#1A1A2E]/50"}`}>
+                <LayoutList className="w-4 h-4" />
+              </button>
+              <button onClick={() => setViewMode("card")}
+                className={`p-1.5 rounded-md transition-all ${viewMode === "card" ? "bg-white shadow-sm text-[#9333EA]" : "text-[#1A1A2E]/30 hover:text-[#1A1A2E]/50"}`}>
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Tabs */}
@@ -130,72 +144,110 @@ export default function RegulationsPage({ params }: { params: Promise<{ projectI
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
-        {(activeTab === "script" || activeTab === "video") && (
+        {(activeTab === "script" || activeTab === "video") && viewMode === "table" && (
           <div className="max-w-6xl mx-auto">
-            {/* Table */}
             <div className="bg-white rounded-xl border border-black/[0.06] overflow-hidden">
               {/* Header row */}
-              <div className="grid grid-cols-[50px_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_80px] bg-[#FAF8F5] border-b border-black/[0.06] text-[10px] font-bold text-[#1A1A2E]/40 uppercase tracking-wider">
-                <div className="px-3 py-2.5">No.</div>
-                <div className="px-2 py-2.5">記載日付</div>
-                <div className="px-2 py-2.5">担当者</div>
-                <div className="px-2 py-2.5">確認物</div>
-                <div className="px-2 py-2.5">訴求名</div>
-                <div className="px-2 py-2.5">企画名</div>
-                <div className="px-2 py-2.5">確認ページ</div>
-                <div className="px-2 py-2.5">備考</div>
-                <div className="px-2 py-2.5">確認日付</div>
-                <div className="px-2 py-2.5">可否</div>
+              <div className="grid grid-cols-[50px_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_100px] bg-[#FAF8F5] border-b border-black/[0.06] text-[10px] font-bold text-[#1A1A2E]/40 uppercase tracking-wider">
+                <div className="px-3 py-3">No.</div>
+                <div className="px-2 py-3">記載日付</div>
+                <div className="px-2 py-3">担当者</div>
+                <div className="px-2 py-3">確認物</div>
+                <div className="px-2 py-3">訴求名</div>
+                <div className="px-2 py-3">企画名</div>
+                <div className="px-2 py-3">確認ページ</div>
+                <div className="px-2 py-3">備考</div>
+                <div className="px-2 py-3">確認日付</div>
+                <div className="px-2 py-3">可否</div>
               </div>
-
-              {/* Data rows */}
               {items.map((item) => {
                 const rs = RESULT_STYLES[item.result] || RESULT_STYLES[""];
                 const isScript = isScriptType(item.type);
-                const confirmLink = isScript
-                  ? `/projects/${projectId}/scripts/script-001`
-                  : `/projects/${projectId}/editing`;
+                const confirmLink = isScript ? `/projects/${projectId}/scripts/script-001` : `/projects/${projectId}/editing`;
                 const confirmLabel = isScript ? "台本を確認" : "動画を確認";
                 return (
-                  <div key={item.no} className={`grid grid-cols-[50px_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_80px] border-b border-black/[0.03] hover:bg-black/[0.01] transition-colors ${
+                  <div key={item.no} className={`grid grid-cols-[50px_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_100px] border-b border-black/[0.03] hover:bg-black/[0.01] transition-colors ${
                     item.result === "NG" || item.result === "修正依頼" ? "bg-red-50/30" : ""
                   }`}>
-                    <div className="px-3 py-2 text-[11px] text-[#1A1A2E]/40 font-medium">{item.no}</div>
-                    <div className="px-2 py-2 text-[11px] text-[#1A1A2E]/60">{item.date}</div>
-                    <div className="px-2 py-2 text-[11px] text-[#1A1A2E]/70 font-medium">{item.person}</div>
-                    <div className="px-2 py-2">
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded whitespace-nowrap ${
+                    <div className="px-3 py-3.5 text-[12px] text-[#1A1A2E]/40 font-medium">{item.no}</div>
+                    <div className="px-2 py-3.5 text-[12px] text-[#1A1A2E]/60">{item.date}</div>
+                    <div className="px-2 py-3.5 text-[12px] text-[#1A1A2E]/70 font-medium">{item.person}</div>
+                    <div className="px-2 py-3.5 flex items-center">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded whitespace-nowrap ${
                         item.type.includes("台本") ? "bg-blue-50 text-blue-600" : item.type.includes("動画") ? "bg-purple-50 text-purple-600" : "bg-gray-100 text-gray-600"
                       }`}>{item.type}</span>
                     </div>
-                    <div className="px-2 py-2 text-[11px] text-[#1A1A2E]/60 truncate">{item.appeal}</div>
-                    <div className="px-2 py-2 text-[11px] text-[#1A1A2E]/70 font-medium truncate">{item.plan}</div>
-                    <div className="px-2 py-2 text-[10px]">
+                    <div className="px-2 py-3.5 text-[12px] text-[#1A1A2E]/60 truncate">{item.appeal}</div>
+                    <div className="px-2 py-3.5 text-[12px] text-[#1A1A2E]/70 font-medium truncate">{item.plan}</div>
+                    <div className="px-2 py-3.5 text-[11px]">
                       <Link href={confirmLink} className="flex items-center gap-1 text-[#9333EA]/70 hover:text-[#9333EA] transition-colors">
                         <ExternalLink className="w-3 h-3 shrink-0" />
                         <span className="truncate">{confirmLabel}</span>
                       </Link>
                     </div>
-                    <div className="px-2 py-2 text-[10px] text-[#1A1A2E]/40">{item.note}</div>
-                    <div className="px-2 py-2 text-[11px] text-[#1A1A2E]/50">{item.checkDate}</div>
-                    <div className="px-2 py-2">
+                    <div className="px-2 py-3.5 text-[11px] text-[#1A1A2E]/40">{item.note}</div>
+                    <div className="px-2 py-3.5 text-[12px] text-[#1A1A2E]/50">{item.checkDate}</div>
+                    <div className="px-2 py-3.5 flex items-center">
                       {item.result ? (
-                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap ${rs.bg} ${rs.text}`}>{item.result}</span>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${rs.bg} ${rs.text}`}>{item.result}</span>
                       ) : (
-                        <span className="text-[9px] text-[#1A1A2E]/20">—</span>
+                        <span className="text-[10px] text-[#1A1A2E]/20">未確認</span>
                       )}
                     </div>
                   </div>
                 );
               })}
-
-              {/* Add row + note */}
-              <div className="flex items-center justify-center gap-3 py-2.5">
-                <button className="text-[10px] text-[#1A1A2E]/20 hover:text-[#9333EA]/50 hover:bg-[#9333EA]/[0.02] flex items-center gap-1 transition-all px-3 py-1 rounded-lg">
+              <div className="flex items-center justify-center gap-3 py-3">
+                <button className="text-[11px] text-[#1A1A2E]/20 hover:text-[#9333EA]/50 hover:bg-[#9333EA]/[0.02] flex items-center gap-1 transition-all px-3 py-1.5 rounded-lg">
                   <Plus className="w-3 h-3" /> 行を追加
                 </button>
-                <span className="text-[9px] text-[#1A1A2E]/20">台本のレギュレーションチェックから自動追加されます</span>
+                <span className="text-[10px] text-[#1A1A2E]/20">台本のレギュレーションチェックから自動追加されます</span>
               </div>
+            </div>
+          </div>
+        )}
+
+        {(activeTab === "script" || activeTab === "video") && viewMode === "card" && (
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {items.map((item) => {
+                const rs = RESULT_STYLES[item.result] || RESULT_STYLES[""];
+                const isScript = isScriptType(item.type);
+                const confirmLink = isScript ? `/projects/${projectId}/scripts/script-001` : `/projects/${projectId}/editing`;
+                return (
+                  <Link key={item.no} href={confirmLink}
+                    className={`bg-white rounded-xl border border-black/[0.06] p-4 hover:shadow-md hover:border-[#9333EA]/20 transition-all group ${
+                      item.result === "修正依頼" ? "border-l-4 border-l-amber-400" : item.result === "NG" ? "border-l-4 border-l-red-400" : ""
+                    }`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded whitespace-nowrap ${
+                        item.type.includes("台本") ? "bg-blue-50 text-blue-600" : item.type.includes("動画") ? "bg-purple-50 text-purple-600" : "bg-gray-100 text-gray-600"
+                      }`}>{item.type}</span>
+                      {item.result ? (
+                        <span className="flex items-center gap-1">
+                          <span className={`w-2 h-2 rounded-full ${rs.dot}`} />
+                          <span className={`text-[10px] font-bold ${rs.text}`}>{item.result}</span>
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-[#1A1A2E]/20">未確認</span>
+                      )}
+                    </div>
+                    <h3 className="text-[13px] font-bold text-[#1A1A2E]/80 mb-1 group-hover:text-[#9333EA] transition-colors">
+                      {item.plan || item.appeal}
+                    </h3>
+                    <p className="text-[11px] text-[#1A1A2E]/40 mb-2">{item.appeal}</p>
+                    <div className="flex items-center gap-3 text-[10px] text-[#1A1A2E]/30">
+                      <span>{item.person}</span>
+                      <span>{item.date}</span>
+                      {item.note && <span className="text-amber-600/60">{item.note}</span>}
+                    </div>
+                  </Link>
+                );
+              })}
+              <button className="bg-white/50 rounded-xl border border-dashed border-[#1A1A2E]/10 p-4 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/[0.02] transition-all flex flex-col items-center justify-center gap-1 text-[#1A1A2E]/20 hover:text-[#9333EA]/50 min-h-[120px]">
+                <Plus className="w-5 h-5" />
+                <span className="text-[11px] font-medium">追加</span>
+              </button>
             </div>
           </div>
         )}
@@ -208,15 +260,11 @@ export default function RegulationsPage({ params }: { params: Promise<{ projectI
                 <input value={knowledgeSearch} onChange={(e) => setKnowledgeSearch(e.target.value)}
                   placeholder="ナレッジを検索..." className="flex-1 text-[12px] text-[#1A1A2E]/70 bg-transparent outline-none placeholder:text-[#1A1A2E]/20" />
               </div>
-              <a
-                href="https://docs.google.com/spreadsheets/d/16DAJi3HwtPdsoP05vXTLEBkjCVDeYMIg7tDgEqn1IZE/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/[0.06] text-[11px] font-semibold text-[#1A1A2E]/50 hover:text-[#9333EA] hover:border-[#9333EA]/30 transition-all shrink-0"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
+              <button onClick={() => setShowRegSheet(true)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/[0.06] text-[11px] font-semibold text-[#1A1A2E]/50 hover:text-[#9333EA] hover:border-[#9333EA]/30 transition-all shrink-0">
+                <FileText className="w-3.5 h-3.5" />
                 レギュレーションシート
-              </a>
+              </button>
             </div>
             <div className="flex gap-1 flex-wrap">
               <button onClick={() => setKnowledgeTagFilter("")}
@@ -251,6 +299,35 @@ export default function RegulationsPage({ params }: { params: Promise<{ projectI
           </div>
         )}
       </div>
+
+      {/* Regulation sheet embedded modal */}
+      {showRegSheet && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-6">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-black/[0.06] shrink-0">
+              <h2 className="text-[14px] font-bold text-[#1A1A2E]">レギュレーションシート</h2>
+              <div className="flex items-center gap-2">
+                <a href="https://docs.google.com/spreadsheets/d/16DAJi3HwtPdsoP05vXTLEBkjCVDeYMIg7tDgEqn1IZE/" target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-[11px] text-[#9333EA]/70 hover:text-[#9333EA] transition-colors">
+                  <ExternalLink className="w-3 h-3" /> 別タブで開く
+                </a>
+                <button onClick={() => setShowRegSheet(false)}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/[0.04] text-[#1A1A2E]/30 hover:text-[#1A1A2E]/60 transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            <div className="flex-1">
+              <iframe
+                src="https://docs.google.com/spreadsheets/d/16DAJi3HwtPdsoP05vXTLEBkjCVDeYMIg7tDgEqn1IZE/edit?gid=1636515411#gid=1636515411"
+                className="w-full h-full border-0"
+                title="レギュレーションシート"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       <VoiceInputButton onTranscript={(text) => console.log("voice:", text)} />
     </div>
   );
