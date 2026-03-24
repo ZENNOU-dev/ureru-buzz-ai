@@ -44,6 +44,7 @@ export default function DeliverablesPage({ params }: { params: Promise<{ project
   const { projectId } = use(params);
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"" | "完成" | "修正中" | "確認待ち">("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
   // Sort by date descending (newest first)
@@ -55,6 +56,7 @@ export default function DeliverablesPage({ params }: { params: Promise<{ project
   });
 
   const filtered = sorted.filter((d) => {
+    if (statusFilter && d.status !== statusFilter) return false;
     if (!search) return true;
     const q = search.toLowerCase();
     return d.adName.toLowerCase().includes(q) || d.videoName.toLowerCase().includes(q) || d.appeal.toLowerCase().includes(q) || d.plan.toLowerCase().includes(q);
@@ -71,7 +73,7 @@ export default function DeliverablesPage({ params }: { params: Promise<{ project
       {/* Header */}
       <div className="bg-white border-b border-black/[0.06] shrink-0 px-6 py-4">
         <div className="flex items-center gap-3 mb-3">
-          <h1 className="text-lg font-bold text-[#1A1A2E] flex-1">完成動画一覧</h1>
+          <h1 className="text-lg font-bold text-[#1A1A2E] flex-1">動画一覧</h1>
           <span className="text-[11px] text-[#1A1A2E]/30">{DELIVERABLES.length}件</span>
           <div className="flex items-center bg-[#FAF8F5] rounded-lg p-0.5 border border-black/[0.04]">
             <button onClick={() => setViewMode("card")}
@@ -84,11 +86,27 @@ export default function DeliverablesPage({ params }: { params: Promise<{ project
             </button>
           </div>
         </div>
-        <div className="flex items-center gap-2 bg-[#FAF8F5] rounded-xl border border-black/[0.06] px-3 py-2">
-          <Search className="w-4 h-4 text-[#1A1A2E]/25" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)}
-            placeholder="動画名・訴求名・企画名で検索..."
-            className="flex-1 text-[12px] text-[#1A1A2E]/70 bg-transparent outline-none placeholder:text-[#1A1A2E]/20" />
+        <div className="flex items-center gap-3">
+          <div className="flex-1 flex items-center gap-2 bg-[#FAF8F5] rounded-xl border border-black/[0.06] px-3 py-2">
+            <Search className="w-4 h-4 text-[#1A1A2E]/25" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)}
+              placeholder="動画名・訴求名・企画名で検索..."
+              className="flex-1 text-[12px] text-[#1A1A2E]/70 bg-transparent outline-none placeholder:text-[#1A1A2E]/20" />
+          </div>
+          <div className="flex gap-1 shrink-0">
+            {(["", "完成", "修正中", "確認待ち"] as const).map((s) => {
+              const label = s || "すべて";
+              const count = s ? DELIVERABLES.filter((d) => d.status === s).length : DELIVERABLES.length;
+              return (
+                <button key={label} onClick={() => setStatusFilter(s)}
+                  className={`text-[10px] px-2.5 py-1.5 rounded-full font-medium transition-all ${
+                    statusFilter === s ? "bg-[#9333EA] text-white" : "bg-white border border-black/[0.06] text-[#1A1A2E]/40 hover:text-[#1A1A2E]/60"
+                  }`}>
+                  {label} ({count})
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
