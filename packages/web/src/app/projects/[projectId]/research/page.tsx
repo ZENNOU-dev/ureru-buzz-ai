@@ -493,60 +493,81 @@ export default function ResearchPage({
       <div className="space-y-6">
         {/* ── Product Hero Card ── */}
         <div className="rounded-2xl bg-gradient-to-br from-[#9333EA] to-[#6D28D9] p-6 shadow-lg">
-          <div className="flex items-start gap-6">
-            {/* Logo (auto-fetched) */}
-            <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center shrink-0 shadow-md overflow-hidden">
-              <img src={`https://www.google.com/s2/favicons?domain=dot-ai-bootcamp.com&sz=64`} alt="logo" className="w-12 h-12 object-contain"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; (e.target as HTMLImageElement).parentElement!.innerHTML = '<span class="text-[#9333EA] font-bold text-sm">LOGO</span>'; }} />
-            </div>
-            {/* Product info */}
-            <div className="flex-1 min-w-0 space-y-1">
-              <input className="bg-transparent text-white text-2xl font-bold outline-none w-full placeholder-white/40"
-                value={heroInfo.productName} onChange={(e) => setHeroInfo((p) => ({ ...p, productName: e.target.value }))} placeholder="商品名を入力" />
-              <input className="bg-transparent text-white/60 text-[13px] outline-none w-full placeholder-white/30"
-                value={heroInfo.category} onChange={(e) => setHeroInfo((p) => ({ ...p, category: e.target.value }))} placeholder="カテゴリ" />
-              <div className="flex items-center gap-4 pt-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-white/40 text-[11px]">価格</span>
-                  <input className="bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-[13px] text-white font-semibold outline-none w-32 placeholder-white/30"
-                    value={heroInfo.price} onChange={(e) => setHeroInfo((p) => ({ ...p, price: e.target.value }))} placeholder="価格" />
+          <div className="flex gap-6">
+            {/* Left: Product info */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start gap-4 mb-4">
+                {/* Logo (auto-fetched) */}
+                <div className="w-16 h-16 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-md overflow-hidden">
+                  <img src={`https://www.google.com/s2/favicons?domain=dot-ai-bootcamp.com&sz=64`} alt="logo" className="w-10 h-10 object-contain"
+                    onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = "none"; }} />
+                </div>
+                <div className="space-y-1">
+                  <input className="bg-transparent text-white text-2xl font-bold outline-none w-full placeholder-white/40"
+                    value={heroInfo.productName} onChange={(e) => setHeroInfo((p) => ({ ...p, productName: e.target.value }))} placeholder="商品名" />
+                  <input className="bg-transparent text-white/50 text-[12px] outline-none w-full placeholder-white/30"
+                    value={heroInfo.category} onChange={(e) => setHeroInfo((p) => ({ ...p, category: e.target.value }))} placeholder="カテゴリ" />
                 </div>
               </div>
-            </div>
-            {/* Product image (auto-fetched from web) */}
-            <div className="w-28 h-28 rounded-xl bg-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-              <img src={`https://via.placeholder.com/112x112/9333EA/FFFFFF?text=${encodeURIComponent(heroInfo.productName.slice(0, 6))}`} alt="product" className="w-full h-full object-cover rounded-xl"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-              <div className="absolute flex flex-col items-center justify-center">
-                <span className="text-[7px] text-white/40 bg-black/20 px-1.5 py-0.5 rounded-full">自動取得</span>
+              {/* Price */}
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-white/40 text-[11px]">価格</span>
+                <input className="bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-[14px] text-white font-bold outline-none w-36 placeholder-white/30"
+                  value={heroInfo.price} onChange={(e) => setHeroInfo((p) => ({ ...p, price: e.target.value }))} placeholder="価格" />
+              </div>
+              {/* Catchcopy */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3">
+                <span className="text-[8px] text-white/30 font-bold uppercase tracking-wider">キャッチコピー</span>
+                <input className="bg-transparent text-white text-[14px] font-bold outline-none w-full mt-0.5 placeholder-white/30"
+                  value={heroInfo.catchcopy} onChange={(e) => setHeroInfo((p) => ({ ...p, catchcopy: e.target.value }))} placeholder="キャッチコピーを入力" />
               </div>
             </div>
-          </div>
 
-          {/* Catchcopy */}
-          <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3">
-            <span className="text-[9px] text-white/40 font-bold uppercase tracking-wider">キャッチコピー</span>
-            <input className="bg-transparent text-white text-[15px] font-bold outline-none w-full mt-1 placeholder-white/30"
-              value={heroInfo.catchcopy} onChange={(e) => setHeroInfo((p) => ({ ...p, catchcopy: e.target.value }))} placeholder="キャッチコピーを入力" />
-          </div>
-
-          {/* Top review + Usage scene */}
-          <div className="mt-3 grid grid-cols-2 gap-3">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3">
-              <div className="flex items-center gap-1.5 mb-1">
-                <Star className="w-3 h-3 text-yellow-300" />
-                <span className="text-[9px] text-white/40 font-bold uppercase tracking-wider">代表的な口コミ</span>
+            {/* Right: Review image + Usage scene image */}
+            <div className="flex gap-3 shrink-0">
+              {/* 代表的な口コミ (SNS screenshot) */}
+              <div className="w-[160px] flex flex-col">
+                <div className="flex items-center gap-1 mb-1.5">
+                  <Star className="w-3 h-3 text-yellow-300" />
+                  <span className="text-[9px] text-white/40 font-bold">口コミ</span>
+                </div>
+                <div className="flex-1 rounded-xl bg-white overflow-hidden flex flex-col">
+                  {/* SNS-like card */}
+                  <div className="bg-gradient-to-b from-gray-50 to-white flex-1 p-3 flex flex-col">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-6 h-6 rounded-full bg-[#9333EA]/20 flex items-center justify-center">
+                        <Users className="w-3 h-3 text-[#9333EA]" />
+                      </div>
+                      <div>
+                        <div className="text-[8px] font-bold text-[#1A1A2E]/70">受講生A</div>
+                        <div className="text-[7px] text-[#1A1A2E]/30">@user_a</div>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-[#1A1A2E]/70 leading-relaxed flex-1">{heroInfo.topReview}</p>
+                    <div className="flex items-center gap-1 mt-2">
+                      {[1,2,3,4,5].map((s) => (
+                        <Star key={s} className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <textarea className="bg-transparent text-white/80 text-[12px] outline-none w-full resize-none leading-relaxed placeholder-white/25" rows={2}
-                value={heroInfo.topReview} onChange={(e) => setHeroInfo((p) => ({ ...p, topReview: e.target.value }))} placeholder="特徴的な口コミを入力" />
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3">
-              <div className="flex items-center gap-1.5 mb-1">
-                <Users className="w-3 h-3 text-white/50" />
-                <span className="text-[9px] text-white/40 font-bold uppercase tracking-wider">代表的な利用シーン</span>
+              {/* 代表的な利用シーン (image) */}
+              <div className="w-[160px] flex flex-col">
+                <div className="flex items-center gap-1 mb-1.5">
+                  <Users className="w-3 h-3 text-white/40" />
+                  <span className="text-[9px] text-white/40 font-bold">利用シーン</span>
+                </div>
+                <div className="flex-1 rounded-xl bg-white/10 border border-white/10 overflow-hidden flex items-center justify-center">
+                  <div className="text-center p-4">
+                    <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-2">
+                      <Package className="w-5 h-5 text-white/30" />
+                    </div>
+                    <span className="text-[9px] text-white/30">利用シーン画像</span>
+                    <p className="text-[8px] text-white/20 mt-1">自動取得</p>
+                  </div>
+                </div>
               </div>
-              <textarea className="bg-transparent text-white/80 text-[12px] outline-none w-full resize-none leading-relaxed placeholder-white/25" rows={2}
-                value={heroInfo.usageScene} onChange={(e) => setHeroInfo((p) => ({ ...p, usageScene: e.target.value }))} placeholder="利用者の典型的な使い方" />
             </div>
           </div>
         </div>
@@ -556,7 +577,6 @@ export default function ResearchPage({
           <div className="px-4 py-3 border-b border-black/[0.06] flex items-center gap-2">
             <Eye className="w-4 h-4 text-[#9333EA]" />
             <span className="text-[12px] font-bold text-[#1A1A2E]">LP・広告ギャラリー</span>
-            <span className="text-[9px] text-[#1A1A2E]/25 ml-2">自動取得</span>
           </div>
           <div className="p-4">
             <div ref={galleryScrollRef} className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: "thin" }}>
