@@ -38,13 +38,13 @@ type CallSheetRow = {
 // ─── Auto-classify category from description/name ────
 function autoClassify(name: string, desc: string): string {
   const t = (name + " " + desc).toLowerCase();
-  if (t.includes("インタビュー") || t.includes("話者") || t.includes("正面") || t.includes("アングル")) return "インタビュー";
-  if (t.includes("リアクション") || t.includes("うなずき")) return "リアクション";
-  if (t.includes("pc") || t.includes("操作") || t.includes("ツール") || t.includes("商品") || t.includes("利用")) return "商品利用";
-  if (t.includes("画面") || t.includes("録画") || t.includes("スクショ") || t.includes("スマホ")) return "画面録画";
-  if (t.includes("成果") || t.includes("売上") || t.includes("フォロワー") || t.includes("ベネフィット")) return "ベネフィット";
-  if (t.includes("ロゴ") || t.includes("素材")) return "ロゴ・素材";
-  if (t.includes("ライフ") || t.includes("日常")) return "ライフスタイル";
+  if (t.includes("インタビュー") || t.includes("話者") || t.includes("正面") || t.includes("アングル")) return "取材";
+  if (t.includes("リアクション") || t.includes("うなずき")) return "反応";
+  if (t.includes("pc") || t.includes("操作") || t.includes("ツール") || t.includes("商品") || t.includes("利用")) return "商品";
+  if (t.includes("画面") || t.includes("録画") || t.includes("スクショ") || t.includes("スマホ")) return "録画";
+  if (t.includes("成果") || t.includes("売上") || t.includes("フォロワー") || t.includes("ベネフィット")) return "実績";
+  if (t.includes("ロゴ") || t.includes("素材")) return "素材";
+  if (t.includes("ライフ") || t.includes("日常")) return "日常";
   return "その他";
 }
 
@@ -274,101 +274,130 @@ export default function ShootingPage({ params }: { params: Promise<{ projectId: 
           </div>
         )}
 
-        {/* ── 香盤票: 撮影日の詳細（縦並びカード） ── */}
-        {activeTab === "callsheet" && selectedDay && (
-          <div className="max-w-3xl mx-auto">
-            {/* Back + header */}
-            <div className="flex items-center gap-3 mb-5">
-              <button onClick={() => setSelectedDayId(null)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/[0.04] text-[#1A1A2E]/30 hover:text-[#9333EA] transition-colors">
-                <ArrowLeft className="w-4 h-4" />
-              </button>
-              <div className="flex-1">
-                <input value={selectedDay.date} onChange={(e) => updateDay(selectedDay.id, "date", e.target.value)}
-                  className="text-[16px] font-bold text-[#1A1A2E]/80 bg-transparent border-b border-transparent hover:border-black/[0.15] focus:border-[#9333EA]/40 outline-none" />
-                <div className="flex items-center gap-4 mt-1 text-[11px] text-[#1A1A2E]/40">
-                  <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{selectedDay.location || "場所未定"}</span>
-                  <span className="flex items-center gap-1"><User className="w-3 h-3" />{selectedDay.model || "モデル未定"}</span>
-                  <span>{selectedDay.rows.length}カット</span>
-                </div>
-              </div>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#1A1A2E]/10 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/[0.03] text-[11px] font-medium text-[#1A1A2E]/50 hover:text-[#9333EA] transition-all">
-                <Download className="w-3.5 h-3.5" /> ダウンロード
-              </button>
-            </div>
+        {/* ── 香盤票: 撮影日の詳細（左グループ + 右カード） ── */}
+        {activeTab === "callsheet" && selectedDay && (() => {
+          // Group rows by location + cast + costume
+          type LeftGroup = { location: string; cast: string; costume: string; timeRange: string; rows: CallSheetRow[] };
+          const groups: LeftGroup[] = [];
+          selectedDay.rows.forEach((row) => {
+            const last = groups[groups.length - 1];
+            if (last && last.location === row.location && last.cast === row.cast && last.costume === row.costume) {
+              last.rows.push(row);
+              const endTime = row.shootTime.split("-")[1] || row.shootTime;
+              last.timeRange = last.timeRange.split("-")[0] + "-" + endTime;
+            } else {
+              groups.push({ location: row.location, cast: row.cast, costume: row.costume, timeRange: row.shootTime, rows: [row] });
+            }
+          });
 
-            {/* Vertical cards */}
-            <div className="space-y-4">
-              {selectedDay.rows.map((row, idx) => (
-                <div key={row.id} className="bg-white rounded-xl border border-black/[0.06] overflow-hidden group/card hover:border-[#9333EA]/15 transition-all">
-                  <div className="flex">
-                    {/* Left: image */}
-                    <div className="w-[120px] shrink-0 bg-gradient-to-b from-[#1a1a2e]/5 to-[#1a1a2e]/15 flex flex-col items-center justify-center p-3 border-r border-black/[0.04]">
-                      <div className="w-[60px] aspect-[9/16] rounded-[5px] border border-black/[0.08] bg-gradient-to-b from-white/50 to-[#1a1a2e]/10 flex items-center justify-center mb-1.5">
-                        <Smartphone className="w-4 h-4 text-[#1A1A2E]/15" />
-                      </div>
-                      <p className="text-[8px] text-[#1A1A2E]/25 text-center leading-tight">{row.imageLabel || "撮影イメージ"}</p>
-                    </div>
-                    {/* Right: details */}
-                    <div className="flex-1 p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <span className="text-[9px] text-[#1A1A2E]/25 font-bold">#{String(idx + 1).padStart(2, "0")}</span>
-                          <input value={row.materialName} onChange={(e) => updateRow(selectedDay.id, row.id, "materialName", e.target.value)}
-                            placeholder="素材名" className="block text-[14px] text-[#1A1A2E]/80 font-bold bg-transparent border-b border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 outline-none w-full mt-0.5" />
-                        </div>
-                        <button onClick={() => removeRow(selectedDay.id, row.id)}
-                          className="text-[#1A1A2E]/10 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition-all mt-1">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <input value={row.shootContent} onChange={(e) => updateRow(selectedDay.id, row.id, "shootContent", e.target.value)}
-                        placeholder="撮影内容" className="w-full text-[12px] text-[#1A1A2E]/60 bg-transparent border-b border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 outline-none mb-3" />
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[11px]">
-                        <div className="flex items-center gap-1.5">
-                          <MapPin className="w-3 h-3 text-[#1A1A2E]/25 shrink-0" />
-                          <input value={row.location} onChange={(e) => updateRow(selectedDay.id, row.id, "location", e.target.value)}
-                            placeholder="場所" className="flex-1 text-[#1A1A2E]/60 bg-transparent border-b border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 outline-none" />
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <User className="w-3 h-3 text-[#1A1A2E]/25 shrink-0" />
-                          <input value={row.cast} onChange={(e) => updateRow(selectedDay.id, row.id, "cast", e.target.value)}
-                            placeholder="出演者" className="flex-1 text-[#1A1A2E]/60 bg-transparent border-b border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 outline-none" />
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <Shirt className="w-3 h-3 text-[#1A1A2E]/25 shrink-0" />
-                          <input value={row.costume} onChange={(e) => updateRow(selectedDay.id, row.id, "costume", e.target.value)}
-                            placeholder="衣装" className="flex-1 text-[#1A1A2E]/60 bg-transparent border-b border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 outline-none" />
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <Clock className="w-3 h-3 text-[#1A1A2E]/25 shrink-0" />
-                          <input value={row.shootTime} onChange={(e) => updateRow(selectedDay.id, row.id, "shootTime", e.target.value)}
-                            placeholder="撮影時間" className="flex-1 text-[#1A1A2E]/60 bg-transparent border-b border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 outline-none" />
-                        </div>
-                      </div>
-                      <div className="flex gap-4 mt-2 text-[10px]">
-                        <div className="flex items-center gap-1 text-[#1A1A2E]/35">
-                          <span className="font-medium">小道具:</span>
-                          <input value={row.props} onChange={(e) => updateRow(selectedDay.id, row.id, "props", e.target.value)}
-                            placeholder="—" className="text-[#1A1A2E]/50 bg-transparent border-b border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 outline-none w-[120px]" />
-                        </div>
-                        <div className="flex items-center gap-1 text-[#1A1A2E]/35">
-                          <span className="font-medium">備考:</span>
-                          <input value={row.note} onChange={(e) => updateRow(selectedDay.id, row.id, "note", e.target.value)}
-                            placeholder="—" className="text-[#1A1A2E]/50 bg-transparent border-b border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 outline-none flex-1" />
-                        </div>
-                      </div>
-                    </div>
+          return (
+            <div className="max-w-5xl mx-auto">
+              {/* Back + header */}
+              <div className="flex items-center gap-3 mb-5">
+                <button onClick={() => setSelectedDayId(null)}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/[0.04] text-[#1A1A2E]/30 hover:text-[#9333EA] transition-colors">
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+                <div className="flex-1">
+                  <input value={selectedDay.date} onChange={(e) => updateDay(selectedDay.id, "date", e.target.value)}
+                    className="text-[16px] font-bold text-[#1A1A2E]/80 bg-transparent border-b border-transparent hover:border-black/[0.15] focus:border-[#9333EA]/40 outline-none" />
+                  <div className="flex items-center gap-4 mt-1 text-[11px] text-[#1A1A2E]/40">
+                    <span>{selectedDay.rows.length}カット</span>
                   </div>
                 </div>
-              ))}
+                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#1A1A2E]/10 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/[0.03] text-[11px] font-medium text-[#1A1A2E]/50 hover:text-[#9333EA] transition-all">
+                  <Download className="w-3.5 h-3.5" /> ダウンロード
+                </button>
+              </div>
+
+              {/* Groups: left info + right cards */}
+              <div className="space-y-6">
+                {groups.map((group, gi) => (
+                  <div key={gi} className="flex gap-0 bg-white rounded-xl border border-black/[0.06] overflow-hidden">
+                    {/* Left: shared info with connecting line */}
+                    <div className="w-[180px] shrink-0 bg-[#FAFAF8] border-r border-black/[0.06] p-4 flex flex-col">
+                      <div className="flex items-start gap-2 flex-1">
+                        {/* Connecting line */}
+                        <div className={`w-1 shrink-0 rounded-full mt-1 ${group.rows.length > 1 ? "bg-[#9333EA]/30" : "bg-[#1A1A2E]/10"}`}
+                          style={{ minHeight: "100%" }} />
+                        <div className="flex-1 space-y-2">
+                          <div>
+                            <div className="flex items-center gap-1.5 text-[10px] text-[#1A1A2E]/30 mb-0.5">
+                              <Clock className="w-3 h-3" /><span className="font-medium">時間</span>
+                            </div>
+                            <p className="text-[12px] text-[#1A1A2E]/70 font-semibold">{group.timeRange || "未定"}</p>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5 text-[10px] text-[#1A1A2E]/30 mb-0.5">
+                              <MapPin className="w-3 h-3" /><span className="font-medium">場所</span>
+                            </div>
+                            <p className="text-[12px] text-[#1A1A2E]/70">{group.location || "未定"}</p>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5 text-[10px] text-[#1A1A2E]/30 mb-0.5">
+                              <User className="w-3 h-3" /><span className="font-medium">出演者</span>
+                            </div>
+                            <p className="text-[12px] text-[#1A1A2E]/70">{group.cast || "—"}</p>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5 text-[10px] text-[#1A1A2E]/30 mb-0.5">
+                              <Shirt className="w-3 h-3" /><span className="font-medium">衣装</span>
+                            </div>
+                            <p className="text-[12px] text-[#1A1A2E]/70">{group.costume || "—"}</p>
+                          </div>
+                          {group.rows.length > 1 && (
+                            <p className="text-[9px] text-[#9333EA]/50 font-bold mt-1">{group.rows.length}カット連続</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: cards per row */}
+                    <div className="flex-1 p-3 space-y-3">
+                      {group.rows.map((row, ri) => {
+                        const globalIdx = selectedDay.rows.indexOf(row);
+                        return (
+                          <div key={row.id} className="flex gap-3 bg-[#FAF8F5] rounded-lg border border-black/[0.04] p-3 group/card hover:border-[#9333EA]/15 transition-all relative">
+                            <button onClick={() => removeRow(selectedDay.id, row.id)}
+                              className="absolute top-2 right-2 text-[#1A1A2E]/10 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition-all">
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                            {/* Image */}
+                            <div className="w-[56px] shrink-0 flex flex-col items-center">
+                              <div className="w-[48px] aspect-[9/16] rounded-[4px] border border-black/[0.08] bg-gradient-to-b from-white/50 to-[#1a1a2e]/10 flex items-center justify-center">
+                                <Smartphone className="w-3 h-3 text-[#1A1A2E]/15" />
+                              </div>
+                              <p className="text-[7px] text-[#1A1A2E]/20 text-center mt-0.5 leading-tight">{row.imageLabel || "イメージ"}</p>
+                            </div>
+                            {/* Info */}
+                            <div className="flex-1 min-w-0">
+                              <span className="text-[8px] text-[#1A1A2E]/20 font-bold">#{String(globalIdx + 1).padStart(2, "0")}</span>
+                              <input value={row.materialName} onChange={(e) => updateRow(selectedDay.id, row.id, "materialName", e.target.value)}
+                                placeholder="素材名" className="block text-[13px] text-[#1A1A2E]/80 font-bold bg-transparent border-b border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 outline-none w-full" />
+                              <input value={row.shootContent} onChange={(e) => updateRow(selectedDay.id, row.id, "shootContent", e.target.value)}
+                                placeholder="撮影内容" className="block text-[11px] text-[#1A1A2E]/50 bg-transparent border-b border-transparent hover:border-black/[0.08] focus:border-[#9333EA]/40 outline-none w-full mt-1" />
+                              <div className="flex gap-3 mt-1.5 text-[10px] text-[#1A1A2E]/35">
+                                <span>小道具: <input value={row.props} onChange={(e) => updateRow(selectedDay.id, row.id, "props", e.target.value)}
+                                  placeholder="—" className="text-[#1A1A2E]/50 bg-transparent border-b border-transparent hover:border-black/[0.06] focus:border-[#9333EA]/40 outline-none w-[80px] inline" /></span>
+                                <span>備考: <input value={row.note} onChange={(e) => updateRow(selectedDay.id, row.id, "note", e.target.value)}
+                                  placeholder="—" className="text-[#1A1A2E]/50 bg-transparent border-b border-transparent hover:border-black/[0.06] focus:border-[#9333EA]/40 outline-none w-[100px] inline" /></span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <button onClick={() => addRow(selectedDay.id)}
-                className="w-full py-4 text-[11px] text-[#1A1A2E]/25 hover:text-[#9333EA]/50 hover:bg-[#9333EA]/[0.02] rounded-xl border border-dashed border-[#1A1A2E]/10 hover:border-[#9333EA]/30 transition-all flex items-center justify-center gap-1.5">
+                className="w-full py-4 mt-4 text-[11px] text-[#1A1A2E]/25 hover:text-[#9333EA]/50 hover:bg-[#9333EA]/[0.02] rounded-xl border border-dashed border-[#1A1A2E]/10 hover:border-[#9333EA]/30 transition-all flex items-center justify-center gap-1.5">
                 <Plus className="w-3.5 h-3.5" /> カットを追加
               </button>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
 
       <VoiceInputButton onTranscript={(text) => console.log("voice:", text)} />
