@@ -551,7 +551,7 @@ export default function ResearchPage({
         <div className="rounded-2xl bg-gradient-to-br from-[#9333EA] to-[#6D28D9] p-5 shadow-lg">
           <div className="flex gap-4">
             {/* Left: Product info + summary */}
-            <div className="w-[38%] shrink-0">
+            <div className="flex-[38] min-w-0">
               <div className="flex items-start gap-3 mb-2">
                 {/* Logo (auto-fetched) */}
                 <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-md overflow-hidden">
@@ -585,7 +585,7 @@ export default function ResearchPage({
             </div>
 
             {/* Middle: 口コミ (SNS card, bigger) */}
-            <div className="w-[32%] shrink-0 flex flex-col">
+            <div className="flex-[32] min-w-0 flex flex-col">
               <div className="flex items-center gap-1 mb-1.5">
                 <Star className="w-3 h-3 text-yellow-300" />
                 <span className="text-[9px] text-white/40 font-bold">代表的な口コミ</span>
@@ -613,7 +613,7 @@ export default function ResearchPage({
             </div>
 
             {/* Right: 利用シーン (image, bigger) */}
-            <div className="w-[30%] shrink-0 flex flex-col min-w-0">
+            <div className="flex-[30] min-w-0 flex flex-col">
               <div className="flex items-center gap-1 mb-1.5">
                 <Users className="w-3 h-3 text-white/40" />
                 <span className="text-[9px] text-white/40 font-bold">利用シーン</span>
@@ -630,17 +630,123 @@ export default function ResearchPage({
           </div>
         </div>
 
-        {/* ── LP・広告ギャラリー (3分割カルーセル) ── */}
-        <div className="bg-white rounded-xl border border-black/[0.06] shadow-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-black/[0.06] flex items-center gap-2">
-            <Eye className="w-4 h-4 text-[#9333EA]" />
-            <span className="text-[12px] font-bold text-[#1A1A2E]">LP・広告ギャラリー</span>
-          </div>
-          <div className="p-4">
-            <div className="grid grid-cols-3 gap-4" style={{ minHeight: 220 }}>
-              <GalleryCarousel items={lpItems} type="LP" aspect="aspect-[3/4]" />
-              <GalleryCarousel items={bannerItems} type="バナー" aspect="aspect-video" />
-              <GalleryCarousel items={videoItems} type="動画" aspect="aspect-[9/16]" />
+        {/* ── LP・広告ギャラリー (3分割カルーセル, リッチ) ── */}
+        <div className="rounded-xl overflow-hidden shadow-sm border border-black/[0.06]">
+          <div className="grid grid-cols-3">
+            {/* LP section */}
+            <div className="bg-gradient-to-b from-blue-50 to-white p-4 border-r border-black/[0.04]">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <Globe className="w-3.5 h-3.5 text-blue-600" />
+                </div>
+                <span className="text-[12px] font-bold text-[#1A1A2E]/70">LP</span>
+                <span className="text-[9px] text-[#1A1A2E]/25 ml-auto">{lpItems.length}件</span>
+              </div>
+              <div className="relative" style={{ minHeight: 200 }}>
+                {lpItems.length > 1 && (
+                  <>
+                    <button onClick={() => setGalleryIdx((p) => ({ ...p, LP: ((p.LP || 0) - 1 + lpItems.length) % lpItems.length }))}
+                      className="absolute left-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#1A1A2E]/30 hover:text-blue-600 transition-colors">
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={() => setGalleryIdx((p) => ({ ...p, LP: ((p.LP || 0) + 1) % lpItems.length }))}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#1A1A2E]/30 hover:text-blue-600 transition-colors">
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </>
+                )}
+                <div className="aspect-[3/4] rounded-xl overflow-hidden border border-blue-100 bg-white shadow-inner">
+                  {lpItems[galleryIdx.LP || 0]?.url ? (
+                    <iframe src={lpItems[galleryIdx.LP || 0].url} className="w-full h-full" title="LP" sandbox="allow-scripts allow-same-origin" />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-blue-50/50 to-white">
+                      <Globe className="w-8 h-8 text-blue-200 mb-2" />
+                      <span className="text-[10px] text-blue-300 font-medium">{lpItems[galleryIdx.LP || 0]?.label || "LP"}</span>
+                    </div>
+                  )}
+                </div>
+                {/* Dots */}
+                <div className="flex items-center justify-center gap-1.5 mt-2">
+                  {lpItems.map((_, di) => (
+                    <button key={di} onClick={() => setGalleryIdx((p) => ({ ...p, LP: di }))}
+                      className={`w-1.5 h-1.5 rounded-full transition-all ${di === (galleryIdx.LP || 0) ? "bg-blue-500 w-3" : "bg-blue-200"}`} />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* バナー section */}
+            <div className="bg-gradient-to-b from-amber-50 to-white p-4 border-r border-black/[0.04]">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center">
+                  <Package className="w-3.5 h-3.5 text-amber-600" />
+                </div>
+                <span className="text-[12px] font-bold text-[#1A1A2E]/70">バナー</span>
+                <span className="text-[9px] text-[#1A1A2E]/25 ml-auto">{bannerItems.length}件</span>
+              </div>
+              <div className="relative" style={{ minHeight: 200 }}>
+                {bannerItems.length > 1 && (
+                  <>
+                    <button onClick={() => setGalleryIdx((p) => ({ ...p, "バナー": ((p["バナー"] || 0) - 1 + bannerItems.length) % bannerItems.length }))}
+                      className="absolute left-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#1A1A2E]/30 hover:text-amber-600 transition-colors">
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={() => setGalleryIdx((p) => ({ ...p, "バナー": ((p["バナー"] || 0) + 1) % bannerItems.length }))}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#1A1A2E]/30 hover:text-amber-600 transition-colors">
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </>
+                )}
+                <div className="aspect-video rounded-xl overflow-hidden border border-amber-100 bg-white shadow-inner">
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-amber-50/50 to-white">
+                    <Package className="w-8 h-8 text-amber-200 mb-2" />
+                    <span className="text-[10px] text-amber-300 font-medium">{bannerItems[galleryIdx["バナー"] || 0]?.label || "バナー"}</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-center gap-1.5 mt-2">
+                  {bannerItems.map((_, di) => (
+                    <button key={di} onClick={() => setGalleryIdx((p) => ({ ...p, "バナー": di }))}
+                      className={`w-1.5 h-1.5 rounded-full transition-all ${di === (galleryIdx["バナー"] || 0) ? "bg-amber-500 w-3" : "bg-amber-200"}`} />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 動画 section */}
+            <div className="bg-gradient-to-b from-purple-50 to-white p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded-lg bg-purple-100 flex items-center justify-center">
+                  <Play className="w-3.5 h-3.5 text-purple-600" />
+                </div>
+                <span className="text-[12px] font-bold text-[#1A1A2E]/70">動画</span>
+                <span className="text-[9px] text-[#1A1A2E]/25 ml-auto">{videoItems.length}件</span>
+              </div>
+              <div className="relative flex justify-center" style={{ minHeight: 200 }}>
+                {videoItems.length > 1 && (
+                  <>
+                    <button onClick={() => setGalleryIdx((p) => ({ ...p, "動画": ((p["動画"] || 0) - 1 + videoItems.length) % videoItems.length }))}
+                      className="absolute left-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#1A1A2E]/30 hover:text-purple-600 transition-colors">
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={() => setGalleryIdx((p) => ({ ...p, "動画": ((p["動画"] || 0) + 1) % videoItems.length }))}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#1A1A2E]/30 hover:text-purple-600 transition-colors">
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </>
+                )}
+                <div className="w-[120px] aspect-[9/16] rounded-xl overflow-hidden border border-purple-100 bg-white shadow-inner">
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-purple-50/50 to-white">
+                    <Play className="w-8 h-8 text-purple-200 mb-2" />
+                    <span className="text-[10px] text-purple-300 font-medium">{videoItems[galleryIdx["動画"] || 0]?.label || "動画"}</span>
+                  </div>
+                </div>
+                <div className="absolute bottom-0 flex items-center justify-center gap-1.5">
+                  {videoItems.map((_, di) => (
+                    <button key={di} onClick={() => setGalleryIdx((p) => ({ ...p, "動画": di }))}
+                      className={`w-1.5 h-1.5 rounded-full transition-all ${di === (galleryIdx["動画"] || 0) ? "bg-purple-500 w-3" : "bg-purple-200"}`} />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
