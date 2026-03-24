@@ -140,7 +140,7 @@ function makeHeroInfo(): HeroInfo {
 
 function makeGalleryItems(): GalleryItem[] {
   return [
-    { id: 1, type: "LP", label: "メインLP", url: "" },
+    { id: 1, type: "LP", label: "メインLP", url: "https://dot-ai-bootcamp.com" },
     { id: 2, type: "バナー", label: "バナー広告 A", url: "" },
     { id: 3, type: "バナー", label: "バナー広告 B", url: "" },
     { id: 4, type: "動画", label: "ショート動画 A", url: "" },
@@ -494,10 +494,10 @@ export default function ResearchPage({
         {/* ── Product Hero Card ── */}
         <div className="rounded-2xl bg-gradient-to-br from-[#9333EA] to-[#6D28D9] p-6 shadow-lg">
           <div className="flex items-start gap-6">
-            {/* Logo */}
-            <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center shrink-0 shadow-md">
-              <input className="w-full h-full text-center text-[#9333EA] font-bold text-sm bg-transparent outline-none rounded-2xl"
-                value={heroInfo.logoText} onChange={(e) => setHeroInfo((p) => ({ ...p, logoText: e.target.value }))} />
+            {/* Logo (auto-fetched) */}
+            <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center shrink-0 shadow-md overflow-hidden">
+              <img src={`https://www.google.com/s2/favicons?domain=dot-ai-bootcamp.com&sz=64`} alt="logo" className="w-12 h-12 object-contain"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; (e.target as HTMLImageElement).parentElement!.innerHTML = '<span class="text-[#9333EA] font-bold text-sm">LOGO</span>'; }} />
             </div>
             {/* Product info */}
             <div className="flex-1 min-w-0 space-y-1">
@@ -513,10 +513,13 @@ export default function ResearchPage({
                 </div>
               </div>
             </div>
-            {/* Product image placeholder */}
-            <div className="w-28 h-28 rounded-xl bg-white/10 border-2 border-dashed border-white/20 flex flex-col items-center justify-center shrink-0">
-              <Package className="w-6 h-6 text-white/25 mb-1" />
-              <span className="text-[8px] text-white/30">商品画像</span>
+            {/* Product image (auto-fetched from web) */}
+            <div className="w-28 h-28 rounded-xl bg-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+              <img src={`https://via.placeholder.com/112x112/9333EA/FFFFFF?text=${encodeURIComponent(heroInfo.productName.slice(0, 6))}`} alt="product" className="w-full h-full object-cover rounded-xl"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+              <div className="absolute flex flex-col items-center justify-center">
+                <span className="text-[7px] text-white/40 bg-black/20 px-1.5 py-0.5 rounded-full">自動取得</span>
+              </div>
             </div>
           </div>
 
@@ -550,15 +553,10 @@ export default function ResearchPage({
 
         {/* ── LP・広告ギャラリー ── */}
         <div className="bg-white rounded-xl border border-black/[0.06] shadow-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-black/[0.06] flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Eye className="w-4 h-4 text-[#9333EA]" />
-              <span className="text-[12px] font-bold text-[#1A1A2E]">LP・広告ギャラリー</span>
-            </div>
-            <button onClick={() => setGallery((p) => [...p, { id: Date.now(), type: "バナー", label: "", url: "" }])}
-              className="flex items-center gap-1 text-[11px] text-[#9333EA] font-semibold hover:underline">
-              <Plus className="w-3 h-3" /> 追加
-            </button>
+          <div className="px-4 py-3 border-b border-black/[0.06] flex items-center gap-2">
+            <Eye className="w-4 h-4 text-[#9333EA]" />
+            <span className="text-[12px] font-bold text-[#1A1A2E]">LP・広告ギャラリー</span>
+            <span className="text-[9px] text-[#1A1A2E]/25 ml-2">自動取得</span>
           </div>
           <div className="p-4">
             <div ref={galleryScrollRef} className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: "thin" }}>
@@ -577,17 +575,13 @@ export default function ResearchPage({
                   </button>
                   {/* Preview area */}
                   {item.type === "LP" ? (
-                    <div className="space-y-1.5">
-                      <input className={inputClass + " text-[10px]"} placeholder="LPのURLを入力" value={item.url}
-                        onChange={(e) => { const n = [...gallery]; n[i] = { ...n[i], url: e.target.value }; setGallery(n); }} />
+                    <div className="aspect-[3/4] rounded-lg overflow-hidden border border-black/[0.06] bg-white">
                       {item.url ? (
-                        <div className="aspect-[3/4] rounded-lg overflow-hidden border border-black/[0.06]">
-                          <iframe src={item.url} className="w-full h-full" title="LP" sandbox="allow-scripts allow-same-origin" />
-                        </div>
+                        <iframe src={item.url} className="w-full h-full" title="LP" sandbox="allow-scripts allow-same-origin" />
                       ) : (
-                        <div className="aspect-[3/4] rounded-lg border-2 border-dashed border-black/10 flex flex-col items-center justify-center bg-[#FAF8F5]">
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-[#FAF8F5]">
                           <Globe className="w-6 h-6 text-[#1A1A2E]/15 mb-1" />
-                          <span className="text-[9px] text-[#1A1A2E]/25">URLを入力</span>
+                          <span className="text-[9px] text-[#1A1A2E]/25">取得中...</span>
                         </div>
                       )}
                     </div>
@@ -607,12 +601,6 @@ export default function ResearchPage({
                     onChange={(e) => { const n = [...gallery]; n[i] = { ...n[i], label: e.target.value }; setGallery(n); }} placeholder="ラベル" />
                 </div>
               ))}
-              {/* Add placeholder */}
-              <div onClick={() => setGallery((p) => [...p, { id: Date.now(), type: "バナー", label: "", url: "" }])}
-                className="shrink-0 w-[120px] aspect-video rounded-lg border-2 border-dashed border-[#1A1A2E]/10 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/[0.02] flex flex-col items-center justify-center gap-1 cursor-pointer transition-all self-center">
-                <Plus className="w-4 h-4 text-[#1A1A2E]/20" />
-                <span className="text-[9px] text-[#1A1A2E]/20">追加</span>
-              </div>
             </div>
           </div>
         </div>
