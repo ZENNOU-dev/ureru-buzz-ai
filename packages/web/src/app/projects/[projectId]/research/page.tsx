@@ -552,33 +552,28 @@ export default function ResearchPage({
         {/* ── Product Hero Card ── */}
         <div className="rounded-2xl bg-gradient-to-br from-[#9333EA] to-[#6D28D9] p-5 shadow-lg">
           <div className="flex gap-4">
-            {/* Left: Product info + summary */}
-            <div className="flex-[38] min-w-0">
-              <div className="flex items-start gap-3 mb-2">
-                {/* Logo (auto-fetched) */}
-                <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-md overflow-hidden">
-                  <img src={`https://www.google.com/s2/favicons?domain=dot-ai-bootcamp.com&sz=64`} alt="logo" className="w-9 h-9 object-contain"
-                    onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = "none"; }} />
-                </div>
-                <div className="space-y-0.5 min-w-0">
-                  <input className="bg-transparent text-white text-xl font-bold outline-none w-full placeholder-white/40"
-                    value={heroInfo.productName} onChange={(e) => setHeroInfo((p) => ({ ...p, productName: e.target.value }))} placeholder="商品名" />
-                  <input className="bg-transparent text-white/50 text-[11px] outline-none w-full placeholder-white/30"
-                    value={heroInfo.category} onChange={(e) => setHeroInfo((p) => ({ ...p, category: e.target.value }))} placeholder="カテゴリ" />
-                </div>
-              </div>
-              {/* Price */}
+            {/* Logo (left) */}
+            <div className="w-16 h-16 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-md overflow-hidden self-start">
+              <img src={`https://www.google.com/s2/favicons?domain=dot-ai-bootcamp.com&sz=64`} alt="logo" className="w-10 h-10 object-contain"
+                onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = "none"; }} />
+            </div>
+
+            {/* Product info: name + category + price + features */}
+            <div className="flex-[35] min-w-0">
+              <input className="bg-transparent text-white text-xl font-bold outline-none w-full placeholder-white/40"
+                value={heroInfo.productName} onChange={(e) => setHeroInfo((p) => ({ ...p, productName: e.target.value }))} placeholder="商品名" />
+              <input className="bg-transparent text-white/50 text-[11px] outline-none w-full placeholder-white/30 mb-1"
+                value={heroInfo.category} onChange={(e) => setHeroInfo((p) => ({ ...p, category: e.target.value }))} placeholder="カテゴリ" />
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-white/40 text-[10px]">価格</span>
-                <input className="bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-[13px] text-white font-bold outline-none w-32 placeholder-white/30"
+                <input className="bg-white/10 border border-white/20 rounded-lg px-2 py-0.5 text-[13px] text-white font-bold outline-none w-28 placeholder-white/30"
                   value={heroInfo.price} onChange={(e) => setHeroInfo((p) => ({ ...p, price: e.target.value }))} placeholder="価格" />
               </div>
-              {/* Summary points (3 checkmarks) */}
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 {heroInfo.summaryPoints.map((pt, i) => (
-                  <div key={i} className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-300 shrink-0 mt-0.5" />
-                    <input className="bg-transparent text-white/80 text-[12px] outline-none w-full placeholder-white/30"
+                  <div key={i} className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300 shrink-0 mt-0.5" />
+                    <input className="bg-transparent text-white/80 text-[11px] outline-none w-full placeholder-white/30"
                       value={pt} onChange={(e) => { const pts = [...heroInfo.summaryPoints]; pts[i] = e.target.value; setHeroInfo((p) => ({ ...p, summaryPoints: pts })); }}
                       placeholder="特徴を入力" />
                   </div>
@@ -677,7 +672,7 @@ export default function ResearchPage({
               </div>
             </div>
 
-            {/* バナー section */}
+            {/* バナー section (正方形) */}
             <div className="bg-gradient-to-b from-amber-50 to-white p-4 border-r border-black/[0.04]">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center">
@@ -686,7 +681,7 @@ export default function ResearchPage({
                 <span className="text-[12px] font-bold text-[#1A1A2E]/70">バナー</span>
                 <span className="text-[9px] text-[#1A1A2E]/25 ml-auto">{bannerItems.length}件</span>
               </div>
-              <div className="relative" style={{ minHeight: 200 }}>
+              <div className="relative flex justify-center" style={{ minHeight: 240 }}>
                 {bannerItems.length > 1 && (
                   <>
                     <button onClick={() => setGalleryIdx((p) => ({ ...p, "バナー": ((p["バナー"] || 0) - 1 + bannerItems.length) % bannerItems.length }))}
@@ -699,13 +694,13 @@ export default function ResearchPage({
                     </button>
                   </>
                 )}
-                <div className="aspect-video rounded-xl overflow-hidden border border-amber-100 bg-white shadow-inner">
+                <div className="w-[220px] aspect-square rounded-xl overflow-hidden border border-amber-100 bg-white shadow-inner">
                   <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-amber-50/50 to-white">
-                    <Package className="w-8 h-8 text-amber-200 mb-2" />
-                    <span className="text-[10px] text-amber-300 font-medium">{bannerItems[galleryIdx["バナー"] || 0]?.label || "バナー"}</span>
+                    <Package className="w-10 h-10 text-amber-200 mb-2" />
+                    <span className="text-[11px] text-amber-300 font-medium">{bannerItems[galleryIdx["バナー"] || 0]?.label || "バナー"}</span>
                   </div>
                 </div>
-                <div className="flex items-center justify-center gap-1.5 mt-2">
+                <div className="absolute bottom-0 flex items-center justify-center gap-1.5">
                   {bannerItems.map((_, di) => (
                     <button key={di} onClick={() => setGalleryIdx((p) => ({ ...p, "バナー": di }))}
                       className={`w-1.5 h-1.5 rounded-full transition-all ${di === (galleryIdx["バナー"] || 0) ? "bg-amber-500 w-3" : "bg-amber-200"}`} />
@@ -714,7 +709,7 @@ export default function ResearchPage({
               </div>
             </div>
 
-            {/* 動画 section */}
+            {/* 動画 section (縦型スマホ画面) */}
             <div className="bg-gradient-to-b from-purple-50 to-white p-4">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-6 h-6 rounded-lg bg-purple-100 flex items-center justify-center">
@@ -723,7 +718,7 @@ export default function ResearchPage({
                 <span className="text-[12px] font-bold text-[#1A1A2E]/70">動画</span>
                 <span className="text-[9px] text-[#1A1A2E]/25 ml-auto">{videoItems.length}件</span>
               </div>
-              <div className="relative flex justify-center" style={{ minHeight: 200 }}>
+              <div className="relative flex justify-center" style={{ minHeight: 240 }}>
                 {videoItems.length > 1 && (
                   <>
                     <button onClick={() => setGalleryIdx((p) => ({ ...p, "動画": ((p["動画"] || 0) - 1 + videoItems.length) % videoItems.length }))}
@@ -736,11 +731,14 @@ export default function ResearchPage({
                     </button>
                   </>
                 )}
-                <div className="w-[120px] aspect-[9/16] rounded-xl overflow-hidden border border-purple-100 bg-white shadow-inner">
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-purple-50/50 to-white">
-                    <Play className="w-8 h-8 text-purple-200 mb-2" />
-                    <span className="text-[10px] text-purple-300 font-medium">{videoItems[galleryIdx["動画"] || 0]?.label || "動画"}</span>
+                {/* スマホフレーム */}
+                <div className="w-[140px] aspect-[9/16] rounded-[18px] border-2 border-purple-200 bg-[#0a0a0a] relative overflow-hidden flex flex-col shadow-inner">
+                  <div className="w-[24px] h-[4px] bg-white/20 rounded-full mx-auto mt-[5px] shrink-0" />
+                  <div className="flex-1 mx-[3px] mb-[5px] mt-[3px] rounded-[8px] bg-gradient-to-b from-purple-900/30 to-purple-900/60 flex flex-col items-center justify-center overflow-hidden">
+                    <Play className="w-8 h-8 text-white/20 mb-2" />
+                    <span className="text-[9px] text-white/30 font-medium">{videoItems[galleryIdx["動画"] || 0]?.label || "動画"}</span>
                   </div>
+                  <div className="w-[20px] h-[3px] bg-white/20 rounded-full mx-auto mb-[4px] shrink-0" />
                 </div>
                 <div className="absolute bottom-0 flex items-center justify-center gap-1.5">
                   {videoItems.map((_, di) => (
