@@ -1,7 +1,7 @@
 "use client";
 
-import { use, useState } from "react";
-import { ArrowLeft, Plus, Play, LayoutList, LayoutGrid, Film, Calendar, User, Megaphone, Lightbulb, Search, X, Target, MessageSquare } from "lucide-react";
+import { use, useState, useRef, useCallback } from "react";
+import { ArrowLeft, Plus, Play, LayoutList, LayoutGrid, Film, Calendar, User, Megaphone, Lightbulb, Search, X, Target, MessageSquare, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { VoiceInputButton } from "@/components/voice-input-button";
 
@@ -46,13 +46,25 @@ export default function DeliverablesPage({ params }: { params: Promise<{ project
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  const filtered = DELIVERABLES.filter((d) => {
+  // Sort by date descending (newest first)
+  const sorted = [...DELIVERABLES].sort((a, b) => {
+    if (!a.completedDate && !b.completedDate) return 0;
+    if (!a.completedDate) return -1; // incomplete items first
+    if (!b.completedDate) return -1;
+    return b.completedDate.localeCompare(a.completedDate);
+  });
+
+  const filtered = sorted.filter((d) => {
     if (!search) return true;
     const q = search.toLowerCase();
     return d.adName.toLowerCase().includes(q) || d.videoName.toLowerCase().includes(q) || d.appeal.toLowerCase().includes(q) || d.plan.toLowerCase().includes(q);
   });
 
   const selectedItem = DELIVERABLES.find((d) => d.id === selectedId);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollBy = useCallback((dir: number) => {
+    scrollRef.current?.scrollBy({ left: dir * 600, behavior: "smooth" });
+  }, []);
 
   return (
     <div className="flex flex-col h-full bg-[#FAF8F5]">
@@ -82,54 +94,69 @@ export default function DeliverablesPage({ params }: { params: Promise<{ project
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
-        {/* Card View */}
+        {/* Card View - horizontal slider with 4 visible cards */}
         {viewMode === "card" && (
-          <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-5">
-            {filtered.map((item) => {
-              const ss = STATUS_STYLES[item.status];
-              return (
-                <div key={item.id} onClick={() => setSelectedId(item.id)}
-                  className={`bg-white rounded-xl border border-black/[0.06] overflow-hidden hover:shadow-lg hover:border-[#9333EA]/20 transition-all cursor-pointer group ${
-                    item.status === "修正中" ? "border-l-4 border-l-amber-400" : item.status === "確認待ち" ? "border-l-4 border-l-blue-400" : ""
-                  }`}>
-                  {/* Large thumbnail */}
-                  <div className="aspect-video bg-gradient-to-br from-[#1a1a2e]/70 to-[#1a1a2e]/90 relative flex items-center justify-center">
-                    <Film className="w-10 h-10 text-white/15" />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                        <Play className="w-6 h-6 text-white ml-0.5" />
+          <div className="relative">
+            {/* Scroll buttons */}
+            <button onClick={() => scrollBy(-1)}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-lg border border-black/[0.06] flex items-center justify-center text-[#1A1A2E]/40 hover:text-[#9333EA] transition-colors">
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button onClick={() => scrollBy(1)}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-lg border border-black/[0.06] flex items-center justify-center text-[#1A1A2E]/40 hover:text-[#9333EA] transition-colors">
+              <ChevronRight className="w-5 h-5" />
+            </button>
+
+            <div ref={scrollRef} className="overflow-x-auto px-12 pb-4 flex gap-4 snap-x snap-mandatory scrollbar-hide"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+              {filtered.map((item) => {
+                const ss = STATUS_STYLES[item.status];
+                return (
+                  <div key={item.id} onClick={() => setSelectedId(item.id)}
+                    className={`bg-white rounded-xl border border-black/[0.06] overflow-hidden hover:shadow-lg hover:border-[#9333EA]/20 transition-all cursor-pointer group snap-start shrink-0 ${
+                      item.status === "修正中" ? "border-l-4 border-l-amber-400" : item.status === "確認待ち" ? "border-l-4 border-l-blue-400" : ""
+                    }`}
+                    style={{ width: "calc(25% - 12px)", minWidth: "200px" }}>
+                    {/* Vertical thumbnail (9:16) */}
+                    <div className="aspect-[9/16] bg-gradient-to-b from-[#1a1a2e]/60 to-[#1a1a2e]/90 relative flex items-center justify-center">
+                      <Film className="w-8 h-8 text-white/15" />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                          <Play className="w-5 h-5 text-white ml-0.5" />
+                        </div>
+                      </div>
+                      <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[9px] font-medium px-1.5 py-0.5 rounded">
+                        {item.duration}
+                      </div>
+                      <div className="absolute top-2 right-2">
+                        <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${ss.bg} ${ss.text}`}>{item.status}</span>
+                      </div>
+                      <div className="absolute bottom-2 left-2 text-[8px] text-white/40 truncate max-w-[70%]">{item.videoName}</div>
+                    </div>
+                    {/* Info */}
+                    <div className="p-3">
+                      <h3 className="text-[13px] font-bold text-[#1A1A2E]/80 mb-0.5 group-hover:text-[#9333EA] transition-colors truncate">
+                        {item.adName}
+                      </h3>
+                      <p className="text-[10px] text-[#1A1A2E]/40 leading-relaxed mb-1.5 line-clamp-2">{item.intent}</p>
+                      <div className="text-[9px] text-[#1A1A2E]/30 space-y-0.5">
+                        <div className="flex items-center gap-1 truncate"><Megaphone className="w-2.5 h-2.5 shrink-0" />{item.appeal}</div>
+                        <div className="flex items-center gap-1 truncate"><Lightbulb className="w-2.5 h-2.5 shrink-0" />{item.plan}</div>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1.5 pt-1.5 border-t border-black/[0.03] text-[9px] text-[#1A1A2E]/25">
+                        <span className="flex items-center gap-0.5"><User className="w-2.5 h-2.5" />{item.person}</span>
+                        {item.completedDate && <span className="flex items-center gap-0.5"><Calendar className="w-2.5 h-2.5" />{item.completedDate}</span>}
                       </div>
                     </div>
-                    <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] font-medium px-2 py-0.5 rounded">
-                      {item.duration}
-                    </div>
-                    <div className="absolute top-2 right-2">
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${ss.bg} ${ss.text}`}>{item.status}</span>
-                    </div>
-                    <div className="absolute bottom-2 left-2 text-[9px] text-white/50 truncate max-w-[60%]">{item.videoName}</div>
                   </div>
-                  {/* Info */}
-                  <div className="p-4">
-                    <h3 className="text-[14px] font-bold text-[#1A1A2E]/80 mb-1 group-hover:text-[#9333EA] transition-colors">
-                      {item.adName}
-                    </h3>
-                    <p className="text-[11px] text-[#1A1A2E]/40 leading-relaxed mb-2 line-clamp-2">{item.intent}</p>
-                    <div className="flex items-center gap-2 text-[10px] text-[#1A1A2E]/35 flex-wrap">
-                      <span className="flex items-center gap-1"><Megaphone className="w-3 h-3" />{item.appeal}</span>
-                      <span className="text-[#1A1A2E]/15">|</span>
-                      <span className="flex items-center gap-1"><Lightbulb className="w-3 h-3" />{item.plan}</span>
-                    </div>
-                    <div className="flex items-center gap-3 mt-2 pt-2 border-t border-black/[0.03] text-[10px] text-[#1A1A2E]/30">
-                      <span className="flex items-center gap-1"><User className="w-3 h-3" />{item.person}</span>
-                      {item.completedDate && <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{item.completedDate}</span>}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            <div onClick={() => {}} className="bg-white/50 rounded-xl border border-dashed border-[#1A1A2E]/10 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/[0.02] transition-all flex flex-col items-center justify-center gap-2 text-[#1A1A2E]/20 hover:text-[#9333EA]/50 cursor-pointer min-h-[200px]">
-              <Plus className="w-6 h-6" />
-              <span className="text-[11px] font-medium">動画を追加</span>
+                );
+              })}
+              {/* Add card */}
+              <div className="bg-white/50 rounded-xl border border-dashed border-[#1A1A2E]/10 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/[0.02] transition-all flex flex-col items-center justify-center gap-2 text-[#1A1A2E]/20 hover:text-[#9333EA]/50 cursor-pointer snap-start shrink-0"
+                style={{ width: "calc(25% - 12px)", minWidth: "200px" }}>
+                <Plus className="w-6 h-6" />
+                <span className="text-[11px] font-medium">動画を追加</span>
+              </div>
             </div>
           </div>
         )}
@@ -138,7 +165,7 @@ export default function DeliverablesPage({ params }: { params: Promise<{ project
         {viewMode === "list" && (
           <div className="max-w-6xl mx-auto">
             <div className="bg-white rounded-xl border border-black/[0.06] overflow-hidden">
-              <div className="grid grid-cols-[60px_1fr_1fr_1fr_1fr_80px_100px_80px] bg-[#FAF8F5] border-b border-black/[0.06] text-[10px] font-bold text-[#1A1A2E]/50 uppercase tracking-wider">
+              <div className="grid grid-cols-[56px_1fr_1fr_1fr_1fr_80px_100px_80px] bg-[#FAF8F5] border-b border-black/[0.06] text-[10px] font-bold text-[#1A1A2E]/50 uppercase tracking-wider">
                 <div className="px-2 py-3"></div>
                 <div className="px-2 py-3">広告名</div>
                 <div className="px-2 py-3">訴求名</div>
@@ -152,12 +179,13 @@ export default function DeliverablesPage({ params }: { params: Promise<{ project
                 const ss = STATUS_STYLES[item.status];
                 return (
                   <div key={item.id} onClick={() => setSelectedId(item.id)}
-                    className={`grid grid-cols-[60px_1fr_1fr_1fr_1fr_80px_100px_80px] border-b border-black/[0.03] hover:bg-black/[0.01] transition-colors cursor-pointer ${
+                    className={`grid grid-cols-[56px_1fr_1fr_1fr_1fr_80px_100px_80px] border-b border-black/[0.03] hover:bg-black/[0.01] transition-colors cursor-pointer ${
                       item.status === "修正中" ? "bg-amber-50/20" : item.status === "確認待ち" ? "bg-blue-50/20" : ""
                     }`}>
-                    <div className="px-2 py-3 flex items-center justify-center">
-                      <div className="w-10 h-10 rounded-lg bg-[#1a1a2e]/10 flex items-center justify-center">
-                        <Play className="w-4 h-4 text-[#1A1A2E]/30 ml-0.5" />
+                    <div className="px-1.5 py-2 flex items-center justify-center">
+                      <div className="w-[36px] aspect-[9/16] rounded-[3px] bg-gradient-to-b from-[#1a1a2e]/40 to-[#1a1a2e]/70 flex items-center justify-center relative">
+                        <Play className="w-3 h-3 text-white/40 ml-0.5" />
+                        <span className="absolute bottom-0.5 right-0.5 text-[6px] text-white/50">{item.duration}</span>
                       </div>
                     </div>
                     <div className="px-2 py-3 flex flex-col justify-center">
