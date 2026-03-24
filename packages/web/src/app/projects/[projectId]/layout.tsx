@@ -13,6 +13,7 @@ const TABS = [
   { label: "編集概要", segment: "edit-brief" },
   { label: "編集", segment: "editing" },
   { label: "素材", segment: "materials" },
+  { label: "撮影", segment: "shooting" },
   { label: "レギュレーション", segment: "regulations" },
 ];
 
