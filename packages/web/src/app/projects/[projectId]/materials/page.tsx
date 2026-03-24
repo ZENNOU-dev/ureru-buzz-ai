@@ -7,29 +7,38 @@ import { VoiceInputButton } from "@/components/voice-input-button";
 // ─── Types ────────────────────────────────────────────
 type MaterialKind = "動画" | "画像" | "BGM" | "SE";
 
+type MaterialSource = "提供" | "自社撮影" | "フリー";
+
 type MaterialItem = {
   id: string;
   name: string;
   summary: string;
   kind: MaterialKind;
+  source: MaterialSource;
   duration?: string;
   addedAt: string;
 };
 
+const SOURCE_STYLES: Record<MaterialSource, { bg: string; text: string }> = {
+  "提供": { bg: "bg-sky-50", text: "text-sky-600" },
+  "自社撮影": { bg: "bg-rose-50", text: "text-rose-600" },
+  "フリー": { bg: "bg-gray-100", text: "text-gray-500" },
+};
+
 // ─── Sample Data ──────────────────────────────────────
 const MATERIALS: MaterialItem[] = [
-  { id: "m-001", name: "AI副業_メイン訴求A.mp4", summary: "AIツールで副業を始めた体験者のインタビュー正面カット", kind: "動画", duration: "0:32", addedAt: "2026-03-20" },
-  { id: "m-002", name: "フリーランス体験談_B.mp4", summary: "フリーランス転身後の生活変化を語るインタビュー", kind: "動画", duration: "0:28", addedAt: "2026-03-19" },
-  { id: "m-003", name: "女性2.0_インタビュー.mp4", summary: "女性フリーランスの成功体験インタビュー", kind: "動画", duration: "0:45", addedAt: "2026-03-18" },
-  { id: "m-004", name: "サムネイル_AI副業.png", summary: "AI副業訴求用のサムネイル画像", kind: "画像", addedAt: "2026-03-20" },
-  { id: "m-005", name: "テロップ背景_グラデ.png", summary: "テロップ用グラデーション背景素材", kind: "画像", addedAt: "2026-03-19" },
-  { id: "m-006", name: "BGM_アップテンポ01.mp3", summary: "明るくポジティブなアップテンポBGM", kind: "BGM", duration: "1:20", addedAt: "2026-03-17" },
-  { id: "m-007", name: "SE_決定音.mp3", summary: "CTA部分で使用する決定音エフェクト", kind: "SE", duration: "0:02", addedAt: "2026-03-17" },
-  { id: "m-008", name: "特典推し_撮影素材.mp4", summary: "特典内容を紹介する撮影済み動画素材", kind: "動画", duration: "0:38", addedAt: "2026-03-16" },
-  { id: "m-009", name: "ロゴ_BONNOU_白.png", summary: "BONNOUロゴ（白背景版）", kind: "画像", addedAt: "2026-03-15" },
-  { id: "m-010", name: "BGM_落ち着き系02.mp3", summary: "権威性パートで使用する落ち着いた曲", kind: "BGM", duration: "1:45", addedAt: "2026-03-15" },
-  { id: "m-011", name: "SE_キラキラ.mp3", summary: "ベネフィット表示時のキラキラ効果音", kind: "SE", duration: "0:01", addedAt: "2026-03-14" },
-  { id: "m-012", name: "SE_ドン.mp3", summary: "フック部分のインパクト効果音", kind: "SE", duration: "0:01", addedAt: "2026-03-14" },
+  { id: "m-001", name: "AI副業_メイン訴求A.mp4", summary: "AIツールで副業を始めた体験者のインタビュー正面カット", kind: "動画", source: "自社撮影", duration: "0:32", addedAt: "2026-03-20" },
+  { id: "m-002", name: "フリーランス体験談_B.mp4", summary: "フリーランス転身後の生活変化を語るインタビュー", kind: "動画", source: "自社撮影", duration: "0:28", addedAt: "2026-03-19" },
+  { id: "m-003", name: "女性2.0_インタビュー.mp4", summary: "女性フリーランスの成功体験インタビュー", kind: "動画", source: "自社撮影", duration: "0:45", addedAt: "2026-03-18" },
+  { id: "m-004", name: "サムネイル_AI副業.png", summary: "AI副業訴求用のサムネイル画像", kind: "画像", source: "自社撮影", addedAt: "2026-03-20" },
+  { id: "m-005", name: "テロップ背景_グラデ.png", summary: "テロップ用グラデーション背景素材", kind: "画像", source: "フリー", addedAt: "2026-03-19" },
+  { id: "m-006", name: "BGM_アップテンポ01.mp3", summary: "明るくポジティブなアップテンポBGM", kind: "BGM", source: "フリー", duration: "1:20", addedAt: "2026-03-17" },
+  { id: "m-007", name: "SE_決定音.mp3", summary: "CTA部分で使用する決定音エフェクト", kind: "SE", source: "フリー", duration: "0:02", addedAt: "2026-03-17" },
+  { id: "m-008", name: "特典推し_撮影素材.mp4", summary: "特典内容を紹介する撮影済み動画素材", kind: "動画", source: "提供", duration: "0:38", addedAt: "2026-03-16" },
+  { id: "m-009", name: "ロゴ_BONNOU_白.png", summary: "BONNOUロゴ（白背景版）", kind: "画像", source: "提供", addedAt: "2026-03-15" },
+  { id: "m-010", name: "BGM_落ち着き系02.mp3", summary: "権威性パートで使用する落ち着いた曲", kind: "BGM", source: "フリー", duration: "1:45", addedAt: "2026-03-15" },
+  { id: "m-011", name: "SE_キラキラ.mp3", summary: "ベネフィット表示時のキラキラ効果音", kind: "SE", source: "フリー", duration: "0:01", addedAt: "2026-03-14" },
+  { id: "m-012", name: "SE_ドン.mp3", summary: "フック部分のインパクト効果音", kind: "SE", source: "提供", duration: "0:01", addedAt: "2026-03-14" },
 ];
 
 const KIND_CONFIG: Record<MaterialKind, { icon: typeof Film; color: string; bg: string }> = {
@@ -123,7 +132,10 @@ export default function MaterialsPage({ params }: { params: Promise<{ projectId:
                     <p className="text-[11px] font-semibold text-[#1A1A2E]/80 truncate mb-0.5">{item.name}</p>
                     <p className="text-[9px] text-[#1A1A2E]/40 leading-relaxed mb-1.5 line-clamp-2">{item.summary}</p>
                     <div className="flex items-center justify-between">
-                      <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded ${cfg.bg} ${cfg.color}`}>{item.kind}</span>
+                      <div className="flex items-center gap-1">
+                        <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded ${cfg.bg} ${cfg.color}`}>{item.kind}</span>
+                        <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded ${SOURCE_STYLES[item.source].bg} ${SOURCE_STYLES[item.source].text}`}>{item.source}</span>
+                      </div>
                       <span className="text-[9px] text-[#1A1A2E]/25 flex items-center gap-0.5">
                         <Calendar className="w-2.5 h-2.5" />
                         {item.addedAt}
@@ -140,9 +152,10 @@ export default function MaterialsPage({ params }: { params: Promise<{ projectId:
         {viewMode === "list" && (
           <div className="max-w-5xl mx-auto">
             <div className="bg-white rounded-xl border border-black/[0.06] overflow-hidden">
-              <div className="grid grid-cols-[50px_60px_1fr_1fr_80px_100px] bg-[#FAF8F5] border-b border-black/[0.06] text-[10px] font-bold text-[#1A1A2E]/50 uppercase tracking-wider">
+              <div className="grid grid-cols-[50px_60px_70px_1fr_1fr_80px_100px] bg-[#FAF8F5] border-b border-black/[0.06] text-[10px] font-bold text-[#1A1A2E]/50 uppercase tracking-wider">
                 <div className="px-2 py-3"></div>
                 <div className="px-2 py-3">種別</div>
+                <div className="px-2 py-3">ソース</div>
                 <div className="px-2 py-3">素材名</div>
                 <div className="px-2 py-3">概要</div>
                 <div className="px-2 py-3">尺</div>
@@ -150,9 +163,10 @@ export default function MaterialsPage({ params }: { params: Promise<{ projectId:
               </div>
               {filtered.map((item) => {
                 const cfg = KIND_CONFIG[item.kind];
+                const ss = SOURCE_STYLES[item.source];
                 const KindIcon = cfg.icon;
                 return (
-                  <div key={item.id} className="grid grid-cols-[50px_60px_1fr_1fr_80px_100px] border-b border-black/[0.03] hover:bg-black/[0.01] transition-colors cursor-pointer group">
+                  <div key={item.id} className="grid grid-cols-[50px_60px_70px_1fr_1fr_80px_100px] border-b border-black/[0.03] hover:bg-black/[0.01] transition-colors cursor-pointer group">
                     <div className="px-2 py-3 flex items-center justify-center">
                       <div className={`w-8 h-8 rounded-lg ${cfg.bg} flex items-center justify-center`}>
                         <KindIcon className={`w-3.5 h-3.5 ${cfg.color}`} />
@@ -160,6 +174,9 @@ export default function MaterialsPage({ params }: { params: Promise<{ projectId:
                     </div>
                     <div className="px-2 py-3 flex items-center">
                       <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded whitespace-nowrap ${cfg.bg} ${cfg.color}`}>{item.kind}</span>
+                    </div>
+                    <div className="px-2 py-3 flex items-center">
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded whitespace-nowrap ${ss.bg} ${ss.text}`}>{item.source}</span>
                     </div>
                     <div className="px-2 py-3 flex flex-col justify-center min-w-0">
                       <p className="text-[12px] font-semibold text-[#1A1A2E]/80 truncate">{item.name}</p>
