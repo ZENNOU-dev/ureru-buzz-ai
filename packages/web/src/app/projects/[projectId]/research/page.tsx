@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useCallback } from "react";
+import { use, useState, useCallback, useRef } from "react";
 import {
   Search, Package, TrendingUp, Users, Globe, Star, Shield, Truck,
   Heart, DollarSign, ExternalLink, Image, Plus, X, ChevronRight,
@@ -19,12 +19,13 @@ type HeroInfo = {
   productName: string;
   logoText: string;
   category: string;
-  prevYearSales: string;
-  offer: string;
-  lpUrl: string;
+  price: string;
+  catchcopy: string;
+  topReview: string;
+  usageScene: string;
 };
 
-type AdPreview = { id: number; label: string };
+type GalleryItem = { id: number; type: "LP" | "バナー" | "動画"; label: string; url: string };
 
 // Product Overview types — Function bubble
 type FunctionBubble = {
@@ -130,16 +131,20 @@ function makeHeroInfo(): HeroInfo {
     productName: "DOT-AI BOOTCAMP",
     logoText: "LOGO",
     category: "AIフリーランススクール",
-    prevYearSales: "—",
-    offer: "無料相談 + 限定特典",
-    lpUrl: "",
+    price: "498,000円",
+    catchcopy: "AI×SNSで稼ぐ新世代フリーランス養成スクール",
+    topReview: "未経験から3ヶ月で月収を超えました。AIツールのおかげで投稿作成が圧倒的に楽です。",
+    usageScene: "自宅PCでAIツールを使いSNS投稿を半自動作成 → フォロワー増加 → 案件獲得",
   };
 }
 
-function makeAdPreviews(): AdPreview[] {
+function makeGalleryItems(): GalleryItem[] {
   return [
-    { id: 1, label: "バナー広告 A" },
-    { id: 2, label: "ショート動画 A" },
+    { id: 1, type: "LP", label: "メインLP", url: "" },
+    { id: 2, type: "バナー", label: "バナー広告 A", url: "" },
+    { id: 3, type: "バナー", label: "バナー広告 B", url: "" },
+    { id: 4, type: "動画", label: "ショート動画 A", url: "" },
+    { id: 5, type: "動画", label: "ショート動画 B", url: "" },
   ];
 }
 
@@ -375,7 +380,8 @@ export default function ResearchPage({
 
   // Hero state
   const [heroInfo, setHeroInfo] = useState<HeroInfo>(makeHeroInfo);
-  const [adPreviews, setAdPreviews] = useState<AdPreview[]>(makeAdPreviews);
+  const [gallery, setGallery] = useState<GalleryItem[]>(makeGalleryItems);
+  const galleryScrollRef = useRef<HTMLDivElement>(null);
 
   // Overview state
   const [functionBubbles, setFunctionBubbles] = useState<FunctionBubble[]>(makeFunctionBubbles);
@@ -484,137 +490,128 @@ export default function ResearchPage({
   // ─── Sub-tab 1: 商品 (Hero) ─────────────────────────
   function renderHeroTab() {
     return (
-      <div className="flex gap-6">
-        {/* Left side 60% */}
-        <div className="w-[60%] shrink-0">
-          <div className="rounded-2xl bg-gradient-to-br from-[#9333EA] to-[#6D28D9] p-8 shadow-lg min-h-[360px] flex flex-col justify-between">
-            <div className="space-y-5">
-              {/* Logo + product name */}
-              <div className="flex items-start gap-5">
-                <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center shrink-0 shadow-md">
-                  <input
-                    className="w-full h-full text-center text-[#9333EA] font-bold text-sm bg-transparent outline-none rounded-2xl"
-                    value={heroInfo.logoText}
-                    onChange={(e) => setHeroInfo((p) => ({ ...p, logoText: e.target.value }))}
-                  />
+      <div className="space-y-6">
+        {/* ── Product Hero Card ── */}
+        <div className="rounded-2xl bg-gradient-to-br from-[#9333EA] to-[#6D28D9] p-6 shadow-lg">
+          <div className="flex items-start gap-6">
+            {/* Logo */}
+            <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center shrink-0 shadow-md">
+              <input className="w-full h-full text-center text-[#9333EA] font-bold text-sm bg-transparent outline-none rounded-2xl"
+                value={heroInfo.logoText} onChange={(e) => setHeroInfo((p) => ({ ...p, logoText: e.target.value }))} />
+            </div>
+            {/* Product info */}
+            <div className="flex-1 min-w-0 space-y-1">
+              <input className="bg-transparent text-white text-2xl font-bold outline-none w-full placeholder-white/40"
+                value={heroInfo.productName} onChange={(e) => setHeroInfo((p) => ({ ...p, productName: e.target.value }))} placeholder="商品名を入力" />
+              <input className="bg-transparent text-white/60 text-[13px] outline-none w-full placeholder-white/30"
+                value={heroInfo.category} onChange={(e) => setHeroInfo((p) => ({ ...p, category: e.target.value }))} placeholder="カテゴリ" />
+              <div className="flex items-center gap-4 pt-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-white/40 text-[11px]">価格</span>
+                  <input className="bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-[13px] text-white font-semibold outline-none w-32 placeholder-white/30"
+                    value={heroInfo.price} onChange={(e) => setHeroInfo((p) => ({ ...p, price: e.target.value }))} placeholder="価格" />
                 </div>
-                <div className="flex-1 space-y-2">
-                  <input
-                    className="bg-transparent text-white text-3xl font-bold outline-none w-full placeholder-white/40"
-                    value={heroInfo.productName}
-                    onChange={(e) => setHeroInfo((p) => ({ ...p, productName: e.target.value }))}
-                    placeholder="商品名を入力"
-                  />
-                  <p className="text-white/70 text-[13px]">
-                    <input
-                      className="bg-transparent text-white/70 text-[13px] outline-none w-full placeholder-white/30"
-                      value={heroInfo.category}
-                      onChange={(e) => setHeroInfo((p) => ({ ...p, category: e.target.value }))}
-                      placeholder="カテゴリ"
-                    />
-                  </p>
-                </div>
-              </div>
-
-              {/* Revenue */}
-              <div className="flex items-center gap-3">
-                <span className="text-white/60 text-[12px]">前年度売上:</span>
-                <input
-                  className="bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-[13px] text-white outline-none w-40 placeholder-white/30"
-                  value={heroInfo.prevYearSales}
-                  onChange={(e) => setHeroInfo((p) => ({ ...p, prevYearSales: e.target.value }))}
-                  placeholder="金額を入力"
-                />
               </div>
             </div>
+            {/* Product image placeholder */}
+            <div className="w-28 h-28 rounded-xl bg-white/10 border-2 border-dashed border-white/20 flex flex-col items-center justify-center shrink-0">
+              <Package className="w-6 h-6 text-white/25 mb-1" />
+              <span className="text-[8px] text-white/30">商品画像</span>
+            </div>
+          </div>
 
-            {/* Offer badge */}
-            <div className="mt-6">
-              <span className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
-                <Tag className="w-4 h-4 text-white/80" />
-                <input
-                  className="bg-transparent text-white text-[13px] font-semibold outline-none w-48 placeholder-white/40"
-                  value={heroInfo.offer}
-                  onChange={(e) => setHeroInfo((p) => ({ ...p, offer: e.target.value }))}
-                  placeholder="オファー"
-                />
-              </span>
+          {/* Catchcopy */}
+          <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3">
+            <span className="text-[9px] text-white/40 font-bold uppercase tracking-wider">キャッチコピー</span>
+            <input className="bg-transparent text-white text-[15px] font-bold outline-none w-full mt-1 placeholder-white/30"
+              value={heroInfo.catchcopy} onChange={(e) => setHeroInfo((p) => ({ ...p, catchcopy: e.target.value }))} placeholder="キャッチコピーを入力" />
+          </div>
+
+          {/* Top review + Usage scene */}
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3">
+              <div className="flex items-center gap-1.5 mb-1">
+                <Star className="w-3 h-3 text-yellow-300" />
+                <span className="text-[9px] text-white/40 font-bold uppercase tracking-wider">代表的な口コミ</span>
+              </div>
+              <textarea className="bg-transparent text-white/80 text-[12px] outline-none w-full resize-none leading-relaxed placeholder-white/25" rows={2}
+                value={heroInfo.topReview} onChange={(e) => setHeroInfo((p) => ({ ...p, topReview: e.target.value }))} placeholder="特徴的な口コミを入力" />
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3">
+              <div className="flex items-center gap-1.5 mb-1">
+                <Users className="w-3 h-3 text-white/50" />
+                <span className="text-[9px] text-white/40 font-bold uppercase tracking-wider">代表的な利用シーン</span>
+              </div>
+              <textarea className="bg-transparent text-white/80 text-[12px] outline-none w-full resize-none leading-relaxed placeholder-white/25" rows={2}
+                value={heroInfo.usageScene} onChange={(e) => setHeroInfo((p) => ({ ...p, usageScene: e.target.value }))} placeholder="利用者の典型的な使い方" />
             </div>
           </div>
         </div>
 
-        {/* Right side 40% */}
-        <div className="w-[40%] space-y-5">
-          {/* LP Preview */}
-          <div className="bg-white rounded-xl border border-black/[0.06] shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b border-black/[0.06] flex items-center gap-2">
+        {/* ── LP・広告ギャラリー ── */}
+        <div className="bg-white rounded-xl border border-black/[0.06] shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-black/[0.06] flex items-center justify-between">
+            <div className="flex items-center gap-2">
               <Eye className="w-4 h-4 text-[#9333EA]" />
-              <span className="text-[12px] font-bold text-[#1A1A2E]">LPプレビュー</span>
+              <span className="text-[12px] font-bold text-[#1A1A2E]">LP・広告ギャラリー</span>
             </div>
-            <div className="p-3 space-y-2">
-              <input
-                className={inputClass + " text-[12px]"}
-                placeholder="LPのURLを入力"
-                value={heroInfo.lpUrl}
-                onChange={(e) => setHeroInfo((p) => ({ ...p, lpUrl: e.target.value }))}
-              />
-              {heroInfo.lpUrl ? (
-                <div className="aspect-[4/3] rounded-lg overflow-hidden border border-black/[0.06]">
-                  <iframe
-                    src={heroInfo.lpUrl}
-                    className="w-full h-full"
-                    title="LP Preview"
-                    sandbox="allow-scripts allow-same-origin"
-                  />
-                </div>
-              ) : (
-                <div className="aspect-[4/3] rounded-lg border-2 border-dashed border-black/10 flex flex-col items-center justify-center bg-[#FAF8F5]">
-                  <Globe className="w-8 h-8 text-[#1A1A2E]/15 mb-2" />
-                  <span className="text-[11px] text-[#1A1A2E]/30">LPのURLを入力</span>
-                </div>
-              )}
-            </div>
+            <button onClick={() => setGallery((p) => [...p, { id: Date.now(), type: "バナー", label: "", url: "" }])}
+              className="flex items-center gap-1 text-[11px] text-[#9333EA] font-semibold hover:underline">
+              <Plus className="w-3 h-3" /> 追加
+            </button>
           </div>
-
-          {/* Ad Previews */}
-          <div className="bg-white rounded-xl border border-black/[0.06] shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b border-black/[0.06] flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Play className="w-4 h-4 text-[#9333EA]" />
-                <span className="text-[12px] font-bold text-[#1A1A2E]">広告プレビュー</span>
-              </div>
-              <button
-                onClick={() => setAdPreviews((p) => [...p, { id: Date.now(), label: "" }])}
-                className="flex items-center gap-1 text-[11px] text-[#9333EA] font-semibold hover:underline"
-              >
-                <Plus className="w-3 h-3" /> 広告を追加
-              </button>
-            </div>
-            <div className="p-3">
-              <div className="flex gap-3 overflow-x-auto pb-1">
-                {adPreviews.map((ad, ai) => (
-                  <div key={ad.id} className="min-w-[140px] shrink-0 group relative">
-                    <div className="aspect-video rounded-lg border-2 border-dashed border-black/10 bg-[#FAF8F5] flex items-center justify-center mb-1.5">
-                      <Play className="w-6 h-6 text-[#1A1A2E]/15" />
-                    </div>
-                    <input
-                      className="text-[10px] text-[#1A1A2E]/60 bg-transparent outline-none w-full text-center"
-                      value={ad.label}
-                      onChange={(e) => {
-                        const next = [...adPreviews];
-                        next[ai] = { ...next[ai], label: e.target.value };
-                        setAdPreviews(next);
-                      }}
-                      placeholder="ラベル"
-                    />
-                    <button
-                      onClick={() => setAdPreviews((p) => p.filter((_, i) => i !== ai))}
-                      className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-white shadow flex items-center justify-center text-[#1A1A2E]/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
+          <div className="p-4">
+            <div ref={galleryScrollRef} className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: "thin" }}>
+              {gallery.map((item, i) => (
+                <div key={item.id} className="shrink-0 group relative" style={{ width: item.type === "LP" ? "280px" : item.type === "動画" ? "120px" : "180px" }}>
+                  {/* Type badge */}
+                  <div className="absolute top-2 left-2 z-10">
+                    <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${
+                      item.type === "LP" ? "bg-blue-100 text-blue-700" : item.type === "動画" ? "bg-purple-100 text-purple-700" : "bg-amber-100 text-amber-700"
+                    }`}>{item.type}</span>
                   </div>
-                ))}
+                  {/* Remove button */}
+                  <button onClick={() => setGallery((p) => p.filter((_, idx) => idx !== i))}
+                    className="absolute -top-1 -right-1 z-10 w-5 h-5 rounded-full bg-white shadow flex items-center justify-center text-[#1A1A2E]/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
+                    <X className="w-3 h-3" />
+                  </button>
+                  {/* Preview area */}
+                  {item.type === "LP" ? (
+                    <div className="space-y-1.5">
+                      <input className={inputClass + " text-[10px]"} placeholder="LPのURLを入力" value={item.url}
+                        onChange={(e) => { const n = [...gallery]; n[i] = { ...n[i], url: e.target.value }; setGallery(n); }} />
+                      {item.url ? (
+                        <div className="aspect-[3/4] rounded-lg overflow-hidden border border-black/[0.06]">
+                          <iframe src={item.url} className="w-full h-full" title="LP" sandbox="allow-scripts allow-same-origin" />
+                        </div>
+                      ) : (
+                        <div className="aspect-[3/4] rounded-lg border-2 border-dashed border-black/10 flex flex-col items-center justify-center bg-[#FAF8F5]">
+                          <Globe className="w-6 h-6 text-[#1A1A2E]/15 mb-1" />
+                          <span className="text-[9px] text-[#1A1A2E]/25">URLを入力</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : item.type === "動画" ? (
+                    <div className="aspect-[9/16] rounded-lg border-2 border-dashed border-black/10 bg-[#FAF8F5] flex flex-col items-center justify-center">
+                      <Play className="w-5 h-5 text-[#1A1A2E]/15 mb-1" />
+                      <span className="text-[8px] text-[#1A1A2E]/20">動画</span>
+                    </div>
+                  ) : (
+                    <div className="aspect-video rounded-lg border-2 border-dashed border-black/10 bg-[#FAF8F5] flex flex-col items-center justify-center">
+                      <Package className="w-5 h-5 text-[#1A1A2E]/15 mb-1" />
+                      <span className="text-[8px] text-[#1A1A2E]/20">バナー</span>
+                    </div>
+                  )}
+                  {/* Label */}
+                  <input className="text-[10px] text-[#1A1A2E]/50 bg-transparent outline-none w-full text-center mt-1" value={item.label}
+                    onChange={(e) => { const n = [...gallery]; n[i] = { ...n[i], label: e.target.value }; setGallery(n); }} placeholder="ラベル" />
+                </div>
+              ))}
+              {/* Add placeholder */}
+              <div onClick={() => setGallery((p) => [...p, { id: Date.now(), type: "バナー", label: "", url: "" }])}
+                className="shrink-0 w-[120px] aspect-video rounded-lg border-2 border-dashed border-[#1A1A2E]/10 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/[0.02] flex flex-col items-center justify-center gap-1 cursor-pointer transition-all self-center">
+                <Plus className="w-4 h-4 text-[#1A1A2E]/20" />
+                <span className="text-[9px] text-[#1A1A2E]/20">追加</span>
               </div>
             </div>
           </div>
