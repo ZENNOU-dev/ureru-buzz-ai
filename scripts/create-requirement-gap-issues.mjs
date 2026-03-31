@@ -26,7 +26,14 @@ function isAsciiOnly(s) {
   return true;
 }
 
+function isRunningOnCloudRun() {
+  return Boolean(process.env.K_SERVICE || process.env.CLOUD_RUN_JOB);
+}
+
 function tryTokenFromGhCli() {
+  if (isRunningOnCloudRun()) {
+    return null;
+  }
   try {
     const out = execFileSync("gh", ["auth", "token"], {
       encoding: "utf8",
@@ -42,6 +49,8 @@ function tryTokenFromGhCli() {
 
 function resolveToken() {
   const raw = process.env.GITHUB_TOKEN?.trim();
+  const onCloudRun = isRunningOnCloudRun();
+
   if (raw) {
     if (!isAsciiOnly(raw)) {
       console.error(`
@@ -64,7 +73,19 @@ HTTP ヘッダーに使えないため、次のどちらかで進めてくださ
       console.error("[エラー] GITHUB_TOKEN が短すぎます。実際の PAT を設定してください。");
       process.exit(1);
     }
-    return { token: raw, source: "GITHUB_TOKEN" };
+    return {
+      token: raw,
+      source: onCloudRun ? "GITHUB_TOKEN (e.g. from Secret Manager)" : "GITHUB_TOKEN",
+    };
+  }
+
+  if (onCloudRun) {
+    console.error(`
+[エラー] Cloud Run 上で GITHUB_TOKEN が空です。
+Job 定義に --set-secrets=GITHUB_TOKEN=<シークレット名>:latest を付け、
+実行 SA に roles/secretmanager.secretAccessor を付与してください。
+`);
+    process.exit(1);
   }
 
   const fromGh = tryTokenFromGhCli();

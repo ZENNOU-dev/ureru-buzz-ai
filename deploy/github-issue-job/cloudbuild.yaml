@@ -1,0 +1,16 @@
+# 使用例:
+#   export IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${AR_REPO}/github-issue-job:latest"
+#   gcloud builds submit . --config deploy/github-issue-job/cloudbuild.yaml --substitutions=_IMAGE="${IMAGE}"
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "build"
+      - "-f"
+      - "deploy/github-issue-job/Dockerfile"
+      - "-t"
+      - "${_IMAGE}"
+      - "."
+images:
+  - "${_IMAGE}"
+substitutions:
+  _IMAGE: "asia-northeast1-docker.pkg.dev/PROJECT_ID/AR_REPO/github-issue-job:latest"

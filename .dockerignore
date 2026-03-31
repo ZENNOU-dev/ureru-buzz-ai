@@ -1,0 +1,13 @@
+# 軽量 Docker ビルド（Issue Job 用コンテキスト向け）
+node_modules
+**/node_modules
+.git
+.turbo
+**/.turbo
+**/dist
+**/.next
+.env
+.env.*
+*.log
+coverage
+**/__tests__
