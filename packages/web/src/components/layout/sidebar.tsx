@@ -12,6 +12,7 @@ import {
   BookOpen,
   ChevronDown,
   MessageSquare,
+  ClipboardList,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -22,6 +23,7 @@ const NAV_ITEMS = [
   { label: "レポーティング", href: "/reports", icon: LineChart },
   { label: "クリエイティブ", href: "/creatives", icon: Trophy },
   { label: "ナレッジ", href: "/knowledge", icon: BookOpen },
+  { label: "連携の準備", href: "/setup/gcp-issue-job", icon: ClipboardList },
 ];
 
 const CHAT_HISTORY = [
