@@ -36,7 +36,7 @@ function OpenLinkButton({ href, children }: { href: string; children: React.Reac
 export default function GcpIssueJobSetupPage() {
   const [projectId, setProjectId] = useState("");
   const [region, setRegion] = useState("asia-northeast1");
-  const [secretName, setSecretName] = useState("github-pat-issues");
+  const [secretName, setSecretName] = useState("github-token");
   const [repoFull, setRepoFull] = useState("BONNOU-inc/ureru-buzz-ai");
   const [tokenMemo, setTokenMemo] = useState("");
   const [copied, setCopied] = useState(false);
@@ -149,7 +149,7 @@ export default function GcpIssueJobSetupPage() {
               className="mt-1 w-full px-3 py-2.5 rounded-lg border border-black/[0.08] text-sm text-[#1A1A2E]"
             />
             <span className="text-[11px] text-[#1A1A2E]/35 mt-1 block">
-              迷ったら <code className="bg-black/[0.04] px-1 rounded">github-pat-issues</code> のままで大丈夫です。
+              迷ったら <code className="bg-black/[0.04] px-1 rounded">github-token</code> のままで大丈夫です。
             </span>
           </label>
           <label className="block">
@@ -256,7 +256,7 @@ export default function GcpIssueJobSetupPage() {
                   <strong>シークレットを作成</strong>（または Create secret）
                 </li>
                 <li>
-                  名前: <code className="bg-white/80 px-1 rounded">{secretName || "github-pat-issues"}</code>
+                  名前: <code className="bg-white/80 px-1 rounded">{secretName || "github-token"}</code>
                 </li>
                 <li>
                   値: メモ欄にあったトークンを貼り付け → 保存
