@@ -1,0 +1,679 @@
+<!DOCTYPE html><html style="height: auto;"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="content-language" content="ja">
+    <title>広告一覧 - </title>
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/admin/jquery-3.2.1.min.js?1773735829"></script>
+
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/jQueryUI/jquery-ui.min.js?1773735829"></script>
+
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/admin/font-awesome.min.css?1773735829">
+
+    <link rel="shortcut icon" href="https://bonnou.admin01.l-ad.net/assets/img/admin/favicon/233/62080331b09f84dc7b153d93ded4be1d.ico" type="image/x-icon">
+    <link rel="icon" href="https://bonnou.admin01.l-ad.net/assets/img/admin/favicon/233/62080331b09f84dc7b153d93ded4be1d.ico" type="image/x-icon">
+    <!-- bootstrap -->
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/bootstrap.min.css?1773735829">
+
+
+    <!-- adminLTE style -->
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/AdminLTE.min.css?1773735829">
+
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/skins/skin-blue.min.css?1773735829">
+
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- date picker -->
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/datepicker/datepicker3.css?1773735829">
+
+
+    <!-- daterange picker -->
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/daterangepicker/daterangepicker.css?1773735829">
+
+
+    <!-- bootstrap-toggle-master css -->
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/bootstrap-toggle-master/bootstrap2-toggle.min.css?1773735829">
+
+
+    <!-- sumoselect css -->
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/jquery.sumoselect/sumoselect.min.css?1773735829">
+
+
+    <!-- toastr-master css -->
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/toastr-master/toastr.min.css?1773735829">
+
+
+    <!-- 共通 css -->
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/common.css?1773735829">
+
+
+    <!-- iCheck css -->
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/iCheck/all.css?1773735829">
+
+
+    <!-- dataTables css -->
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/datatables/dataTables.bootstrap.css?1773735829">
+
+
+    <!-- morris css -->
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/morris/morris.css?1773735829">
+
+
+    <!-- tooltipster-master css -->
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/tooltipster-master/tooltipster.bundle.min.css?1773735829">
+
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/tooltipster-master/sideTip/themes/tooltipster-sideTip-borderless.min.css?1773735829">
+
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/tooltipster-master/sideTip/themes/tooltipster-sideTip-light.min.css?1773735829">
+
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/tooltipster-master/sideTip/themes/tooltipster-sideTip-noir.min.css?1773735829">
+
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/tooltipster-master/sideTip/themes/tooltipster-sideTip-punk.min.css?1773735829">
+
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/tooltipster-master/sideTip/themes/tooltipster-sideTip-shadow.min.css?1773735829">
+
+
+    <!-- chromeContext css -->
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/chromeContext/chromeContext.min.css?1773735829">
+
+
+    <!-- wysihtml5 -->
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/bootstrap3-wysiwyg-master/dist/bootstrap3-wysihtml5.min.css?1773735829">
+
+    	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/bootstrap3-wysiwyg-master/src/css/bootstrap3-wysiwyg5-color.css?1773735829">
+
+
+
+    <!-- bootstrap js -->
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/bootstrap.min.js?1773735829"></script>
+
+
+    <!-- adminLTE style js -->
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/app.js?1773735829"></script>
+
+
+    <!-- sumoselect js -->
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/jquery.sumoselect/jquery.sumoselect.js?1773735829"></script>
+
+
+    <!-- toastr-master js -->
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/toastr-master/toastr.min.js?1773735829"></script>
+
+
+    <!-- 共通 js -->
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/admin/common.js?1773735829"></script>
+
+
+    <!-- daterange picker -->
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/datepicker/bootstrap-datepicker.js?1773735829"></script>
+
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/datepicker/locales/bootstrap-datepicker.ja.js?1773735829"></script>
+
+
+    <!-- daterange picker -->
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/daterangepicker/moment.min.js?1773735829"></script>
+
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/daterangepicker/daterangepicker.js?1773735829"></script>
+
+
+    <!-- iCheck js -->
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/iCheck/icheck.min.js?1773735829"></script>
+
+
+    <!-- dataTables js -->
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/datatables/jquery.dataTables.min.js?1773735829"></script>
+
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/datatables/dataTables.bootstrap.min.js?1773735829"></script>
+
+
+    <!-- morris js -->
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/morris/morris.min.js?1773735829"></script>
+
+
+    <!-- raphael js -->
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/raphael/raphael.min.js?1773735829"></script>
+
+
+    <!-- slimScroll js -->
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/slimScroll/jquery.slimscroll.min.js?1773735829"></script>
+
+
+    <!-- tooltipster-master js -->
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/tooltipster-master/tooltipster.bundle.min.js?1773735829"></script>
+
+
+    <!-- chromeContext js -->
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/chromeContext/jquery.chromeContext.min.js?1773735829"></script>
+
+
+    <!-- bootstrap-toggle-master js -->
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/bootstrap-toggle-master/bootstrap2-toggle.min.js?1773735829"></script>
+
+
+    <!-- toastr-master -->
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/bootstrap3-wysiwyg-master/dist/bootstrap3-wysihtml5.all.js?1773735829"></script>
+
+    	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/bootstrap3-wysiwyg-master/src/locales/bootstrap-wysihtml5.ja-JP.js?1773735829"></script>
+
+
+<style>.swal2-popup.swal2-toast{flex-direction:row;align-items:center;width:auto;padding:.625em;overflow-y:hidden;background:#fff;box-shadow:0 0 .625em #d9d9d9}.swal2-popup.swal2-toast .swal2-header{flex-direction:row;padding:0}.swal2-popup.swal2-toast .swal2-title{flex-grow:1;justify-content:flex-start;margin:0 .6em;font-size:1em}.swal2-popup.swal2-toast .swal2-footer{margin:.5em 0 0;padding:.5em 0 0;font-size:.8em}.swal2-popup.swal2-toast .swal2-close{position:static;width:.8em;height:.8em;line-height:.8}.swal2-popup.swal2-toast .swal2-content{justify-content:flex-start;padding:0;font-size:1em}.swal2-popup.swal2-toast .swal2-icon{width:2em;min-width:2em;height:2em;margin:0}.swal2-popup.swal2-toast .swal2-icon .swal2-icon-content{display:flex;align-items:center;font-size:1.8em;font-weight:700}@media all and (-ms-high-contrast:none),(-ms-high-contrast:active){.swal2-popup.swal2-toast .swal2-icon .swal2-icon-content{font-size:.25em}}.swal2-popup.swal2-toast .swal2-icon.swal2-success .swal2-success-ring{width:2em;height:2em}.swal2-popup.swal2-toast .swal2-icon.swal2-error [class^=swal2-x-mark-line]{top:.875em;width:1.375em}.swal2-popup.swal2-toast .swal2-icon.swal2-error [class^=swal2-x-mark-line][class$=left]{left:.3125em}.swal2-popup.swal2-toast .swal2-icon.swal2-error [class^=swal2-x-mark-line][class$=right]{right:.3125em}.swal2-popup.swal2-toast .swal2-actions{flex-basis:auto!important;width:auto;height:auto;margin:0 .3125em}.swal2-popup.swal2-toast .swal2-styled{margin:0 .3125em;padding:.3125em .625em;font-size:1em}.swal2-popup.swal2-toast .swal2-styled:focus{box-shadow:0 0 0 1px #fff,0 0 0 3px rgba(50,100,150,.4)}.swal2-popup.swal2-toast .swal2-success{border-color:#a5dc86}.swal2-popup.swal2-toast .swal2-success [class^=swal2-success-circular-line]{position:absolute;width:1.6em;height:3em;transform:rotate(45deg);border-radius:50%}.swal2-popup.swal2-toast .swal2-success [class^=swal2-success-circular-line][class$=left]{top:-.8em;left:-.5em;transform:rotate(-45deg);transform-origin:2em 2em;border-radius:4em 0 0 4em}.swal2-popup.swal2-toast .swal2-success [class^=swal2-success-circular-line][class$=right]{top:-.25em;left:.9375em;transform-origin:0 1.5em;border-radius:0 4em 4em 0}.swal2-popup.swal2-toast .swal2-success .swal2-success-ring{width:2em;height:2em}.swal2-popup.swal2-toast .swal2-success .swal2-success-fix{top:0;left:.4375em;width:.4375em;height:2.6875em}.swal2-popup.swal2-toast .swal2-success [class^=swal2-success-line]{height:.3125em}.swal2-popup.swal2-toast .swal2-success [class^=swal2-success-line][class$=tip]{top:1.125em;left:.1875em;width:.75em}.swal2-popup.swal2-toast .swal2-success [class^=swal2-success-line][class$=long]{top:.9375em;right:.1875em;width:1.375em}.swal2-popup.swal2-toast .swal2-success.swal2-icon-show .swal2-success-line-tip{-webkit-animation:swal2-toast-animate-success-line-tip .75s;animation:swal2-toast-animate-success-line-tip .75s}.swal2-popup.swal2-toast .swal2-success.swal2-icon-show .swal2-success-line-long{-webkit-animation:swal2-toast-animate-success-line-long .75s;animation:swal2-toast-animate-success-line-long .75s}.swal2-popup.swal2-toast.swal2-show{-webkit-animation:swal2-toast-show .5s;animation:swal2-toast-show .5s}.swal2-popup.swal2-toast.swal2-hide{-webkit-animation:swal2-toast-hide .1s forwards;animation:swal2-toast-hide .1s forwards}.swal2-container{display:flex;position:fixed;z-index:1060;top:0;right:0;bottom:0;left:0;flex-direction:row;align-items:center;justify-content:center;padding:.625em;overflow-x:hidden;transition:background-color .1s;-webkit-overflow-scrolling:touch}.swal2-container.swal2-backdrop-show,.swal2-container.swal2-noanimation{background:rgba(0,0,0,.4)}.swal2-container.swal2-backdrop-hide{background:0 0!important}.swal2-container.swal2-top{align-items:flex-start}.swal2-container.swal2-top-left,.swal2-container.swal2-top-start{align-items:flex-start;justify-content:flex-start}.swal2-container.swal2-top-end,.swal2-container.swal2-top-right{align-items:flex-start;justify-content:flex-end}.swal2-container.swal2-center{align-items:center}.swal2-container.swal2-center-left,.swal2-container.swal2-center-start{align-items:center;justify-content:flex-start}.swal2-container.swal2-center-end,.swal2-container.swal2-center-right{align-items:center;justify-content:flex-end}.swal2-container.swal2-bottom{align-items:flex-end}.swal2-container.swal2-bottom-left,.swal2-container.swal2-bottom-start{align-items:flex-end;justify-content:flex-start}.swal2-container.swal2-bottom-end,.swal2-container.swal2-bottom-right{align-items:flex-end;justify-content:flex-end}.swal2-container.swal2-bottom-end>:first-child,.swal2-container.swal2-bottom-left>:first-child,.swal2-container.swal2-bottom-right>:first-child,.swal2-container.swal2-bottom-start>:first-child,.swal2-container.swal2-bottom>:first-child{margin-top:auto}.swal2-container.swal2-grow-fullscreen>.swal2-modal{display:flex!important;flex:1;align-self:stretch;justify-content:center}.swal2-container.swal2-grow-row>.swal2-modal{display:flex!important;flex:1;align-content:center;justify-content:center}.swal2-container.swal2-grow-column{flex:1;flex-direction:column}.swal2-container.swal2-grow-column.swal2-bottom,.swal2-container.swal2-grow-column.swal2-center,.swal2-container.swal2-grow-column.swal2-top{align-items:center}.swal2-container.swal2-grow-column.swal2-bottom-left,.swal2-container.swal2-grow-column.swal2-bottom-start,.swal2-container.swal2-grow-column.swal2-center-left,.swal2-container.swal2-grow-column.swal2-center-start,.swal2-container.swal2-grow-column.swal2-top-left,.swal2-container.swal2-grow-column.swal2-top-start{align-items:flex-start}.swal2-container.swal2-grow-column.swal2-bottom-end,.swal2-container.swal2-grow-column.swal2-bottom-right,.swal2-container.swal2-grow-column.swal2-center-end,.swal2-container.swal2-grow-column.swal2-center-right,.swal2-container.swal2-grow-column.swal2-top-end,.swal2-container.swal2-grow-column.swal2-top-right{align-items:flex-end}.swal2-container.swal2-grow-column>.swal2-modal{display:flex!important;flex:1;align-content:center;justify-content:center}.swal2-container.swal2-no-transition{transition:none!important}.swal2-container:not(.swal2-top):not(.swal2-top-start):not(.swal2-top-end):not(.swal2-top-left):not(.swal2-top-right):not(.swal2-center-start):not(.swal2-center-end):not(.swal2-center-left):not(.swal2-center-right):not(.swal2-bottom):not(.swal2-bottom-start):not(.swal2-bottom-end):not(.swal2-bottom-left):not(.swal2-bottom-right):not(.swal2-grow-fullscreen)>.swal2-modal{margin:auto}@media all and (-ms-high-contrast:none),(-ms-high-contrast:active){.swal2-container .swal2-modal{margin:0!important}}.swal2-popup{display:none;position:relative;box-sizing:border-box;flex-direction:column;justify-content:center;width:32em;max-width:100%;padding:1.25em;border:none;border-radius:.3125em;background:#fff;font-family:inherit;font-size:1rem}.swal2-popup:focus{outline:0}.swal2-popup.swal2-loading{overflow-y:hidden}.swal2-header{display:flex;flex-direction:column;align-items:center;padding:0 1.8em}.swal2-title{position:relative;max-width:100%;margin:0 0 .4em;padding:0;color:#595959;font-size:1.875em;font-weight:600;text-align:center;text-transform:none;word-wrap:break-word}.swal2-actions{display:flex;z-index:1;flex-wrap:wrap;align-items:center;justify-content:center;width:100%;margin:1.25em auto 0}.swal2-actions:not(.swal2-loading) .swal2-styled[disabled]{opacity:.4}.swal2-actions:not(.swal2-loading) .swal2-styled:hover{background-image:linear-gradient(rgba(0,0,0,.1),rgba(0,0,0,.1))}.swal2-actions:not(.swal2-loading) .swal2-styled:active{background-image:linear-gradient(rgba(0,0,0,.2),rgba(0,0,0,.2))}.swal2-actions.swal2-loading .swal2-styled.swal2-confirm{box-sizing:border-box;width:2.5em;height:2.5em;margin:.46875em;padding:0;-webkit-animation:swal2-rotate-loading 1.5s linear 0s infinite normal;animation:swal2-rotate-loading 1.5s linear 0s infinite normal;border:.25em solid transparent;border-radius:100%;border-color:transparent;background-color:transparent!important;color:transparent!important;cursor:default;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.swal2-actions.swal2-loading .swal2-styled.swal2-cancel{margin-right:30px;margin-left:30px}.swal2-actions.swal2-loading :not(.swal2-styled).swal2-confirm::after{content:"";display:inline-block;width:15px;height:15px;margin-left:5px;-webkit-animation:swal2-rotate-loading 1.5s linear 0s infinite normal;animation:swal2-rotate-loading 1.5s linear 0s infinite normal;border:3px solid #999;border-radius:50%;border-right-color:transparent;box-shadow:1px 1px 1px #fff}.swal2-styled{margin:.3125em;padding:.625em 2em;box-shadow:none;font-weight:500}.swal2-styled:not([disabled]){cursor:pointer}.swal2-styled.swal2-confirm{border:0;border-radius:.25em;background:initial;background-color:#3085d6;color:#fff;font-size:1.0625em}.swal2-styled.swal2-cancel{border:0;border-radius:.25em;background:initial;background-color:#aaa;color:#fff;font-size:1.0625em}.swal2-styled:focus{outline:0;box-shadow:0 0 0 1px #fff,0 0 0 3px rgba(50,100,150,.4)}.swal2-styled::-moz-focus-inner{border:0}.swal2-footer{justify-content:center;margin:1.25em 0 0;padding:1em 0 0;border-top:1px solid #eee;color:#545454;font-size:1em}.swal2-timer-progress-bar-container{position:absolute;right:0;bottom:0;left:0;height:.25em;overflow:hidden;border-bottom-right-radius:.3125em;border-bottom-left-radius:.3125em}.swal2-timer-progress-bar{width:100%;height:.25em;background:rgba(0,0,0,.2)}.swal2-image{max-width:100%;margin:1.25em auto}.swal2-close{position:absolute;z-index:2;top:0;right:0;align-items:center;justify-content:center;width:1.2em;height:1.2em;padding:0;overflow:hidden;transition:color .1s ease-out;border:none;border-radius:0;background:0 0;color:#ccc;font-family:serif;font-size:2.5em;line-height:1.2;cursor:pointer}.swal2-close:hover{transform:none;background:0 0;color:#f27474}.swal2-close::-moz-focus-inner{border:0}.swal2-content{z-index:1;justify-content:center;margin:0;padding:0 1.6em;color:#545454;font-size:1.125em;font-weight:400;line-height:normal;text-align:center;word-wrap:break-word}.swal2-checkbox,.swal2-file,.swal2-input,.swal2-radio,.swal2-select,.swal2-textarea{margin:1em auto}.swal2-file,.swal2-input,.swal2-textarea{box-sizing:border-box;width:100%;transition:border-color .3s,box-shadow .3s;border:1px solid #d9d9d9;border-radius:.1875em;background:inherit;box-shadow:inset 0 1px 1px rgba(0,0,0,.06);color:inherit;font-size:1.125em}.swal2-file.swal2-inputerror,.swal2-input.swal2-inputerror,.swal2-textarea.swal2-inputerror{border-color:#f27474!important;box-shadow:0 0 2px #f27474!important}.swal2-file:focus,.swal2-input:focus,.swal2-textarea:focus{border:1px solid #b4dbed;outline:0;box-shadow:0 0 3px #c4e6f5}.swal2-file::-moz-placeholder,.swal2-input::-moz-placeholder,.swal2-textarea::-moz-placeholder{color:#ccc}.swal2-file:-ms-input-placeholder,.swal2-input:-ms-input-placeholder,.swal2-textarea:-ms-input-placeholder{color:#ccc}.swal2-file::-ms-input-placeholder,.swal2-input::-ms-input-placeholder,.swal2-textarea::-ms-input-placeholder{color:#ccc}.swal2-file::placeholder,.swal2-input::placeholder,.swal2-textarea::placeholder{color:#ccc}.swal2-range{margin:1em auto;background:#fff}.swal2-range input{width:80%}.swal2-range output{width:20%;color:inherit;font-weight:600;text-align:center}.swal2-range input,.swal2-range output{height:2.625em;padding:0;font-size:1.125em;line-height:2.625em}.swal2-input{height:2.625em;padding:0 .75em}.swal2-input[type=number]{max-width:10em}.swal2-file{background:inherit;font-size:1.125em}.swal2-textarea{height:6.75em;padding:.75em}.swal2-select{min-width:50%;max-width:100%;padding:.375em .625em;background:inherit;color:inherit;font-size:1.125em}.swal2-checkbox,.swal2-radio{align-items:center;justify-content:center;background:#fff;color:inherit}.swal2-checkbox label,.swal2-radio label{margin:0 .6em;font-size:1.125em}.swal2-checkbox input,.swal2-radio input{margin:0 .4em}.swal2-validation-message{display:none;align-items:center;justify-content:center;padding:.625em;overflow:hidden;background:#f0f0f0;color:#666;font-size:1em;font-weight:300}.swal2-validation-message::before{content:"!";display:inline-block;width:1.5em;min-width:1.5em;height:1.5em;margin:0 .625em;border-radius:50%;background-color:#f27474;color:#fff;font-weight:600;line-height:1.5em;text-align:center}.swal2-icon{position:relative;box-sizing:content-box;justify-content:center;width:5em;height:5em;margin:1.25em auto 1.875em;border:.25em solid transparent;border-radius:50%;font-family:inherit;line-height:5em;cursor:default;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.swal2-icon .swal2-icon-content{display:flex;align-items:center;font-size:3.75em}.swal2-icon.swal2-error{border-color:#f27474;color:#f27474}.swal2-icon.swal2-error .swal2-x-mark{position:relative;flex-grow:1}.swal2-icon.swal2-error [class^=swal2-x-mark-line]{display:block;position:absolute;top:2.3125em;width:2.9375em;height:.3125em;border-radius:.125em;background-color:#f27474}.swal2-icon.swal2-error [class^=swal2-x-mark-line][class$=left]{left:1.0625em;transform:rotate(45deg)}.swal2-icon.swal2-error [class^=swal2-x-mark-line][class$=right]{right:1em;transform:rotate(-45deg)}.swal2-icon.swal2-error.swal2-icon-show{-webkit-animation:swal2-animate-error-icon .5s;animation:swal2-animate-error-icon .5s}.swal2-icon.swal2-error.swal2-icon-show .swal2-x-mark{-webkit-animation:swal2-animate-error-x-mark .5s;animation:swal2-animate-error-x-mark .5s}.swal2-icon.swal2-warning{border-color:#facea8;color:#f8bb86}.swal2-icon.swal2-info{border-color:#9de0f6;color:#3fc3ee}.swal2-icon.swal2-question{border-color:#c9dae1;color:#87adbd}.swal2-icon.swal2-success{border-color:#a5dc86;color:#a5dc86}.swal2-icon.swal2-success [class^=swal2-success-circular-line]{position:absolute;width:3.75em;height:7.5em;transform:rotate(45deg);border-radius:50%}.swal2-icon.swal2-success [class^=swal2-success-circular-line][class$=left]{top:-.4375em;left:-2.0635em;transform:rotate(-45deg);transform-origin:3.75em 3.75em;border-radius:7.5em 0 0 7.5em}.swal2-icon.swal2-success [class^=swal2-success-circular-line][class$=right]{top:-.6875em;left:1.875em;transform:rotate(-45deg);transform-origin:0 3.75em;border-radius:0 7.5em 7.5em 0}.swal2-icon.swal2-success .swal2-success-ring{position:absolute;z-index:2;top:-.25em;left:-.25em;box-sizing:content-box;width:100%;height:100%;border:.25em solid rgba(165,220,134,.3);border-radius:50%}.swal2-icon.swal2-success .swal2-success-fix{position:absolute;z-index:1;top:.5em;left:1.625em;width:.4375em;height:5.625em;transform:rotate(-45deg)}.swal2-icon.swal2-success [class^=swal2-success-line]{display:block;position:absolute;z-index:2;height:.3125em;border-radius:.125em;background-color:#a5dc86}.swal2-icon.swal2-success [class^=swal2-success-line][class$=tip]{top:2.875em;left:.8125em;width:1.5625em;transform:rotate(45deg)}.swal2-icon.swal2-success [class^=swal2-success-line][class$=long]{top:2.375em;right:.5em;width:2.9375em;transform:rotate(-45deg)}.swal2-icon.swal2-success.swal2-icon-show .swal2-success-line-tip{-webkit-animation:swal2-animate-success-line-tip .75s;animation:swal2-animate-success-line-tip .75s}.swal2-icon.swal2-success.swal2-icon-show .swal2-success-line-long{-webkit-animation:swal2-animate-success-line-long .75s;animation:swal2-animate-success-line-long .75s}.swal2-icon.swal2-success.swal2-icon-show .swal2-success-circular-line-right{-webkit-animation:swal2-rotate-success-circular-line 4.25s ease-in;animation:swal2-rotate-success-circular-line 4.25s ease-in}.swal2-progress-steps{align-items:center;margin:0 0 1.25em;padding:0;background:inherit;font-weight:600}.swal2-progress-steps li{display:inline-block;position:relative}.swal2-progress-steps .swal2-progress-step{z-index:20;width:2em;height:2em;border-radius:2em;background:#3085d6;color:#fff;line-height:2em;text-align:center}.swal2-progress-steps .swal2-progress-step.swal2-active-progress-step{background:#3085d6}.swal2-progress-steps .swal2-progress-step.swal2-active-progress-step~.swal2-progress-step{background:#add8e6;color:#fff}.swal2-progress-steps .swal2-progress-step.swal2-active-progress-step~.swal2-progress-step-line{background:#add8e6}.swal2-progress-steps .swal2-progress-step-line{z-index:10;width:2.5em;height:.4em;margin:0 -1px;background:#3085d6}[class^=swal2]{-webkit-tap-highlight-color:transparent}.swal2-show{-webkit-animation:swal2-show .3s;animation:swal2-show .3s}.swal2-hide{-webkit-animation:swal2-hide .15s forwards;animation:swal2-hide .15s forwards}.swal2-noanimation{transition:none}.swal2-scrollbar-measure{position:absolute;top:-9999px;width:50px;height:50px;overflow:scroll}.swal2-rtl .swal2-close{right:auto;left:0}.swal2-rtl .swal2-timer-progress-bar{right:0;left:auto}@supports (-ms-accelerator:true){.swal2-range input{width:100%!important}.swal2-range output{display:none}}@media all and (-ms-high-contrast:none),(-ms-high-contrast:active){.swal2-range input{width:100%!important}.swal2-range output{display:none}}@-moz-document url-prefix(){.swal2-close:focus{outline:2px solid rgba(50,100,150,.4)}}@-webkit-keyframes swal2-toast-show{0%{transform:translateY(-.625em) rotateZ(2deg)}33%{transform:translateY(0) rotateZ(-2deg)}66%{transform:translateY(.3125em) rotateZ(2deg)}100%{transform:translateY(0) rotateZ(0)}}@keyframes swal2-toast-show{0%{transform:translateY(-.625em) rotateZ(2deg)}33%{transform:translateY(0) rotateZ(-2deg)}66%{transform:translateY(.3125em) rotateZ(2deg)}100%{transform:translateY(0) rotateZ(0)}}@-webkit-keyframes swal2-toast-hide{100%{transform:rotateZ(1deg);opacity:0}}@keyframes swal2-toast-hide{100%{transform:rotateZ(1deg);opacity:0}}@-webkit-keyframes swal2-toast-animate-success-line-tip{0%{top:.5625em;left:.0625em;width:0}54%{top:.125em;left:.125em;width:0}70%{top:.625em;left:-.25em;width:1.625em}84%{top:1.0625em;left:.75em;width:.5em}100%{top:1.125em;left:.1875em;width:.75em}}@keyframes swal2-toast-animate-success-line-tip{0%{top:.5625em;left:.0625em;width:0}54%{top:.125em;left:.125em;width:0}70%{top:.625em;left:-.25em;width:1.625em}84%{top:1.0625em;left:.75em;width:.5em}100%{top:1.125em;left:.1875em;width:.75em}}@-webkit-keyframes swal2-toast-animate-success-line-long{0%{top:1.625em;right:1.375em;width:0}65%{top:1.25em;right:.9375em;width:0}84%{top:.9375em;right:0;width:1.125em}100%{top:.9375em;right:.1875em;width:1.375em}}@keyframes swal2-toast-animate-success-line-long{0%{top:1.625em;right:1.375em;width:0}65%{top:1.25em;right:.9375em;width:0}84%{top:.9375em;right:0;width:1.125em}100%{top:.9375em;right:.1875em;width:1.375em}}@-webkit-keyframes swal2-show{0%{transform:scale(.7)}45%{transform:scale(1.05)}80%{transform:scale(.95)}100%{transform:scale(1)}}@keyframes swal2-show{0%{transform:scale(.7)}45%{transform:scale(1.05)}80%{transform:scale(.95)}100%{transform:scale(1)}}@-webkit-keyframes swal2-hide{0%{transform:scale(1);opacity:1}100%{transform:scale(.5);opacity:0}}@keyframes swal2-hide{0%{transform:scale(1);opacity:1}100%{transform:scale(.5);opacity:0}}@-webkit-keyframes swal2-animate-success-line-tip{0%{top:1.1875em;left:.0625em;width:0}54%{top:1.0625em;left:.125em;width:0}70%{top:2.1875em;left:-.375em;width:3.125em}84%{top:3em;left:1.3125em;width:1.0625em}100%{top:2.8125em;left:.8125em;width:1.5625em}}@keyframes swal2-animate-success-line-tip{0%{top:1.1875em;left:.0625em;width:0}54%{top:1.0625em;left:.125em;width:0}70%{top:2.1875em;left:-.375em;width:3.125em}84%{top:3em;left:1.3125em;width:1.0625em}100%{top:2.8125em;left:.8125em;width:1.5625em}}@-webkit-keyframes swal2-animate-success-line-long{0%{top:3.375em;right:2.875em;width:0}65%{top:3.375em;right:2.875em;width:0}84%{top:2.1875em;right:0;width:3.4375em}100%{top:2.375em;right:.5em;width:2.9375em}}@keyframes swal2-animate-success-line-long{0%{top:3.375em;right:2.875em;width:0}65%{top:3.375em;right:2.875em;width:0}84%{top:2.1875em;right:0;width:3.4375em}100%{top:2.375em;right:.5em;width:2.9375em}}@-webkit-keyframes swal2-rotate-success-circular-line{0%{transform:rotate(-45deg)}5%{transform:rotate(-45deg)}12%{transform:rotate(-405deg)}100%{transform:rotate(-405deg)}}@keyframes swal2-rotate-success-circular-line{0%{transform:rotate(-45deg)}5%{transform:rotate(-45deg)}12%{transform:rotate(-405deg)}100%{transform:rotate(-405deg)}}@-webkit-keyframes swal2-animate-error-x-mark{0%{margin-top:1.625em;transform:scale(.4);opacity:0}50%{margin-top:1.625em;transform:scale(.4);opacity:0}80%{margin-top:-.375em;transform:scale(1.15)}100%{margin-top:0;transform:scale(1);opacity:1}}@keyframes swal2-animate-error-x-mark{0%{margin-top:1.625em;transform:scale(.4);opacity:0}50%{margin-top:1.625em;transform:scale(.4);opacity:0}80%{margin-top:-.375em;transform:scale(1.15)}100%{margin-top:0;transform:scale(1);opacity:1}}@-webkit-keyframes swal2-animate-error-icon{0%{transform:rotateX(100deg);opacity:0}100%{transform:rotateX(0);opacity:1}}@keyframes swal2-animate-error-icon{0%{transform:rotateX(100deg);opacity:0}100%{transform:rotateX(0);opacity:1}}@-webkit-keyframes swal2-rotate-loading{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}@keyframes swal2-rotate-loading{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:hidden}body.swal2-height-auto{height:auto!important}body.swal2-no-backdrop .swal2-container{top:auto;right:auto;bottom:auto;left:auto;max-width:calc(100% - .625em * 2);background-color:transparent!important}body.swal2-no-backdrop .swal2-container>.swal2-modal{box-shadow:0 0 10px rgba(0,0,0,.4)}body.swal2-no-backdrop .swal2-container.swal2-top{top:0;left:50%;transform:translateX(-50%)}body.swal2-no-backdrop .swal2-container.swal2-top-left,body.swal2-no-backdrop .swal2-container.swal2-top-start{top:0;left:0}body.swal2-no-backdrop .swal2-container.swal2-top-end,body.swal2-no-backdrop .swal2-container.swal2-top-right{top:0;right:0}body.swal2-no-backdrop .swal2-container.swal2-center{top:50%;left:50%;transform:translate(-50%,-50%)}body.swal2-no-backdrop .swal2-container.swal2-center-left,body.swal2-no-backdrop .swal2-container.swal2-center-start{top:50%;left:0;transform:translateY(-50%)}body.swal2-no-backdrop .swal2-container.swal2-center-end,body.swal2-no-backdrop .swal2-container.swal2-center-right{top:50%;right:0;transform:translateY(-50%)}body.swal2-no-backdrop .swal2-container.swal2-bottom{bottom:0;left:50%;transform:translateX(-50%)}body.swal2-no-backdrop .swal2-container.swal2-bottom-left,body.swal2-no-backdrop .swal2-container.swal2-bottom-start{bottom:0;left:0}body.swal2-no-backdrop .swal2-container.swal2-bottom-end,body.swal2-no-backdrop .swal2-container.swal2-bottom-right{right:0;bottom:0}@media print{body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow-y:scroll!important}body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown)>[aria-hidden=true]{display:none}body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) .swal2-container{position:static!important}}body.swal2-toast-shown .swal2-container{background-color:transparent}body.swal2-toast-shown .swal2-container.swal2-top{top:0;right:auto;bottom:auto;left:50%;transform:translateX(-50%)}body.swal2-toast-shown .swal2-container.swal2-top-end,body.swal2-toast-shown .swal2-container.swal2-top-right{top:0;right:0;bottom:auto;left:auto}body.swal2-toast-shown .swal2-container.swal2-top-left,body.swal2-toast-shown .swal2-container.swal2-top-start{top:0;right:auto;bottom:auto;left:0}body.swal2-toast-shown .swal2-container.swal2-center-left,body.swal2-toast-shown .swal2-container.swal2-center-start{top:50%;right:auto;bottom:auto;left:0;transform:translateY(-50%)}body.swal2-toast-shown .swal2-container.swal2-center{top:50%;right:auto;bottom:auto;left:50%;transform:translate(-50%,-50%)}body.swal2-toast-shown .swal2-container.swal2-center-end,body.swal2-toast-shown .swal2-container.swal2-center-right{top:50%;right:0;bottom:auto;left:auto;transform:translateY(-50%)}body.swal2-toast-shown .swal2-container.swal2-bottom-left,body.swal2-toast-shown .swal2-container.swal2-bottom-start{top:auto;right:auto;bottom:0;left:0}body.swal2-toast-shown .swal2-container.swal2-bottom{top:auto;right:auto;bottom:0;left:50%;transform:translateX(-50%)}body.swal2-toast-shown .swal2-container.swal2-bottom-end,body.swal2-toast-shown .swal2-container.swal2-bottom-right{top:auto;right:0;bottom:0;left:auto}body.swal2-toast-column .swal2-toast{flex-direction:column;align-items:stretch}body.swal2-toast-column .swal2-toast .swal2-actions{flex:1;align-self:stretch;height:2.2em;margin-top:.3125em}body.swal2-toast-column .swal2-toast .swal2-loading{justify-content:center}body.swal2-toast-column .swal2-toast .swal2-input{height:2em;margin:.3125em auto;font-size:1em}body.swal2-toast-column .swal2-toast .swal2-validation-message{font-size:1em}</style></head>
+
+<body id="content-display" class="fixed skin-blue layout-top-nav" style="height: auto;">
+    <div class="wrapper" style="height: auto;">
+
+        <!-- トップメニュー -->
+        <header class="main-header">
+            <!-- トップメニュー -->
+<!-- 2021-01-25 マニュアルタブ追加の為、z-indexを微調整しました -->
+<nav class="navbar navbar-static-top navbar-custom" style="z-index: 1100">
+    <div class="navbar-header">
+        <a href="https://bonnou.admin01.l-ad.net/admin"><img src="https://bonnou.admin01.l-ad.net/assets/img/admin/logo/233/bc5a3ff3b3a0903a0ef4556ce2f80835.png" height="40"></a>
+        <a class="new-ui-navigation-link" href="/reports/detail">新レポート画面を試してみる<span class="material-icons">navigate_next</span></a>
+    </div>
+
+    <!-- ログアウト -->
+    <div class="navbar-custom-menu">
+        <ul class="nav navbar-nav">
+            <li class="navbar-text">株式会社BONNOU&nbsp;様</li>
+            <!-- コミュニティ -->
+            <li style="display:none">
+                <a href="https://catsconnect.commmune.com/view/signup/email/kW84_1Sbe?groupIds=26698" target="_blank">
+                    <div class="navbar-text-icon">
+                        <span class="material-icons md-20">handshake</span>
+                        <span>CATS connect</span>
+                    </div>
+                </a>
+            </li>
+            <li>
+                                <!-- CATS FAQ -->
+                <a href="https://support.markecats.co.jp/cats-faq" target="_blank">
+                    <div class="navbar-text-icon">
+                        <span class="material-icons md-20">help</span>
+                        <span>FAQ</span>
+                    </div>
+                </a>
+                            </li>
+            <li>
+                <a href="https://tool.catsys.jp/approval" target="_blank">
+                    <div class="navbar-text-icon">
+                        <span class="material-icons md-20">build</span>
+                        <span>連携ツール</span>
+                    </div>
+                </a>
+            </li>
+            <li><a class="fa fa-sign-out" href="https://bonnou.admin01.l-ad.net/admin/logout/index" role="button">ログアウト</a></li>
+        </ul>
+    </div>
+</nav>
+
+<nav class="navbar navbar-static-top">
+    <div class="container">
+            <!-- メニュー項目 -->
+            <ul class="nav navbar-nav custom-menu">
+                <!-- レポート集計 -->
+                                                <li class="dropdown">
+                    <a href="#">レポート集計</a>
+                    <ul class="dropdown-menu" role="menu">
+                                                <li><a href="https://bonnou.admin01.l-ad.net/admin/profilecontentmedia/list">直接効果</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/profileurl/list">遷移URL別</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/profilemonthly/list">期間別</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/profiletime/list">時間別</a></li>
+                                                                        <li><a href="/reports/attribution?tab=action" target="_blank">アトリビューション(成果別) <i class="fa fa-external-link"></i></a></li>
+                                                                        <li><a href="/reports/attribution?tab=content" target="_blank">アトリビューション(広告・媒体別) <i class="fa fa-external-link"></i></a></li>
+                                                                                                                                                                                                                                            <li><a href="/reports/l-ad" target="_blank">L-ad友だち追加β版 <i class="fa fa-external-link"></i></a></li>
+                                                                            <li><a href="/reports/attribution?tab=contentGroup" target="_blank">アトリビューション(広告グループ別β) <i class="fa fa-external-link"></i></a></li>
+                                            </ul>
+                </li>
+                                
+                <!-- ログ集計 -->
+                                                <li class="dropdown">
+                    <a href="#">ログ集計</a>
+                    <ul class="dropdown-menu" role="menu">
+                                                <li><a href="https://bonnou.admin01.l-ad.net/admin/clicklog/list">クリックログ</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/middleclicklog/list">中間クリックログ</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/actionlog/list">成果ログ</a></li>
+                                                                                                <li><a href="https://bonnou.admin01.l-ad.net/admin/kickbacklog/list">ポストバック実行ログ</a></li>
+                                                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/log/conversion/list">CAPI実行ログ</a></li>
+                                                                                                    <li><a href="https://bonnou.admin01.l-ad.net/admin/actionerrorlog/list">成果エラーログ</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/actiondeletelog/list">成果削除ログ</a></li>
+                        
+                                                                                                                                                </ul>
+                </li>
+                                
+                <!-- 媒体管理 -->
+                                                <li class="dropdown">
+                    <a href="#">媒体管理</a>
+                    <ul class="dropdown-menu" role="menu">
+                                                <li><a href="https://bonnou.admin01.l-ad.net/admin/partner/register">媒体登録</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/partner/list">媒体一覧</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/partnercategory/register">媒体カテゴリ登録</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/partnercategory/list">媒体カテゴリ一覧</a></li>
+                                            </ul>
+                </li>
+                                
+                <!-- 広告管理 -->
+                                                <li class="dropdown">
+                    <a href="#">広告管理</a>
+                    <ul class="dropdown-menu" role="menu">
+                                                <li><a href="https://bonnou.admin01.l-ad.net/admin/client/register">広告主登録</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/client/list">広告主一覧</a></li>
+                                                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/content/register">広告登録</a></li>
+                                                                                                    <li><a href="https://bonnou.admin01.l-ad.net/admin/content/list">広告一覧</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/contentgroup/register">広告グループ登録</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/contentgroup/list">広告グループ一覧</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/contentip/register">広告一括IP設定</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/contentua/register">広告一括UA設定</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/actionreward/list">成果報酬設定一覧</a></li>
+                                            </ul>
+                </li>
+                                
+                <!-- タグ管理 -->
+                                                <li class="dropdown">
+                    <a href="#">タグ管理</a>
+                    <ul class="dropdown-menu" role="menu">
+                                                <li><a href="https://bonnou.admin01.l-ad.net/admin/clicktag/list">クリックURL一覧</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/cartcodecsv/update">遷移先変更CSV一括編集</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/middleclicktag/list">中間クリックURL一覧</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/actiontag/list">成果通知タグ一覧</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/actiongrouptag/list">グループ成果タグ一覧</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/measurementtag/list">計測タグ一覧</a></li>
+                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/measurementgrouptag/list">グループ計測タグ一覧</a></li>
+                                            </ul>
+                </li>
+                                
+                <!-- 設定 -->
+                                <li class="dropdown">
+                    <a href="#">設定</a>
+                    <ul class="dropdown-menu" role="menu">
+                                                <li><a href="https://bonnou.admin01.l-ad.net/admin/setting/list">ユーザー管理</a></li>
+                                                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/setting/conversions/register/index">API連携登録</a></li>
+                                                                                    <li><a href="https://bonnou.admin01.l-ad.net/admin/setting/conversions/list/index">API連携一覧</a></li>
+                                                                                        <li><a href="https://bonnou.admin01.l-ad.net/admin/setting/conversions/paramalias/register">別名クリックID登録</a></li>
+                                                                                                                                    <li><a href="https://bonnou.admin01.l-ad.net/admin/setting/fpcdomain/list/index">1st Party Cookieプログラム一覧</a></li>
+                                                                                                                                    <li><a href="https://bonnou.admin01.l-ad.net/admin/setting/catspoint/update">成果地点</a></li>
+                                                                                                                        </ul>
+                </li>
+                
+                <!-- ページ解析 -->
+                                                <li class="dropdown">
+                    <a href="#">ページ解析</a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="https://bonnou.admin01.l-ad.net/admin/pageanalysis/list">解析ページ管理</a></li>
+                    </ul>
+                </li>
+                                
+                <!-- トラッキング -->
+                
+                <!-- タグマネージャー -->
+                                                <li class="dropdown">
+                    <a href="#">タグマネージャー</a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="https://bonnou.admin01.l-ad.net/admin/tagmanager/list">タググループ管理</a></li>
+                    </ul>
+                </li>
+                                            </ul>
+    </div>
+</nav>
+        </header><!-- end header -->
+
+        <!-- content -->
+        <div class="content-wrapper" style="min-height: 619px;">
+            <div class="container">
+                
+<!-- ライブラリ読み込み -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@7.1.0/dist/promise.min.js"></script>
+<style>.swal2-popup { font-size: 1.6rem !important; }</style>
+
+<!-- パンくずリスト -->
+    <div class="topicpath">
+        <ol>
+                                                <li>
+                                <a href="https://bonnou.admin01.l-ad.net/admin/client/register">広告主登録</a></li>
+                                                            <li>
+                                <a href="https://bonnou.admin01.l-ad.net/admin/client/list">広告主一覧</a></li>
+                                                            <li>
+                                                    <a href="https://bonnou.admin01.l-ad.net/admin/content/register">広告登録</a></li>
+                                                                            <li class="active">
+                                <a href="https://bonnou.admin01.l-ad.net/admin/content/list">広告一覧</a></li>
+                                                            <li>
+                                <a href="https://bonnou.admin01.l-ad.net/admin/contentgroup/register">広告グループ登録</a></li>
+                                                            <li>
+                                <a href="https://bonnou.admin01.l-ad.net/admin/contentgroup/list">広告グループ一覧</a></li>
+                                                            <li>
+                                <a href="https://bonnou.admin01.l-ad.net/admin/contentip/register">広告一括IP設定</a></li>
+                                                            <li>
+                                <a href="https://bonnou.admin01.l-ad.net/admin/contentua/register">広告一括UA設定</a></li>
+                                                            <li>
+                                <a href="https://bonnou.admin01.l-ad.net/admin/actionreward/list">成果報酬設定一覧</a></li>
+                    </ol>
+    </div>
+
+
+<!-- メインコンテンツ -->
+<section class="content">
+
+    <div class="loadingWrap" style="display:none;">
+        <div class="loadingBody">
+            <div class="loader"></div>
+            <p style="margin: 10px 0 0 0;">アップロード中...</p>
+        </div>
+    </div>
+
+    <ul class="nav nav-tabs nav-pills nav-fill" style="margin: 0 0 10px 0;">
+                    <li class="active" style="border-radius: 10px;"><a data-toggle="tab" href="#list">　一覧　</a></li>
+                            <li><a data-toggle="tab" href="#csv">一括編集</a></li>
+                        </ul>
+
+    <div class="tab-content">
+
+                <div id="list" class="tab-pane fade in active">
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#search" style="margin: 0 0 10px 0;">絞り込み検索</button>
+            <div id="search" class="collapse" style="width: 800px">
+                <div class="box box-primary">
+                    <div class="box-body">
+
+                        <form class="form-horizontal" method="POST" action="https://bonnou.admin01.l-ad.net/admin/content/list/">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">広告</label>
+                                <div class="col-sm-10">
+                                                                    <div style="display: none;">
+                                        <input type="text" id="searchContentId" name="searchContentId" value="">
+                                    </div>
+                                    <div class="SumoSelect" tabindex="0" role="button" aria-expanded="false"><select style="height: 100%;" multiple="multiple" class="search_select SumoUnder" id="searchContentIdList" tabindex="-1">
+                                    <option value="4479">4479:lowc_bon_dir_f_fk_11</option><option value="4478">4478:lowc_bon_dir_f_fk_05</option><option value="4477">4477:lowc_bon_dir_f_fk_04</option><option value="4476">4476:lowc_bon_dir_f_fk_03</option><option value="4475">4475:lowc_bon_dir_f_fk_02</option><option value="4474">4474:lowc_bon_dir_f_fk_01</option><option value="4452">4452:lowc_test_auto04</option><option value="4451">4451:meta04D</option><option value="4450">4450:meta03C</option><option value="4449">4449:meta02B</option><option value="4448">4448:meta01A</option><option value="4447">4447:lowc_bon_dir_f_fk_10</option><option value="4446">4446:lowc_bon_dir_f_fk_09</option><option value="4445">4445:lowc_bon_dir_f_fk_08</option><option value="4444">4444:lowc_bon_dir_f_fk_07</option><option value="4443">4443:lowc_bon_dir_f_fk_06</option><option value="4441">4441:mira_bon_fk_03</option><option value="4439">4439:mira_bon_fk_02</option><option value="4438">4438:mira_bon_fk_01</option><option value="4432">4432:理想の家診断_meta010</option><option value="4431">4431:理想の家診断_meta009</option><option value="4430">4430:理想の家診断_meta008</option><option value="4429">4429:理想の家診断_meta007</option><option value="4428">4428:理想の家診断_meta006</option><option value="4427">4427:理想の家診断_meta005</option><option value="4426">4426:理想の家診断_meta004</option><option value="4425">4425:理想の家診断_meta002</option><option value="4424">4424:理想の家診断_meta003</option><option value="4423">4423:理想の家診断_meta001</option><option value="4420">4420:lowc_bon_dir_f_tk_03</option><option value="4419">4419:lowc_bon_dir_f_tk_02</option><option value="4418">4418:lowc_bon_dir_f_tk_01</option><option value="4395">4395:Meta_Answered_003</option><option value="4394">4394:Meta_Answered_002</option><option value="4320">4320:mcl_hairspray_2980_meta_bon003</option><option value="4319">4319:mcl_hairspray_2980_meta_bon002</option><option value="4318">4318:mcl_hairspray_2980_meta_bon001</option><option value="4167">4167:Meta_Answered_001</option><option value="2250">2250:mcl_supple_2504_tik_bon001</option><option value="2249">2249:mcl_supple_2504_meta_bon010</option><option value="2248">2248:mcl_supple_2504_meta_bon009</option><option value="2247">2247:mcl_supple_2504_meta_bon008</option><option value="2246">2246:mcl_supple_2504_meta_bon007</option><option value="2245">2245:mcl_supple_2504_meta_bon006</option><option value="2244">2244:mcl_supple_2504_meta_bon005</option><option value="2243">2243:mcl_supple_2504_meta_bon004</option><option value="2242">2242:mcl_supple_2504_meta_bon003</option><option value="2241">2241:mcl_supple_2504_meta_bon002</option><option value="2240">2240:mcl_supple_2504_meta_bon001</option></select><p class="CaptionCont SelectBox search" style="height: 100%;" title="選択して下さい"><span class="placeholder">選択して下さい</span><label><i></i></label><input type="text" class="search-txt" value="" placeholder="選択して下さい"></p><div class="optWrapper selall multiple"><p class="select-all"><span><i></i></span><label>すべて選択</label></p><ul class="options"><li class="opt"><span><i></i></span><label>4479:lowc_bon_dir_f_fk_11</label></li><li class="opt"><span><i></i></span><label>4478:lowc_bon_dir_f_fk_05</label></li><li class="opt"><span><i></i></span><label>4477:lowc_bon_dir_f_fk_04</label></li><li class="opt"><span><i></i></span><label>4476:lowc_bon_dir_f_fk_03</label></li><li class="opt"><span><i></i></span><label>4475:lowc_bon_dir_f_fk_02</label></li><li class="opt"><span><i></i></span><label>4474:lowc_bon_dir_f_fk_01</label></li><li class="opt"><span><i></i></span><label>4452:lowc_test_auto04</label></li><li class="opt"><span><i></i></span><label>4451:meta04D</label></li><li class="opt"><span><i></i></span><label>4450:meta03C</label></li><li class="opt"><span><i></i></span><label>4449:meta02B</label></li><li class="opt"><span><i></i></span><label>4448:meta01A</label></li><li class="opt"><span><i></i></span><label>4447:lowc_bon_dir_f_fk_10</label></li><li class="opt"><span><i></i></span><label>4446:lowc_bon_dir_f_fk_09</label></li><li class="opt"><span><i></i></span><label>4445:lowc_bon_dir_f_fk_08</label></li><li class="opt"><span><i></i></span><label>4444:lowc_bon_dir_f_fk_07</label></li><li class="opt"><span><i></i></span><label>4443:lowc_bon_dir_f_fk_06</label></li><li class="opt"><span><i></i></span><label>4441:mira_bon_fk_03</label></li><li class="opt"><span><i></i></span><label>4439:mira_bon_fk_02</label></li><li class="opt"><span><i></i></span><label>4438:mira_bon_fk_01</label></li><li class="opt"><span><i></i></span><label>4432:理想の家診断_meta010</label></li><li class="opt"><span><i></i></span><label>4431:理想の家診断_meta009</label></li><li class="opt"><span><i></i></span><label>4430:理想の家診断_meta008</label></li><li class="opt"><span><i></i></span><label>4429:理想の家診断_meta007</label></li><li class="opt"><span><i></i></span><label>4428:理想の家診断_meta006</label></li><li class="opt"><span><i></i></span><label>4427:理想の家診断_meta005</label></li><li class="opt"><span><i></i></span><label>4426:理想の家診断_meta004</label></li><li class="opt"><span><i></i></span><label>4425:理想の家診断_meta002</label></li><li class="opt"><span><i></i></span><label>4424:理想の家診断_meta003</label></li><li class="opt"><span><i></i></span><label>4423:理想の家診断_meta001</label></li><li class="opt"><span><i></i></span><label>4420:lowc_bon_dir_f_tk_03</label></li><li class="opt"><span><i></i></span><label>4419:lowc_bon_dir_f_tk_02</label></li><li class="opt"><span><i></i></span><label>4418:lowc_bon_dir_f_tk_01</label></li><li class="opt"><span><i></i></span><label>4395:Meta_Answered_003</label></li><li class="opt"><span><i></i></span><label>4394:Meta_Answered_002</label></li><li class="opt"><span><i></i></span><label>4320:mcl_hairspray_2980_meta_bon003</label></li><li class="opt"><span><i></i></span><label>4319:mcl_hairspray_2980_meta_bon002</label></li><li class="opt"><span><i></i></span><label>4318:mcl_hairspray_2980_meta_bon001</label></li><li class="opt"><span><i></i></span><label>4167:Meta_Answered_001</label></li><li class="opt"><span><i></i></span><label>2250:mcl_supple_2504_tik_bon001</label></li><li class="opt"><span><i></i></span><label>2249:mcl_supple_2504_meta_bon010</label></li><li class="opt"><span><i></i></span><label>2248:mcl_supple_2504_meta_bon009</label></li><li class="opt"><span><i></i></span><label>2247:mcl_supple_2504_meta_bon008</label></li><li class="opt"><span><i></i></span><label>2246:mcl_supple_2504_meta_bon007</label></li><li class="opt"><span><i></i></span><label>2245:mcl_supple_2504_meta_bon006</label></li><li class="opt"><span><i></i></span><label>2244:mcl_supple_2504_meta_bon005</label></li><li class="opt"><span><i></i></span><label>2243:mcl_supple_2504_meta_bon004</label></li><li class="opt"><span><i></i></span><label>2242:mcl_supple_2504_meta_bon003</label></li><li class="opt"><span><i></i></span><label>2241:mcl_supple_2504_meta_bon002</label></li><li class="opt"><span><i></i></span><label>2240:mcl_supple_2504_meta_bon001</label></li></ul><p class="no-match"></p><div class="MultiControls"><p tabindex="0" class="btnOk">OK</p><p tabindex="0" class="btnCancel">Cancel</p></div></div></div>
+                                                                </div>
+
+                            </div>
+                                                        <div class="form-group" id="searchClientIdSelect">
+                                                            <label class="col-sm-2 control-label">広告主</label>
+                                <div class="col-sm-10">
+                                                                                                        <div style="display: none;">
+                                        <input type="text" id="searchContentClientId" name="searchContentClientId" value="">
+                                    </div>
+                                    <div class="SumoSelect" tabindex="0" role="button" aria-expanded="false"><select style="height: 100%;" multiple="multiple" class="search_select SumoUnder" id="searchContentClientIdList" tabindex="-1">
+                                    <option value="23">23:DOT-AI</option><option value="22">22:ミラネスシャツ</option><option value="20">20:ローコスト</option><option value="17">17:アンサード</option><option value="5">5:REDEN</option><option value="2">2:SMUUL</option></select><p class="CaptionCont SelectBox search" style="height: 100%;" title="選択して下さい"><span class="placeholder">選択して下さい</span><label><i></i></label><input type="text" class="search-txt" value="" placeholder="選択して下さい"></p><div class="optWrapper selall multiple"><p class="select-all"><span><i></i></span><label>すべて選択</label></p><ul class="options"><li class="opt"><span><i></i></span><label>23:DOT-AI</label></li><li class="opt"><span><i></i></span><label>22:ミラネスシャツ</label></li><li class="opt"><span><i></i></span><label>20:ローコスト</label></li><li class="opt"><span><i></i></span><label>17:アンサード</label></li><li class="opt"><span><i></i></span><label>5:REDEN</label></li><li class="opt"><span><i></i></span><label>2:SMUUL</label></li></ul><p class="no-match"></p><div class="MultiControls"><p tabindex="0" class="btnOk">OK</p><p tabindex="0" class="btnCancel">Cancel</p></div></div></div>
+                                                                </div>
+                            </div>
+                                                        <div class="form-group" id="searchGroupIdSelect">
+                                                            <label class="col-sm-2 control-label">広告グループ</label>
+                                <div class="col-sm-10">
+                                                                                                        <div style="display: none;">
+                                        <input type="text" id="searchGroupId" name="searchGroupId" value="">
+                                    </div>
+                                    <div class="SumoSelect" tabindex="0" role="button" aria-expanded="false"><select style="height: 100%;" multiple="multiple" class="search_select SumoUnder" id="searchGroupIdList" tabindex="-1">
+                                    <option value="65">65:TikTok_ローコスト</option><option value="64">64:Meta_DOT-AI</option><option value="63">63:TikTok_ミラネスシャツ</option><option value="62">62:Meta_ミラネスシャツ</option><option value="61">61:TikTok_バルクオムヘアケア</option><option value="60">60:Meta_バルクオムプロテイン</option><option value="59">59:Meta_バルクオムヘアケア</option><option value="58">58:Meta_オリパ堂</option><option value="57">57:Meta_ローコスト</option><option value="55">55:Meta_キャリドラ</option><option value="53">53:Meta_アンサード</option><option value="16">16:TikTok_イエヤス</option><option value="8">8:TikTok_REDEN</option><option value="7">7:Meta_REDEN</option><option value="2">2:Meta_SMUUL</option></select><p class="CaptionCont SelectBox search" style="height: 100%;" title="選択して下さい"><span class="placeholder">選択して下さい</span><label><i></i></label><input type="text" class="search-txt" value="" placeholder="選択して下さい"></p><div class="optWrapper selall multiple"><p class="select-all"><span><i></i></span><label>すべて選択</label></p><ul class="options"><li class="opt"><span><i></i></span><label>65:TikTok_ローコスト</label></li><li class="opt"><span><i></i></span><label>64:Meta_DOT-AI</label></li><li class="opt"><span><i></i></span><label>63:TikTok_ミラネスシャツ</label></li><li class="opt"><span><i></i></span><label>62:Meta_ミラネスシャツ</label></li><li class="opt"><span><i></i></span><label>61:TikTok_バルクオムヘアケア</label></li><li class="opt"><span><i></i></span><label>60:Meta_バルクオムプロテイン</label></li><li class="opt"><span><i></i></span><label>59:Meta_バルクオムヘアケア</label></li><li class="opt"><span><i></i></span><label>58:Meta_オリパ堂</label></li><li class="opt"><span><i></i></span><label>57:Meta_ローコスト</label></li><li class="opt"><span><i></i></span><label>55:Meta_キャリドラ</label></li><li class="opt"><span><i></i></span><label>53:Meta_アンサード</label></li><li class="opt"><span><i></i></span><label>16:TikTok_イエヤス</label></li><li class="opt"><span><i></i></span><label>8:TikTok_REDEN</label></li><li class="opt"><span><i></i></span><label>7:Meta_REDEN</label></li><li class="opt"><span><i></i></span><label>2:Meta_SMUUL</label></li></ul><p class="no-match"></p><div class="MultiControls"><p tabindex="0" class="btnOk">OK</p><p tabindex="0" class="btnCancel">Cancel</p></div></div></div>
+                                                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" for="searcnContentUrl">広告URL</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="searcnContentUrl" class="form-control" id="searcnContentUrl" value="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" for="searchExecScript">URL遷移時<br>実行スクリプト</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="searchExecScript" class="form-control" id="searchExecScript" value="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="btn btn-default" onclick="displayListCheck()">検索</button>
+                                    <input type="button" id="searchFormClear" value="クリア" class="btn btn-default">
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="box box-primary">
+                <div class="box-body">
+                                                                                                    <form id="deleteForm" method="POST" action="https://bonnou.admin01.l-ad.net/admin/content/list/delete">
+                        <div id="dataTable_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer"><div class="top row"><div class="dataTables_info col-sm-12" id="dataTable_info" role="status" aria-live="polite" style="padding-top: 0px;"> 49 件中 1 から 30 まで表示</div><div class="dataTables_length col-sm-3" id="dataTable_length"><label><select name="dataTable_length" aria-controls="dataTable" class="form-control input-sm"><option value="30">30</option><option value="60">60</option><option value="120">120</option></select> 件表示</label><button type="button" id="csvBtn" class="btn btn-link csv"><i class="fa fa-fw fa-cloud-download"></i>CSV生成</button></div><div class="dataTables_paginate paging_simple_numbers col-sm-6 col-sm-offset-3" id="dataTable_paginate" style="text-align: center;"><ul class="pagination"><li class="paginate_button previous disabled" id="dataTable_previous"><a href="#" aria-controls="dataTable" data-dt-idx="0" tabindex="0">前</a></li><li class="paginate_button active"><a href="#" aria-controls="dataTable" data-dt-idx="1" tabindex="0">1</a></li><li class="paginate_button "><a href="#" aria-controls="dataTable" data-dt-idx="2" tabindex="0">2</a></li><li class="paginate_button next" id="dataTable_next"><a href="#" aria-controls="dataTable" data-dt-idx="3" tabindex="0">次</a></li></ul></div></div><table id="dataTable" class="table table-bordered table-striped table-hover dataTable no-footer" aria-describedby="dataTable_info" role="grid" style="width: 1150px;">
+                            <thead>
+                                <tr class="text-nowrap" role="row"><th class="menu text-center td_vertical_align_middle sorting_disabled" rowspan="1" colspan="1" aria-label="メニュー" style="width: 77.2344px;">メニュー</th><th class="contentId td_vertical_align_middle sorting_desc" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-sort="descending" aria-label="広告ID: activate to sort column ascending" style="width: 59.0156px;">広告ID</th><th style="max-width: 120px; width: 120px;" class="companyName td_vertical_align_middle sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="広告主名: activate to sort column descending">広告主名</th><th style="max-width: 150px; width: 150px;" class="name td_vertical_align_middle sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="広告名: activate to sort column descending">広告名</th><th style="max-width: 120px; width: 120px;" class="groupName td_vertical_align_middle sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="広告グループ名: activate to sort column descending">広告グループ名</th><th class="status text-center td_vertical_align_middle sorting_disabled" rowspan="1" colspan="1" aria-label="
+                                        ステータス
+                                        
+                                    " style="width: 119.844px;">
+                                        ステータス
+                                        <i class="fa fa-fw fa-question-circle helpToolTipContent tooltipstered"></i>
+                                    </th><th class="insertAt td_vertical_align_middle sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="登録日時: activate to sort column descending" style="width: 123.625px;">登録日時</th><th id="checkAll" class="delete text-center td_vertical_align_middle sorting_disabled" rowspan="1" colspan="1" aria-label="
+                                        削除
+                                    " style="width: 67.2812px;">
+                                        <div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" id="checkAllDelete" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div>削除
+                                    </th></tr>
+                            </thead>
+                            <tbody style="display: table-row-group;"><tr role="row" class="odd"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4479</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">ローコスト</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">lowc_bon_dir_f_fk_11</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_ローコスト</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOn.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 ON"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-03-17 18:08:28</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4479" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="even"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4478</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">ローコスト</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">lowc_bon_dir_f_fk_05</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_ローコスト</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOn.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 ON"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-03-09 13:06:26</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4478" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="odd"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4477</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">ローコスト</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">lowc_bon_dir_f_fk_04</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_ローコスト</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOn.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 ON"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-03-09 13:06:05</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4477" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="even"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4476</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">ローコスト</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">lowc_bon_dir_f_fk_03</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_ローコスト</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOn.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 ON"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-03-09 13:05:45</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4476" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="odd"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4475</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">ローコスト</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">lowc_bon_dir_f_fk_02</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_ローコスト</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOn.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 ON"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-03-09 13:05:24</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4475" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="even"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4474</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">ローコスト</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">lowc_bon_dir_f_fk_01</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_ローコスト</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOn.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 ON"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-03-09 13:05:04</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4474" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="odd"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4452</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">ローコスト</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">lowc_test_auto04</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_ローコスト</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOff.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 OFF"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-03-08 23:30:15</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4452" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="even"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4451</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">DOT-AI</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">meta04D</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_DOT-AI</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOff.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 OFF"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-03-06 20:59:00</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4451" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="odd"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4450</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">DOT-AI</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">meta03C</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_DOT-AI</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOff.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 OFF"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-03-06 20:58:45</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4450" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="even"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4449</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">DOT-AI</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">meta02B</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_DOT-AI</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOff.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 OFF"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-03-06 20:58:24</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4449" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="odd"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4448</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">DOT-AI</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">meta01A</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_DOT-AI</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOff.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 OFF"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-03-06 20:58:08</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4448" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="even"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4447</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">ローコスト</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">lowc_bon_dir_f_fk_10</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_ローコスト</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOn.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 ON"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-18 20:44:54</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4447" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="odd"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4446</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">ローコスト</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">lowc_bon_dir_f_fk_09</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_ローコスト</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOn.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 ON"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-18 20:44:25</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4446" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="even"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4445</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">ローコスト</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">lowc_bon_dir_f_fk_08</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_ローコスト</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOn.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 ON"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-18 20:44:03</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4445" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="odd"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4444</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">ローコスト</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">lowc_bon_dir_f_fk_07</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_ローコスト</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOn.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 ON"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-18 20:43:38</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4444" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="even"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4443</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">ローコスト</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">lowc_bon_dir_f_fk_06</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_ローコスト</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOn.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 ON"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-18 20:43:16</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4443" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="odd"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4441</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">ミラネスシャツ</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">mira_bon_fk_03</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_ミラネスシャツ</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOn.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 ON"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-12 18:30:52</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4441" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="even"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4439</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">ミラネスシャツ</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">mira_bon_fk_02</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_ミラネスシャツ</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOn.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 ON"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-12 18:29:46</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4439" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="odd"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4438</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">ミラネスシャツ</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">mira_bon_fk_01</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_ミラネスシャツ</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOn.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 ON"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-12 18:29:25</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4438" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="even"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4432</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">SMUUL</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">理想の家診断_meta010</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_SMUUL</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOff.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 OFF"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-06 19:13:22</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4432" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="odd"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4431</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">SMUUL</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">理想の家診断_meta009</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_SMUUL</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOff.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 OFF"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-06 19:13:07</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4431" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="even"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4430</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">SMUUL</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">理想の家診断_meta008</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_SMUUL</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOff.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 OFF"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-06 19:12:53</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4430" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="odd"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4429</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">SMUUL</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">理想の家診断_meta007</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_SMUUL</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOff.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 OFF"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-06 19:12:39</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4429" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="even"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4428</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">SMUUL</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">理想の家診断_meta006</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_SMUUL</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOff.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 OFF"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-06 19:12:24</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4428" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="odd"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4427</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">SMUUL</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">理想の家診断_meta005</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_SMUUL</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOff.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 OFF"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-06 19:12:07</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4427" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="even"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4426</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">SMUUL</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">理想の家診断_meta004</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_SMUUL</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOff.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 OFF"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-06 19:11:53</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4426" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="odd"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4425</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">SMUUL</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">理想の家診断_meta002</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_SMUUL</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOff.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 OFF"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-06 19:11:38</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4425" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="even"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4424</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">SMUUL</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">理想の家診断_meta003</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_SMUUL</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOff.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 OFF"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-06 19:11:07</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4424" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="odd"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4423</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">SMUUL</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">理想の家診断_meta001</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">Meta_SMUUL</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOff.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 OFF"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-02-06 16:13:43</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4423" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr><tr role="row" class="even"><td class=" menu text-center td_vertical_align_middle"><a href="javascript:void(0);" class="menuToolTipContent tooltipstered"><img src="/assets/img/admin/icons/edit.png" width="20" height="20" alt="メニュー"></a></td><td class="contentId td_vertical_align_middle sorting_1"><p class="form-control-static">4420</p></td><td class=" companyName td_vertical_align_middle"><p class="form-control-static">ローコスト</p></td><td class=" name td_vertical_align_middle"><p class="form-control-static">lowc_bon_dir_f_tk_03</p></td><td class=" groupName td_vertical_align_middle"><p class="form-control-static">TikTok_ローコスト</p></td><td class=" status text-center td_vertical_align_middle"><img src="/assets/img/admin/icons/itpOn.png" width="20" height="20" alt="ITP対応" title="ITP対応 ON"><img src="/assets/img/admin/icons/rotationOff.png" width="20" height="20" alt="ローテーション利用" title="ローテーション利用 OFF"><img src="/assets/img/admin/icons/mClickOn.png" width="20" height="20" alt="中間クリック利用" title="中間クリック利用 ON"></td><td class=" insertAt td_vertical_align_middle"><p class="form-control-static">2026-01-27 15:53:21</p></td><td class=" delete text-center td_vertical_align_middle"><div class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="tableInput" value="4420" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td></tr></tbody>
+                        </table><div class="bottom row"><div class="dataTables_info col-sm-3"> 49 件中 1 から 30 まで表示</div><div class="dataTables_paginate paging_simple_numbers col-sm-6" style="text-align: center;"><ul class="pagination"><li class="paginate_button previous disabled"><a href="#" aria-controls="dataTable" data-dt-idx="0" tabindex="0">前</a></li><li class="paginate_button active"><a href="#" aria-controls="dataTable" data-dt-idx="1" tabindex="0">1</a></li><li class="paginate_button "><a href="#" aria-controls="dataTable" data-dt-idx="2" tabindex="0">2</a></li><li class="paginate_button next"><a href="#" aria-controls="dataTable" data-dt-idx="3" tabindex="0">次</a></li></ul></div><div class="col-sm-3 text-right"><button type="button" class="btn btn-danger" id="staticModalButton">削除</button></div></div><div class="clear"></div></div>
+                        <div id="loading" class="text-center" style="display: none;">
+                            <img src="https://bonnou.admin01.l-ad.net/assets/img/admin/icons/loading.gif">
+                        </div>
+
+                                                <div class="modal fade" id="staticModal" tabindex="10" role="dialog" aria-labelledby="staticModalLabel" aria-hidden="true" data-show="true" data-keyboard="false" data-backdrop="static" style="display: none;">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">
+                                            <span aria-hidden="true">×</span><span class="sr-only">閉じる</span>
+                                        </button>
+                                        <h4 class="modal-title">広告削除</h4>
+                                    </div><!-- /modal-header -->
+                                    <div class="modal-body">
+                                        <p class="recipient">選択された広告を削除します。よろしいですか？</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+                                        <button type="button" class="btn btn-danger col-sm-offset-11" id="deleteBtn">削除</button>
+                                    </div>
+                                </div> <!-- /.modal-content -->
+                            </div> <!-- /.modal-dialog -->
+                        </div>
+                                                <input type="hidden" name="contentClientDataCnt" value="6">
+<input type="hidden" name="contentDataCnt" value="49">
+<input type="hidden" name="groupDataCnt" value="15">
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+                <div id="csv" class="tab-pane fade">
+                    <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h3 class="box-title">広告一括編集</h3>
+                </div>
+                <div class="box-body">
+                                    <form class="form-horizontal" method="POST" action="https://bonnou.admin01.l-ad.net/admin/contentcsv/update/confirm" enctype="multipart/form-data">
+                                        <div class="form-group">
+                            <label class="col-sm-2 control-label" for="">CSVダウンロード</label>
+                            <div class="col-sm-10">
+                                                            <button type="submit" id="update-csv-download" class="btn btn-primary" onclick="form.action='https://bonnou.admin01.l-ad.net/admin/contentcsv/download/index'" value="">CSVダウンロードページへ移動する
+                                                        </button></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" for="">ファイル選択</label>
+                            <div class="col-sm-4">
+                                <label for="csvFileUpdate" class="btn btn-default">CSVファイル
+                                    <input type="file" name="csvFile" id="csvFileUpdate" size="30" style="display:none">
+                                </label>
+                                <span id="csvFileUpdateName">選択されていません。</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="text-center">
+                                <input type="submit" class="btn btn-primary loading" id="update-submit" data-loading-text="読み込み中..." value="CSV一括編集確認">
+                            </div>
+                        </div>
+                                            </form>
+                </div>
+            </div>
+
+            <ul class="nav nav-tabs" id="csvInfoUpdateTab" role="tablist">
+              <li class="nav-item active">
+                <a class="nav-link bg-info active" id="update-all-tab" data-toggle="tab" href="#update-all" role="tab" aria-controls="update-all" aria-selected="true">すべて</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link bg-success" id="update-success-tab" data-toggle="tab" href="#update-success" role="tab" aria-controls="update-success" aria-selected="false">成功</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link bg-danger" id="update-error-tab" data-toggle="tab" href="#update-error" role="tab" aria-controls="update-error" aria-selected="false">失敗</a>
+              </li>
+            </ul>
+            <div class="tab-content box box-body" id="csvInfoUpdateContent">
+                <div class="tab-pane fade active in" id="update-all" role="tabpanel" aria-labelledby="update-all-tab" style="padding: 5px;">通知情報はありません</div>
+                <div class="tab-pane fade" id="update-success" role="tabpanel" aria-labelledby="update-success-tab">
+                </div>
+                <div class="tab-pane fade" id="update-error" role="tabpanel" aria-labelledby="update-error-tab">
+                </div>
+            </div>
+            <div id="update-pagination"></div>
+
+        </div>
+    </div>
+</section>
+<form id="update" method="POST" action="https://bonnou.admin01.l-ad.net/admin/content/update"><input type="hidden" name="contentClientDataCnt" value="6">
+<input type="hidden" name="contentDataCnt" value="49">
+<input type="hidden" name="groupDataCnt" value="15">
+</form>
+<form id="register" method="POST" action="https://bonnou.admin01.l-ad.net/admin/content/register"><input type="hidden" name="contentClientDataCnt" value="6">
+<input type="hidden" name="contentDataCnt" value="49">
+<input type="hidden" name="groupDataCnt" value="15">
+</form>
+<form id="profileContentMedia" method="POST" action="https://bonnou.admin01.l-ad.net/admin/profilecontentmedia/list"><input type="hidden" name="contentClientDataCnt" value="6">
+<input type="hidden" name="contentDataCnt" value="49">
+<input type="hidden" name="groupDataCnt" value="15">
+</form>
+<form id="clickUrl" method="POST" action="https://bonnou.admin01.l-ad.net/admin/clicktag/list"></form>
+<form id="middleClickUrl" method="POST" action="https://bonnou.admin01.l-ad.net/admin/middleclicktag/list"></form>
+<form id="actionTag" method="POST" action="https://bonnou.admin01.l-ad.net/admin/actiontag/list"></form>
+<form id="actionGroupTag" method="POST" action="https://bonnou.admin01.l-ad.net/admin/actiongrouptag/list"></form>
+<form id="measurementTag" method="POST" action="https://bonnou.admin01.l-ad.net/admin/measurementtag/list"></form>
+<form id="measurementGroupTag" method="POST" action="https://bonnou.admin01.l-ad.net/admin/measurementgrouptag/list"></form>
+<form id="csvForm" method="POST" action="https://bonnou.admin01.l-ad.net/admin/content/list/csv"><input type="hidden" name="contentClientDataCnt" value="6">
+<input type="hidden" name="contentDataCnt" value="49">
+<input type="hidden" name="groupDataCnt" value="15">
+</form>
+<form id="csvInfoDetail" method="POST" action="https://bonnou.admin01.l-ad.net/admin/csvdetail" target="_blank"></form>
+	<link type="text/css" rel="stylesheet" href="https://bonnou.admin01.l-ad.net/assets/css/plugins/pagination/pagination.css?1773735829">
+
+	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/pagination/pagination.min.js?1773735829"></script>
+
+	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/admin/contents.js?1773735829"></script>
+
+	<script type="text/javascript" src="https://bonnou.admin01.l-ad.net/assets/js/plugins/dknotus-tour/dknotus-tour.min.js?1773735829"></script>
+
+<script>
+    // CSV一括編集情報一覧　初期表示
+    $.ajax({
+        type: "POST",
+        url: '/admin/content/list/csvInfoUpdateList',
+        dataType : "json"
+    }).done(function(data){
+        if (data.length !== 0) {
+            $('#update-pagination').pagination({
+                dataSource: Object.entries(data),
+                locator: 'items',
+                pageSize: PAGE_SIZE,
+                callback: function (data, pagination) {
+                    $('#update-all, #update-success, #update-error').empty();
+                    var body = template(data);
+                    $.each(body, function (key, val) {
+                        var i = key + 1;
+                        $('#csvInfoUpdateContent #update-all').append('<div class="csvInfoUpdate' + i + '"></div>');
+                        $('#csvInfoUpdateContent #update-all .csvInfoUpdate' + i).css('padding', '5px');
+
+                        // 日付
+                        var date = val[1]['insertAt'].replace(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/, '$1年$2月$3日 $4時$5分$6秒');
+                        $('#csvInfoUpdateContent #update-all .csvInfoUpdate' + i).append(date);
+
+                        // ステータス
+                        var statusLabel = csvInfoStatusLabelType(val[1]['status']);
+                        var statusTitle = csvInfoStatusTitleType(val[1]['status']);
+                        $('#csvInfoUpdateContent #update-all .csvInfoUpdate' + i).append('<span class="label ' + statusLabel + '">' + statusTitle + '</span>');
+
+                        // タイトル
+                        $('#csvInfoUpdateContent #update-all .csvInfoUpdate' + i + ' span').css('margin', '0px 10px');
+                        $('#csvInfoUpdateContent #update-all .csvInfoUpdate' + i).append("<a href=\"javascript:void(0)\" onclick=\"postSubmitCsvInfoDetail('#csvInfoDetail', 'id', " + val[1]['id'] + ", 'targetType', " + val[1]['targetType'] + ');">' + val[1]['csvFileName'] + '</a>');
+                        $('#csvInfoUpdateContent #update-all .csvInfoUpdate' + i).append('<br class="visible-xs">');
+                    });
+                }
+            });
+        } else {
+            $('#csvInfoUpdateContent #update-all').html('通知情報はありません').css('padding', '5px');
+        }
+    });
+
+    function changeCsvInfoUpdate(status) {
+        $.ajax({
+            type: "POST",
+            url: '/admin/content/list/csvInfoUpdateList',
+            data: {
+                'status'           : status
+            },
+            dataType : "json"
+        }).done(function(data){
+            var target = 'update';
+            var statusType = csvInfoStatusType(status, target);
+
+            if (Object.keys(data).length !== 0) {
+                $('#update-pagination').pagination({
+                    dataSource: Object.entries(data),
+                    locator: 'items',
+                    pageSize: PAGE_SIZE,
+                    callback: function (data, pagination) {
+                        $('#update-all, #update-success, #update-error').empty();
+                        var body = template(data);
+                        $.each(body, function (key, val) {
+                            var i = key + 1;
+                            $('#csvInfoUpdateContent ' + statusType).append('<div class="csvInfoUpdate' + i + '"></div>');
+                            $('#csvInfoUpdateContent ' + statusType + ' .csvInfoUpdate' + i).css('padding', '5px');
+
+                            // 日付
+                            var date = val[1]['insertAt'].replace(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/, '$1年$2月$3日 $4時$5分$6秒');
+                            $('#csvInfoUpdateContent ' + statusType + ' .csvInfoUpdate' + i).append(date);
+
+                            // ステータス
+                            var statusLabel = csvInfoStatusLabelType(val[1]['status']);
+                            var statusTitle = csvInfoStatusTitleType(val[1]['status']);
+                            $('#csvInfoUpdateContent ' + statusType + ' .csvInfoUpdate' + i).append('<span class="label ' + statusLabel + '">' + statusTitle + '</span>');
+
+                            // タイトル
+                            $('#csvInfoUpdateContent ' + statusType + ' .csvInfoUpdate' + i + ' span').css('margin', '0px 10px');
+                            $('#csvInfoUpdateContent ' + statusType + ' .csvInfoUpdate' + i).append("<a href=\"javascript:void(0)\" onclick=\"postSubmitCsvInfoDetail('#csvInfoDetail', 'id', " + val[1]['id'] + ", 'targetType', " + val[1]['targetType'] + ');">' + val[1]['csvFileName'] + '</a>');
+                            $('#csvInfoUpdateContent ' + statusType + ' .csvInfoUpdate' + i).append('<br class="visible-xs">');
+                        });
+                    }
+                });
+            } else {
+                $('#csvInfoUpdateContent ' + statusType).html('通知情報はありません').css('padding', '5px');
+            }
+        });
+    }
+</script>
+            </div>
+        </div><!-- end content -->
+
+        <!-- フッター -->
+        <footer class="main-footer">
+            <div class="container">
+                <strong>Copyright © 2024</strong> All rights reserved.
+            </div>
+        </footer><!-- end footer -->
+
+    </div><!-- end wrapper -->
+
+    <!-- Google tag (gtag.js) -->
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-B59Q3YRS65"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-B59Q3YRS65');
+</script>
+
+
+</body></html>

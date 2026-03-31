@@ -1,0 +1,41 @@
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Node
+node_modules/
+
+# Database
+*.db
+*.sqlite
+
+# Debug screenshots
+debug_*.png
+
+# Claude Code local config
+.claude/
+.mcp.json
+
+# Temp data files
+batch_*.json
+*_items.json
+sheets_data.json
+cr_data.json
+cr_data_filtered.json
+exploration_map*.json
+exploration_map*.html
+cr_structure_labels_*.json
+competitor_test_items.json
+
+# Supabase local temp
+meta-ads-fetcher/supabase/.temp/
+
+# OS
+.DS_Store

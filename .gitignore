@@ -5,3 +5,12 @@ dist/
 .DS_Store
 *.tsbuildinfo
 .turbo/
+
+# Python (services/ad-orchestration)
+venv/
+__pycache__/
+*.pyc
+*.log
+*.db
+*.db-wal
+*.db-shm
