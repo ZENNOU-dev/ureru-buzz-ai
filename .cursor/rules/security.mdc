@@ -1,0 +1,24 @@
+---
+description: シークレット管理・セキュリティルール
+globs:
+alwaysApply: true
+---
+
+# セキュリティ・シークレット管理
+
+## 絶対ルール
+- APIトークン・認証情報はチャットに貼らせない
+- `.env` / `.env.local` をgit commitしない
+- 全てGoogle Cloud Secret Managerで管理
+
+## Secret Manager操作
+- プロジェクト: `gen-lang-client-0001618902`
+- 取得: `gcloud secrets versions access latest --secret="シークレット名"`
+- 新規: `echo -n "値" | gcloud secrets create シークレット名 --data-file=- --project=gen-lang-client-0001618902`
+- 更新: `echo -n "値" | gcloud secrets versions add シークレット名 --data-file=- --project=gen-lang-client-0001618902`
+
+## 登録済みシークレット
+slack-bot-token / slack-user-token / slack-team-id / slack-app-token,
+chatwork-api-token, notion-api-key, github-token, gemini-api-key,
+canva-api-key, google-client-id / google-client-secret / google-refresh-token,
+meta-access-token / meta-ad-account-id, kashika-auth

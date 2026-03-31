@@ -14,3 +14,6 @@ __pycache__/
 *.db
 *.db-wal
 *.db-shm
+
+# Cursor (mcp.json にローカルパスが含まれるため)
+.cursor/mcp.json

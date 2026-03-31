@@ -1,0 +1,27 @@
+---
+description: タスク完了時のgitコミットワークフロー
+globs:
+alwaysApply: true
+---
+
+# Git コミットワークフロー
+
+## タスク完了時のコミットルール
+
+機能追加・バグ修正・リファクタ等、コードを変更するタスクが完了したら必ずコミットを提案すること。
+
+### 手順
+1. `git status` と `git diff --stat` で変更範囲を確認
+2. 論理的なまとまりごとにステージング（`git add` は個別ファイル指定、`-A` は使わない）
+3. コミットメッセージのルール:
+   - 形式: `type(scope): 日本語で簡潔な説明`
+   - type: feat / fix / refactor / chore / docs / test
+   - scope: packages/web → web, packages/api → api, services/ → services 等
+   - 1行目は50文字以内目安、詳細は本文に
+4. `.env`, credentials, `node_modules/`, `dist/` は絶対にコミットしない
+5. コミット後に `git status` で確認
+
+### コミットタイミング
+- 1つの機能/修正が完了したらすぐコミット。溜め込まない
+- 大きな変更は途中でも論理的な区切りでコミット
+- 「あとでまとめてコミット」は禁止
