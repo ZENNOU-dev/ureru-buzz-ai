@@ -6,7 +6,7 @@ COPY scripts/create-requirement-gap-issues.mjs scripts/requirement-gap-issues.js
 
 ENV NODE_ENV=production
 
-# Optional: override target repo (default in script is ZENNOU-dev/ureru-buzz-ai)
+# Optional: override target repo (default in script is BONNOU-inc/ureru-buzz-ai)
 # ENV GITHUB_REPOSITORY=owner/repo
 
 CMD ["node", "scripts/create-requirement-gap-issues.mjs"]
