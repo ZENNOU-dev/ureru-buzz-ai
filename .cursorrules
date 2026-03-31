@@ -1,0 +1,64 @@
+# 売れるBUZZ AI (Ureru Buzz AI)
+
+AI エージェントによるショート動画広告制作の完全自動化システム。
+
+## 日本語で回答すること
+
+## Tech Stack
+- **Runtime:** Node.js 20 LTS / TypeScript 5.x
+- **Monorepo:** pnpm + Turborepo
+- **LLM:** Claude Agent SDK + Anthropic API (claude-sonnet-4-20250514)
+- **Frontend:** Next.js 16 + React 19 + Tailwind CSS 4
+- **DB:** Supabase (PostgreSQL + pgvector) / Notion API / BigQuery
+- **Queue:** BullMQ + Redis (Upstash)
+- **Video:** Remotion (React-based video generation)
+- **API:** Hono
+- **Validation:** Zod
+- **Testing:** Vitest + MSW
+
+## Monorepo構成
+```
+packages/
+  core/          - 共有型定義、config、logger、utils、errors
+  skills/        - 再利用可能なスキル (LLM, Notion, Supabase, material-match, kling)
+  agents/        - フェーズ別エージェント (edit-brief が MVP最優先)
+  api/           - REST APIサーバー (Hono)
+  orchestrator/  - ワークフローエンジン
+  web/           - Next.js 16 フロントエンド
+```
+
+## 10フェーズ・ワークフロー
+1. プロジェクトセットアップ → 2. リサーチ → 3. 訴求開発 → 4. 企画立案
+5. 台本作成 → 6. 編集指示書 (MVP最優先) → 7. 動画編集
+8. 入稿 → 9. 運用 → 10. レポート
+
+## 設計原則
+- **Type-Safe-First:** 全input/outputにZodスキーマ
+- **テナント分離:** 全DBクエリに `tenant_id` 必須、Supabase RLS
+- **疎結合:** エージェントはskillインターフェースに依存
+- **承認フロー:** 各フェーズに人間の承認チェックポイント
+- **リトライ:** エクスポネンシャルバックオフ付きリトライ
+
+## 現在のMVP開発状況
+- ✅ モノレポ基盤・Core モジュール完了
+- ✅ Supabaseマイグレーション (11ファイル、pgvector対応)
+- ✅ Web UI 20+ページ (商品ヒーロー・ギャラリー等)
+- ⏳ EditBriefAgent (素材選定 + 編集指示書生成) — MVP最優先
+- ⏳ Material Matching Skill (3軸スコアリング)
+- ⏳ Notion Skill (テナント分離付きDB操作)
+
+## コーディング規約
+- ESModulesを使用 (`"type": "module"`)
+- パッケージ間のimportは `@ureru-buzz-ai/*` パスを使用
+- 環境変数は `.env` 管理、絶対にコミットしない
+- エラーハンドリングはcoreの共通エラークラスを使用
+- ログはcore/loggerの構造化ログを使用
+
+## Next.js 16 注意
+This is NOT the Next.js you know. APIやconventionが変わっている場合がある。
+コードを書く前に `node_modules/next/dist/docs/` のガイドを確認すること。
+
+## 素材マッチング 3軸スコアリング
+1. 過去実績 (knowledge base: 類似台本で効果のあった素材)
+2. 市場データ (動画広告分析API: トレンド)
+3. コンテンツマッチ (cosine similarity + CLIP cross-modal)
