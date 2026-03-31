@@ -1,0 +1,50 @@
+[
+  {
+    "title": "[要件ギャップ] オーケストレーター・承認フロー・フェーズ遷移",
+    "body": "## 参照\n- `docs/01_requirements.md` 2.2 承認フロー、`docs/02_basic_design.md` 2.2 オーケストレーター、`docs/03_technical_requirements.md` 4.2–4.3\n\n## 現状\n- `packages/orchestrator` はプレースホルダ（`export {}` のみ）\n- Notion 承認ポーリング、次フェーズ起動、Slack 通知、差し戻し再実行が未実装\n\n## 受け入れ条件（案）\n- `WORKFLOW_PHASES` 相当のフェーズ定義と `onApproved` / `onRejected` の遷移\n- 承認 DB（または Notion）の状態監視（ポーリング or 将来 Webhook）\n- 承認依頼時の Slack + Notion 通知の最低限フロー\n\n## メタ\n`docs/要件定義_実装進捗.md` 参照"
+  },
+  {
+    "title": "[要件ギャップ] Phase 1 案件セットアップ（SetupAgent + UI + Notion）",
+    "body": "## 参照\n- `docs/01_requirements.md` §3 Phase 1\n\n## 現状\n- Web に案件一覧等の UI はあるが、AP/MP 入力項目の完全フォーム・永続化・`SetupAgent` は未実装\n\n## 受け入れ条件（案）\n- 基本情報・運用方針の Zod スキーマと保存先（Notion / 将来 Supabase）\n- `SetupAgent` または同等の案件作成ユースケース\n- テナント ID と案件レコードの一貫した紐付け\n\n## メタ\n`docs/要件定義_実装進捗.md` 参照"
+  },
+  {
+    "title": "[要件ギャップ] Phase 2–5 制作パイプライン（Research / Appeal / Planning / Script）",
+    "body": "## 参照\n- `docs/01_requirements.md` Phase 2–5、`docs/02_basic_design.md` エージェント一覧\n\n## 現状\n- `packages/agents` は `EditBriefAgent` のみエクスポート\n- WebSearch / AdLibrary / SNS 等のリサーチスキル、訴求・企画・台本エージェントは未実装\n\n## 受け入れ条件（案）\n- 各エージェントの `inputSchema` / `outputSchema` と `execute`\n- Phase ごとの Notion（または DB）への構造化出力\n- Tier 3 優先度に沿った段階リリースでも可（イシュー分割可）\n\n## メタ\n`docs/要件定義_実装進捗.md` 参照"
+  },
+  {
+    "title": "[要件ギャップ] Phase 6 編集概要の完成（動画名シート準拠・通知・マッピング）",
+    "body": "## 参照\n- `docs/01_requirements.md` Phase 6（Tier 1 最優先）\n\n## 現状\n- `EditBriefAgent` は台本パース・テロップ・BGM・素材マッチの素地あり\n- 音声/レギュ/SE/ME/エフェクト/修正/参考動画など全項目、Slack 通知、本番用 Notion プロパティマッピングは未完了\n\n## 受け入れ条件（案）\n- 要件表「動画名シート」項目のカバレッジ一覧と実装チェックリスト\n- `buildEditBriefProperties` 等との完全整合\n\n## メタ\n`docs/要件定義_実装進捗.md` 参照"
+  },
+  {
+    "title": "[要件ギャップ] 素材マッチ 3 軸・市場データ・本番エンベディングパイプライン",
+    "body": "## 参照\n- `docs/01_requirements.md` Phase 6 素材連携、`docs/03_technical_requirements.md` §8 マルチモーダル\n\n## 現状\n- `MaterialMatchSkill` にスコアリング・マッチャー・テストあり\n- 「過去実績 / 動画広告分析 Pro / コンテンツマッチ」の本番データ接続、Vertex・フレーム抽出の運用化は未完了\n\n## 受け入れ条件（案）\n- 3 軸の重み付けとデータソース接続の定義\n- `material_embeddings` / `material_text_embeddings` への投入パイプライン\n\n## メタ\n`docs/要件定義_実装進捗.md` 参照"
+  },
+  {
+    "title": "[要件ギャップ] Phase 7 Remotion・VideoAgent・TTS",
+    "body": "## 参照\n- `docs/01_requirements.md` Phase 7、`docs/03_technical_requirements.md` §5\n\n## 現状\n- リポジトリに `remotion-project` パッケージなし\n- `VideoAgent` / `RemotionSkill` / TTS 経路なし\n\n## 受け入れ条件（案）\n- 編集概要スキーマ → Remotion Props 変換\n- レンダリング実行環境（Lambda / Cloud Run 等）の方針決定と PoC\n\n## メタ\n`docs/要件定義_実装進捗.md` 参照"
+  },
+  {
+    "title": "[要件ギャップ] Phase 8 入稿（SubmissionAgent・各媒体 API）",
+    "body": "## 参照\n- `docs/01_requirements.md` Phase 8\n\n## 現状\n- Meta/TikTok/YouTube 等への入稿実装、`SubmissionAgent` なし\n- 動画名入力→自動入稿→Slack→Notion ログのフローなし\n\n## 受け入れ条件（案）\n- 少なくとも 1 媒体（例: Meta）の E2E PoC\n- 入稿設定（案件×媒体×キャンペーン構造）の参照モデル\n\n## メタ\n`docs/要件定義_実装進捗.md` 参照"
+  },
+  {
+    "title": "[要件ギャップ] Phase 9 運用自動化・広告データ取得（BullMQ / 5 分間隔）",
+    "body": "## 参照\n- `docs/01_requirements.md` Phase 9、`docs/03_technical_requirements.md` §4.3・§6.3\n\n## 現状\n- `operation_rules` / `operation_logs` 等のマイグレーションはあるが、ワーカー・媒体 API 取り込み・`OperationAgent` の実行ループなし\n- BullMQ + Redis のパッケージ統合なし\n\n## 受け入れ条件（案）\n- 運用ルール評価と停止/拡大などのアクション（初期は手動承認付きでも可）\n- パフォーマンスデータの取り込みスケジュール\n\n## メタ\n`docs/要件定義_実装進捗.md` 参照"
+  },
+  {
+    "title": "[要件ギャップ] Phase 10 レポート・分析（Report / Analysis・BigQuery）",
+    "body": "## 参照\n- `docs/01_requirements.md` Phase 10\n\n## 現状\n- レポート系 UI はモック中心\n- `ReportAgent` / `AnalysisAgent`、BigQuery デュアル書き込み、マクロ/ミクロ分析の実装なし\n\n## 受け入れ条件（案）\n- 日次レポート 1 種の自動生成から開始\n- クリエイティブタグと `ad_performance` 系データの結合方針\n\n## メタ\n`docs/要件定義_実装進捗.md` 参照"
+  },
+  {
+    "title": "[要件ギャップ] レギュレーション・AI チャット（横断エージェント・API）",
+    "body": "## 参照\n- `docs/01_requirements.md` §4 AI チャット、§5 レギュ、`docs/03_technical_requirements.md` §10 注釈\n\n## 現状\n- レギュ画面・フローティングチャット UI のみ。`RegulationAgent` / 自動チェック / ナレッジ検索の API 統合なし\n- 配信 KPI やナレッジへの RAG チャット未接続\n\n## 受け入れ条件（案）\n- チャット 1 ユースケース（例: レギュ確認）の E2E\n- `regulation_knowledge` ベクトル検索の呼び出し経路\n\n## メタ\n`docs/要件定義_実装進捗.md` 参照"
+  },
+  {
+    "title": "[要件ギャップ] 共通スキル・インフラ（Drive / Slack / CI/CD / 本番運用）",
+    "body": "## 参照\n- `docs/02_basic_design.md` スキル一覧、`docs/03_technical_requirements.md` §1.5・§14\n\n## 現状\n- `DriveSkill` / `SlackSkill` / `ApprovalSkill` / Meta・TikTok・YouTube 広告スキルはパッケージに未整備\n- GitHub Actions CI/CD、Cloud Run・Scheduler 定義はリポジトリに未整備\n\n## 受け入れ条件（案）\n- 秘密情報の管理方針（Secret Manager）と最小デプロイパス\n- 通知・素材取得のスキルインターフェースと 1 本の結合テスト\n\n## メタ\n`docs/要件定義_実装進捗.md` 参照"
+  },
+  {
+    "title": "[要件ギャップ] Tier 5 管理系（ガント・請求・目標・制作ステータス）",
+    "body": "## 参照\n- `docs/01_requirements.md` §6–8、§11 MVP Tier 5\n\n## 現状\n- 進行・請求・目標・動画制作ステータスと Notion/DB の本番連動は未着手（UI のみまたは未実装）\n\n## 受け入れ条件（案）\n- データモデル（Notion または Supabase）と表示 UI の対応表\n- まずは 1 ドメイン（例: 制作ステータス）から導入\n\n## メタ\n`docs/要件定義_実装進捗.md` 参照"
+  }
+]
