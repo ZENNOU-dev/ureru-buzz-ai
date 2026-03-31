@@ -33,7 +33,10 @@ export function FloatingChat() {
 
       {/* Chat window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-[380px] h-[520px] rounded-2xl overflow-hidden flex flex-col z-50 shadow-2xl shadow-black/20 border border-black/[0.08] bg-white">
+        <div
+          data-undo-ignore
+          className="fixed bottom-6 right-6 w-[380px] h-[520px] rounded-2xl overflow-hidden flex flex-col z-50 shadow-2xl shadow-black/20 border border-black/[0.08] bg-white"
+        >
           {/* Header */}
           <div className="px-4 py-3 flex items-center justify-between border-b border-black/[0.06] bg-[#FAF8F5]">
             <div className="flex items-center gap-2">

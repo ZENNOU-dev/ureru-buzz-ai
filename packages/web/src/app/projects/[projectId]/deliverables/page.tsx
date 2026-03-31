@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useState, useRef, useCallback } from "react";
+import { use, useRef, useCallback, type SetStateAction } from "react";
+import { usePageUndoDraft } from "@/hooks/use-page-undo-draft";
 import { ArrowLeft, Plus, Play, LayoutList, LayoutGrid, Film, Calendar, User, Megaphone, Lightbulb, Search, X, Target, MessageSquare, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { VoiceInputButton } from "@/components/voice-input-button";
@@ -40,12 +41,24 @@ const DELIVERABLES: DeliverableItem[] = [
 ];
 
 // ─── Main Page ────────────────────────────────────────
+type DeliverablesDraft = {
+  viewMode: "card" | "list";
+  search: string;
+  statusFilter: "" | "完成" | "修正中" | "確認待ち";
+  selectedId: number | null;
+};
+
 export default function DeliverablesPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = use(params);
-  const [viewMode, setViewMode] = useState<"card" | "list">("card");
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"" | "完成" | "修正中" | "確認待ち">("");
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [draft, setField] = usePageUndoDraft<DeliverablesDraft>(
+    () => ({ viewMode: "card", search: "", statusFilter: "", selectedId: null }),
+    { mergeWindowMs: 400 },
+  );
+  const { viewMode, search, statusFilter, selectedId } = draft;
+  const setViewMode = (u: SetStateAction<DeliverablesDraft["viewMode"]>) => setField("viewMode", u);
+  const setSearch = (u: SetStateAction<string>) => setField("search", u);
+  const setStatusFilter = (u: SetStateAction<DeliverablesDraft["statusFilter"]>) => setField("statusFilter", u);
+  const setSelectedId = (u: SetStateAction<number | null>) => setField("selectedId", u);
 
   // Sort by date descending (newest first)
   const sorted = [...DELIVERABLES].sort((a, b) => {

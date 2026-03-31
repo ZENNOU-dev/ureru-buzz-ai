@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, type SetStateAction } from "react";
+import { usePageUndoDraft } from "@/hooks/use-page-undo-draft";
 import { Search, Film, Image, Music, Calendar, Clock, Smartphone, LayoutList, LayoutGrid, Volume2, X, Play, Scissors } from "lucide-react";
 import { VoiceInputButton } from "@/components/voice-input-button";
 
@@ -52,12 +53,24 @@ const KIND_CONFIG: Record<MaterialKind, { icon: typeof Film; color: string; bg: 
 };
 
 // ─── Main Page ────────────────────────────────────────
+type MaterialsDraft = {
+  search: string;
+  kindFilter: MaterialKind | "";
+  viewMode: "card" | "list";
+  selectedId: string | null;
+};
+
 export default function MaterialsPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = use(params);
-  const [search, setSearch] = useState("");
-  const [kindFilter, setKindFilter] = useState<MaterialKind | "">("");
-  const [viewMode, setViewMode] = useState<"card" | "list">("card");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [draft, setField] = usePageUndoDraft<MaterialsDraft>(
+    () => ({ search: "", kindFilter: "", viewMode: "card", selectedId: null }),
+    { mergeWindowMs: 400 },
+  );
+  const { search, kindFilter, viewMode, selectedId } = draft;
+  const setSearch = (u: SetStateAction<string>) => setField("search", u);
+  const setKindFilter = (u: SetStateAction<MaterialKind | "">) => setField("kindFilter", u);
+  const setViewMode = (u: SetStateAction<"card" | "list">) => setField("viewMode", u);
+  const setSelectedId = (u: SetStateAction<string | null>) => setField("selectedId", u);
   const selectedItem = MATERIALS.find((m) => m.id === selectedId);
 
   const filtered = MATERIALS.filter((m) => {

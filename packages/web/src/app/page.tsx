@@ -1,7 +1,8 @@
 "use client";
 
 import { Send } from "lucide-react";
-import { useState } from "react";
+import { useUndoableState } from "@/hooks/use-undoable-state";
+import { useBindPageUndo } from "@/components/providers/global-undo-provider";
 
 const SUGGESTIONS = [
   { emoji: "📊", text: "競合の広告クリエイティブを分析して" },
@@ -10,8 +11,13 @@ const SUGGESTIONS = [
   { emoji: "🔍", text: "直近のパフォーマンスを分析して" },
 ];
 
+type ChatDraft = { message: string };
+
 export default function ChatPage() {
-  const [message, setMessage] = useState("");
+  const [draft, setDraft, { undo, redo }] = useUndoableState<ChatDraft>(() => ({ message: "" }), { mergeWindowMs: 400 });
+  useBindPageUndo(undo, redo);
+  const message = draft.message;
+  const setMessage = (v: string) => setDraft((s) => ({ ...s, message: v }));
 
   return (
     <div className="flex flex-col h-screen">

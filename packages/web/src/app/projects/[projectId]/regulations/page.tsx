@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, type SetStateAction } from "react";
+import { usePageUndoDraft } from "@/hooks/use-page-undo-draft";
 import { ArrowLeft, Plus, Search, FileText, Video, Tag, ExternalLink, LayoutList, LayoutGrid, X } from "lucide-react";
 import Link from "next/link";
 import { VoiceInputButton } from "@/components/voice-input-button";
@@ -76,13 +77,32 @@ function isScriptType(type: string) {
 }
 
 // ─── Main Page ────────────────────────────────────────
+type RegulationsDraft = {
+  activeTab: "script" | "video" | "knowledge";
+  viewMode: "table" | "card";
+  knowledgeSearch: string;
+  knowledgeTagFilter: string;
+  showRegSheet: boolean;
+};
+
 export default function RegulationsPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = use(params);
-  const [activeTab, setActiveTab] = useState<"script" | "video" | "knowledge">("script");
-  const [viewMode, setViewMode] = useState<"table" | "card">("table");
-  const [knowledgeSearch, setKnowledgeSearch] = useState("");
-  const [knowledgeTagFilter, setKnowledgeTagFilter] = useState("");
-  const [showRegSheet, setShowRegSheet] = useState(false);
+  const [draft, setField] = usePageUndoDraft<RegulationsDraft>(
+    () => ({
+      activeTab: "script",
+      viewMode: "table",
+      knowledgeSearch: "",
+      knowledgeTagFilter: "",
+      showRegSheet: false,
+    }),
+    { mergeWindowMs: 400 },
+  );
+  const { activeTab, viewMode, knowledgeSearch, knowledgeTagFilter, showRegSheet } = draft;
+  const setActiveTab = (u: SetStateAction<RegulationsDraft["activeTab"]>) => setField("activeTab", u);
+  const setViewMode = (u: SetStateAction<RegulationsDraft["viewMode"]>) => setField("viewMode", u);
+  const setKnowledgeSearch = (u: SetStateAction<string>) => setField("knowledgeSearch", u);
+  const setKnowledgeTagFilter = (u: SetStateAction<string>) => setField("knowledgeTagFilter", u);
+  const setShowRegSheet = (u: SetStateAction<boolean>) => setField("showRegSheet", u);
 
   const scriptItems = REG_ITEMS.filter((r) => isScriptType(r.type));
   const videoItems = REG_ITEMS.filter((r) => !isScriptType(r.type));

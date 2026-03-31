@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, type SetStateAction } from "react";
+import { usePageUndoDraft } from "@/hooks/use-page-undo-draft";
 import {
   Plus, X, Search, ChevronDown, ChevronUp, Megaphone, Filter,
   Calendar, User, Target, ExternalLink, Lightbulb, Film,
@@ -619,9 +620,15 @@ export default function PlanningPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = use(params);
-  const [plans, setPlans] = useState<AdPlan[]>(INITIAL_PLANS);
-  const [appealFilter, setAppealFilter] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  type PlanningDraft = { plans: AdPlan[]; appealFilter: string; searchQuery: string };
+  const [draft, setField] = usePageUndoDraft<PlanningDraft>(
+    () => ({ plans: [...INITIAL_PLANS], appealFilter: "all", searchQuery: "" }),
+    { mergeWindowMs: 400 },
+  );
+  const { plans, appealFilter, searchQuery } = draft;
+  const setPlans = (u: SetStateAction<AdPlan[]>) => setField("plans", u);
+  const setAppealFilter = (u: SetStateAction<string>) => setField("appealFilter", u);
+  const setSearchQuery = (u: SetStateAction<string>) => setField("searchQuery", u);
 
   const appealNames = APPEALS.map((a) => a.name);
 

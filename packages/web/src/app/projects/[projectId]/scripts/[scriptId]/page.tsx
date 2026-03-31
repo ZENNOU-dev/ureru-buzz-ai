@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { use, useState, useMemo, useCallback, useRef, useEffect, type SetStateAction } from "react";
+import { usePageUndoDraft } from "@/hooks/use-page-undo-draft";
 import {
   ArrowLeft, Type, User, Megaphone, Lightbulb,
   ArrowRight, Send, Sparkles, Plus, ChevronDown, ChevronRight,
@@ -229,9 +230,15 @@ const CARD_GROUPS = [
   },
 ];
 
-// ─── Undo history ─────────────────────────────────────
-type HistoryEntry = {
+type ScriptPageDraft = {
   rows: ScriptRow[];
+  title: string;
+  status: string;
+  editingTitle: boolean;
+  titleDraft: string;
+  speaker: string;
+  expandedHooks: Record<number, boolean>;
+  focusId: number | null;
 };
 
 // ─── Main Page ────────────────────────────────────────
@@ -241,29 +248,32 @@ export default function ScriptDetailPage({
   params: Promise<{ projectId: string; scriptId: string }>;
 }) {
   const { projectId } = use(params);
-  const [rows, setRows] = useState<ScriptRow[]>(makeInitialRows);
-  const [title, setTitle] = useState(SAMPLE_PLAN.name);
-  const [status, setStatus] = useState("作成中");
-  const [editingTitle, setEditingTitle] = useState(false);
-  const [titleDraft, setTitleDraft] = useState(title);
-  const [speaker, setSpeaker] = useState("女性ナレーター");
+  const initialTitle = SAMPLE_PLAN.name;
+  const [draft, setField, setDraft] = usePageUndoDraft<ScriptPageDraft>(
+    () => ({
+      rows: makeInitialRows(),
+      title: initialTitle,
+      status: "作成中",
+      editingTitle: false,
+      titleDraft: initialTitle,
+      speaker: "女性ナレーター",
+      expandedHooks: {},
+      focusId: null,
+    }),
+    { mergeWindowMs: 400 },
+  );
+  const { rows, title, status, editingTitle, titleDraft, speaker, expandedHooks, focusId } = draft;
+  const setRows = (u: SetStateAction<ScriptRow[]>) => setField("rows", u);
+  const setStatus = (u: SetStateAction<string>) => setField("status", u);
+  const setTitleDraft = (u: SetStateAction<string>) => setField("titleDraft", u);
+  const setSpeaker = (u: SetStateAction<string>) => setField("speaker", u);
 
-  // Hook collapse state: collapsed by default (show only 1st row per hookNum)
-  const [expandedHooks, setExpandedHooks] = useState<Record<number, boolean>>({});
   const toggleHook = useCallback((hookNum: number) => {
-    setExpandedHooks((prev) => ({ ...prev, [hookNum]: !prev[hookNum] }));
-  }, []);
-
-  // Undo history (max 50)
-  const historyRef = useRef<HistoryEntry[]>([]);
-  const pushHistory = useCallback((currentRows: ScriptRow[]) => {
-    historyRef.current.push({ rows: currentRows });
-    if (historyRef.current.length > 50) historyRef.current.shift();
-  }, []);
+    setField("expandedHooks", (prev) => ({ ...prev, [hookNum]: !prev[hookNum] }));
+  }, [setField]);
 
   // Text refs for focus management
   const textRefs = useRef<Record<number, HTMLTextAreaElement | null>>({});
-  const [focusId, setFocusId] = useState<number | null>(null);
 
   // Track which row is currently focused (for voice input)
   const activeRowIdRef = useRef<number | null>(null);
@@ -271,9 +281,12 @@ export default function ScriptDetailPage({
   useEffect(() => {
     if (focusId !== null) {
       const el = textRefs.current[focusId];
-      if (el) { el.focus(); setFocusId(null); }
+      if (el) {
+        el.focus();
+        setField("focusId", null);
+      }
     }
-  });
+  }, [focusId, setField]);
 
   // ─── Voice input handlers ───────────────────────────
   const handleVoiceTranscript = useCallback((text: string) => {
@@ -303,49 +316,65 @@ export default function ScriptDetailPage({
     );
   }, []);
 
-  const addRowAfter = useCallback((afterIdx: number, zone: "hook" | "main", hookNum?: number) => {
-    setRows((prev) => {
-      pushHistory(prev);
+  const addRowAfter = useCallback(
+    (
+      afterIdx: number,
+      zone: "hook" | "main",
+      hookNum?: number,
+      opts?: { expandHookNum?: number },
+    ) => {
       const newId = nextId();
-      const newRow: ScriptRow = zone === "hook"
-        ? { id: newId, zone: "hook", hookNum: hookNum ?? 1, text: "", annotation: "", regulationWarning: "", regulationConfirm: "", feedback: "" }
-        : { id: newId, zone: "main", section: "", text: "", annotation: "", regulationWarning: "", regulationConfirm: "", feedback: "" };
-      const next = [...prev];
-      next.splice(afterIdx + 1, 0, newRow);
-      setFocusId(newId);
-      return next;
-    });
-  }, [pushHistory]);
+      setDraft((d) => {
+        let nextExpanded = d.expandedHooks;
+        if (opts?.expandHookNum != null) {
+          nextExpanded = { ...d.expandedHooks, [opts.expandHookNum]: true };
+        }
+        const prev = d.rows;
+        const newRow: ScriptRow =
+          zone === "hook"
+            ? {
+                id: newId,
+                zone: "hook",
+                hookNum: hookNum ?? 1,
+                text: "",
+                annotation: "",
+                regulationWarning: "",
+                regulationConfirm: "",
+                feedback: "",
+              }
+            : {
+                id: newId,
+                zone: "main",
+                section: "",
+                text: "",
+                annotation: "",
+                regulationWarning: "",
+                regulationConfirm: "",
+                feedback: "",
+              };
+        const next = [...prev];
+        next.splice(afterIdx + 1, 0, newRow);
+        return { ...d, rows: next, focusId: newId, expandedHooks: nextExpanded };
+      });
+    },
+    [setDraft],
+  );
 
-  const deleteRow = useCallback((rowId: number) => {
-    setRows((prev) => {
-      if (prev.length <= 1) return prev;
-      pushHistory(prev);
-      const idx = prev.findIndex((r) => r.id === rowId);
-      const next = prev.filter((r) => r.id !== rowId);
-      // Focus adjacent row
-      if (idx > 0) setFocusId(next[idx - 1]?.id ?? null);
-      else if (next.length > 0) setFocusId(next[0]?.id ?? null);
-      return next;
-    });
-  }, [pushHistory]);
-
-  const undo = useCallback(() => {
-    const entry = historyRef.current.pop();
-    if (entry) setRows(entry.rows);
-  }, []);
-
-  // ─── Global keyboard: Cmd+Z ─────────────────────────
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "z" && !e.shiftKey) {
-        e.preventDefault();
-        undo();
-      }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [undo]);
+  const deleteRow = useCallback(
+    (rowId: number) => {
+      setDraft((d) => {
+        const prev = d.rows;
+        if (prev.length <= 1) return d;
+        const idx = prev.findIndex((r) => r.id === rowId);
+        const next = prev.filter((r) => r.id !== rowId);
+        let nextFocus: number | null = null;
+        if (idx > 0) nextFocus = next[idx - 1]?.id ?? null;
+        else if (next.length > 0) nextFocus = next[0]?.id ?? null;
+        return { ...d, rows: next, focusId: nextFocus };
+      });
+    },
+    [setDraft],
+  );
 
   // ─── Key handlers ───────────────────────────────────
   const handleKeyDown = useCallback((e: React.KeyboardEvent, rowIdx: number) => {
@@ -358,9 +387,8 @@ export default function ScriptDetailPage({
 
       if (row.zone === "hook") {
         // フック行: 同じhookNum の行を直下に追加（フック内で行を増やす）
-        const hn = (row as any).hookNum as number;
-        setExpandedHooks((prev) => ({ ...prev, [hn]: true })); // auto-expand
-        addRowAfter(rowIdx, "hook", hn);
+        const hn = (row as { hookNum: number }).hookNum;
+        addRowAfter(rowIdx, "hook", hn, { expandHookNum: hn });
       } else {
         // 本編行: 次の行にフォーカス、最終行なら新規追加
         const nextRow = rows[rowIdx + 1];
@@ -422,16 +450,24 @@ export default function ScriptDetailPage({
               autoFocus
               value={titleDraft}
               onChange={(e) => setTitleDraft(e.target.value)}
-              onBlur={() => { setEditingTitle(false); setTitle(titleDraft); }}
+              onBlur={() => {
+                setDraft((d) => ({ ...d, editingTitle: false, title: d.titleDraft }));
+              }}
               onKeyDown={(e) => {
-                if (e.key === "Enter") { setEditingTitle(false); setTitle(titleDraft); }
-                if (e.key === "Escape") { setTitleDraft(title); setEditingTitle(false); }
+                if (e.key === "Enter") {
+                  setDraft((d) => ({ ...d, editingTitle: false, title: d.titleDraft }));
+                }
+                if (e.key === "Escape") {
+                  setDraft((d) => ({ ...d, titleDraft: d.title, editingTitle: false }));
+                }
               }}
               className="text-lg font-bold text-[#1A1A2E] bg-transparent border-b-2 border-[#9333EA] outline-none flex-1"
             />
           ) : (
             <h1
-              onClick={() => { setTitleDraft(title); setEditingTitle(true); }}
+              onClick={() => {
+                setDraft((d) => ({ ...d, titleDraft: d.title, editingTitle: true }));
+              }}
               className="text-lg font-bold text-[#1A1A2E] cursor-text hover:bg-black/[0.02] rounded px-1 -mx-1 transition-colors flex-1"
             >
               {title}

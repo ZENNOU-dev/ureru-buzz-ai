@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useState, useCallback, useRef, useEffect } from "react";
+import { use, useState, useCallback, useRef, useEffect, type SetStateAction } from "react";
+import { usePageUndoDraft } from "@/hooks/use-page-undo-draft";
 import {
   ArrowLeft, Music, Plus, X, ArrowRight, Mic, Download, Share2,
 } from "lucide-react";
@@ -319,17 +320,42 @@ function FieldLabel({ label, right }: { label: string; right?: React.ReactNode }
   );
 }
 
+type EditBriefPageDraft = {
+  rows: EditBriefRow[];
+  title: string;
+  editingTitle: boolean;
+  titleDraft: string;
+  status: string;
+  globalBgm: string;
+  globalFont: string;
+  voiceType: string;
+};
+
 // ─── Main Page ────────────────────────────────────────
 export default function EditBriefPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = use(params);
-  const [rows, setRows] = useState<EditBriefRow[]>(makeInitialRows);
-  const [title, setTitle] = useState("フリーランス2.0体験談");
-  const [editingTitle, setEditingTitle] = useState(false);
-  const [titleDraft, setTitleDraft] = useState("フリーランス2.0体験談");
-  const [status, setStatus] = useState("作成中");
-  const [globalBgm, setGlobalBgm] = useState("BGM-01: アップテンポ・ポジティブ");
-  const [globalFont, setGlobalFont] = useState("ゴシック体");
-  const [voiceType, setVoiceType] = useState("machine_zundamon");
+  const [draft, setField] = usePageUndoDraft<EditBriefPageDraft>(
+    () => ({
+      rows: makeInitialRows(),
+      title: "フリーランス2.0体験談",
+      editingTitle: false,
+      titleDraft: "フリーランス2.0体験談",
+      status: "作成中",
+      globalBgm: "BGM-01: アップテンポ・ポジティブ",
+      globalFont: "ゴシック体",
+      voiceType: "machine_zundamon",
+    }),
+    { mergeWindowMs: 400 },
+  );
+  const { rows, title, editingTitle, titleDraft, status, globalBgm, globalFont, voiceType } = draft;
+  const setRows = (u: SetStateAction<EditBriefRow[]>) => setField("rows", u);
+  const setTitle = (u: SetStateAction<string>) => setField("title", u);
+  const setEditingTitle = (u: SetStateAction<boolean>) => setField("editingTitle", u);
+  const setTitleDraft = (u: SetStateAction<string>) => setField("titleDraft", u);
+  const setStatus = (u: SetStateAction<string>) => setField("status", u);
+  const setGlobalBgm = (u: SetStateAction<string>) => setField("globalBgm", u);
+  const setGlobalFont = (u: SetStateAction<string>) => setField("globalFont", u);
+  const setVoiceType = (u: SetStateAction<string>) => setField("voiceType", u);
 
   // Scroll sync between top bar and main content
   const topScrollRef = useRef<HTMLDivElement>(null);

@@ -1,6 +1,8 @@
 "use client";
 
-import { use, useState, useRef } from "react";
+import { use, useState, useRef, useCallback, type SetStateAction } from "react";
+import { useUndoableState } from "@/hooks/use-undoable-state";
+import { useBindPageUndo } from "@/components/providers/global-undo-provider";
 import { Plus, ChevronDown } from "lucide-react";
 import { VoiceInputButton } from "@/components/voice-input-button";
 
@@ -87,12 +89,14 @@ const INITIAL: Appeal[] = [
 ];
 
 // ─── Section / Row definitions ────────────────────────
-type RowDef = {
-  key: keyof Appeal | "_no";
-  label: string;
-  type: "auto" | "text" | "textarea" | "dropdown";
-  options?: string[];
-};
+type RowDef =
+  | { key: "_no"; label: string; type: "auto" }
+  | {
+      key: keyof Appeal;
+      label: string;
+      type: "text" | "textarea" | "dropdown";
+      options?: string[];
+    };
 
 type SectionDef = {
   title: string;
@@ -185,9 +189,24 @@ function Dropdown({
 }
 
 // ─── Main Page ────────────────────────────────────────
+type AppealsDraft = { appeals: Appeal[] };
+
 export default function AppealsPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = use(params);
-  const [appeals, setAppeals] = useState<Appeal[]>(INITIAL);
+  const [draft, setDraft, { undo, redo }] = useUndoableState<AppealsDraft>(
+    () => ({ appeals: [...INITIAL] }),
+    { mergeWindowMs: 400 },
+  );
+  useBindPageUndo(undo, redo);
+  const appeals = draft.appeals;
+  const setAppeals = useCallback(
+    (u: SetStateAction<Appeal[]>) =>
+      setDraft((s) => ({
+        ...s,
+        appeals: typeof u === "function" ? (u as (p: Appeal[]) => Appeal[])(s.appeals) : u,
+      })),
+    [setDraft],
+  );
   const scrollRef = useRef<HTMLDivElement>(null);
 
   function updateField(id: number, key: keyof Appeal, value: string) {

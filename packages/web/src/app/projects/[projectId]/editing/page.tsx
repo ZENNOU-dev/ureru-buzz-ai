@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useState, useCallback, useRef, useEffect } from "react";
+import { use, useState, useCallback, useRef, useEffect, type SetStateAction } from "react";
+import { usePageUndoDraft } from "@/hooks/use-page-undo-draft";
 import {
   Play, Pause, Plus, X, ChevronDown, Music, Check, ArrowLeft, ArrowRight, Package,
 } from "lucide-react";
@@ -548,16 +549,35 @@ function getFieldDefs(
   ] as { key: string; label: string; render: (s: EditingScene, idx: number) => React.ReactNode }[];
 }
 
+type EditingPageDraft = {
+  scenes: EditingScene[];
+  activeIdx: number;
+  playing: boolean;
+  phoneMode: "preview" | "edit";
+  globalFeedback: string;
+};
+
 // ─── Main Page ────────────────────────────────────────
 export default function EditingPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = use(params);
-  const [scenes, setScenes] = useState<EditingScene[]>(makeInitialScenes);
-  const [activeIdx, setActiveIdx] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const [phoneMode, setPhoneMode] = useState<"preview" | "edit">("preview");
-  const [globalBgm] = useState("BGM-01: アップテンポ・ポジティブ");
-  const [globalFont] = useState("ゴシック体");
-  const [globalFeedback, setGlobalFeedback] = useState("");
+  const [draft, setField] = usePageUndoDraft<EditingPageDraft>(
+    () => ({
+      scenes: makeInitialScenes(),
+      activeIdx: 0,
+      playing: false,
+      phoneMode: "preview",
+      globalFeedback: "",
+    }),
+    { mergeWindowMs: 400 },
+  );
+  const { scenes, activeIdx, playing, phoneMode, globalFeedback } = draft;
+  const globalBgm = "BGM-01: アップテンポ・ポジティブ";
+  const globalFont = "ゴシック体";
+  const setScenes = (u: SetStateAction<EditingScene[]>) => setField("scenes", u);
+  const setActiveIdx = (u: SetStateAction<number>) => setField("activeIdx", u);
+  const setPlaying = (u: SetStateAction<boolean>) => setField("playing", u);
+  const setPhoneMode = (u: SetStateAction<EditingPageDraft["phoneMode"]>) => setField("phoneMode", u);
+  const setGlobalFeedback = (u: SetStateAction<string>) => setField("globalFeedback", u);
 
   const editScrollRef = useRef<HTMLDivElement | null>(null);
   const activeSceneIdRef = useRef<number | null>(null);

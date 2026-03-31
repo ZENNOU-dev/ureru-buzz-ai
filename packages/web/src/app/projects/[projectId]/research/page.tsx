@@ -1,9 +1,11 @@
 "use client";
 
-import { use, useState, useCallback, useRef } from "react";
+import { use, useState, useCallback, useRef, useEffect, type SetStateAction } from "react";
+import { useUndoableState } from "@/hooks/use-undoable-state";
+import { useBindPageUndo } from "@/components/providers/global-undo-provider";
 import {
   Search, Package, TrendingUp, Users, Globe, Star, Shield, Truck,
-  Heart, DollarSign, ExternalLink, Image, Plus, X, ChevronRight,
+  Heart, DollarSign, ExternalLink, Image, Plus, X, ChevronRight, Trash2,
   ChevronLeft, ChevronDown, ChevronUp, Zap, Palette, BookOpen, Award, Tag, Building,
   ArrowRight, Calendar, MessageSquare, Play, Check, Eye, CheckCircle2,
 } from "lucide-react";
@@ -160,6 +162,60 @@ function makeGalleryItems(): GalleryItem[] {
     { id: 14, type: "動画", label: "ショート動画 D", url: "" },
     { id: 15, type: "動画", label: "ショート動画 E", url: "" },
   ];
+}
+
+const FUNCTION_BUBBLE_GAP_PX = 12;
+/** 枠線・リング・ホバー演出・サブピクセル用に内側を少し削る */
+const FUNCTION_BUBBLE_LAYOUT_INSET_PX = 10;
+/** 上段は最大5、下段は最大4、合計最大9（段ずらし2行） */
+const FUNCTION_BUBBLE_TOP_MAX = 5;
+const FUNCTION_BUBBLE_BOTTOM_MAX = 4;
+const FUNCTION_BUBBLE_TOTAL_MAX = FUNCTION_BUBBLE_TOP_MAX + FUNCTION_BUBBLE_BOTTOM_MAX;
+/** 上段の底と下段の円の間（かぶさらないよう正の余白） */
+const FUNCTION_BUBBLE_ROW_GAP_PX = 10;
+
+function splitFunctionBubblesTwoRows(bubbles: FunctionBubble[]): { top: FunctionBubble[]; bottom: FunctionBubble[] } {
+  const capped = bubbles.slice(0, FUNCTION_BUBBLE_TOTAL_MAX);
+  return {
+    top: capped.slice(0, FUNCTION_BUBBLE_TOP_MAX),
+    bottom: capped.slice(FUNCTION_BUBBLE_TOP_MAX, FUNCTION_BUBBLE_TOP_MAX + FUNCTION_BUBBLE_BOTTOM_MAX),
+  };
+}
+
+/**
+ * 上段 nTop・下段 nBottom がボードに収まる最大直径。
+ * 下段ありかつ上段が2個以上のときは、下段を「隣る上段2つの間の下」に置く（はちみつ型・縦はかぶさない）。
+ */
+function computeFunctionBubbleStaggeredLayout(
+  nTop: number,
+  nBottom: number,
+  containerW: number,
+  containerH: number,
+  gap: number = FUNCTION_BUBBLE_GAP_PX,
+): { bubbleSize: number } {
+  if (nTop + nBottom === 0) return { bubbleSize: 0 };
+  const inset = FUNCTION_BUBBLE_LAYOUT_INSET_PX;
+  const W = Math.max(64, containerW - inset * 2);
+  const H = Math.max(64, containerH - inset * 2);
+
+  const widthNeed = (s: number) => {
+    if (nTop === 0) return nBottom > 0 ? nBottom * s + (nBottom - 1) * gap : 0;
+    // 上段幅が全体の幅（下段は隙間の下に収まる想定で上段に揃う）
+    return nTop * s + (nTop - 1) * gap;
+  };
+
+  const heightNeed = (s: number) => {
+    if (nTop === 0) return nBottom > 0 ? s : 0;
+    if (nBottom === 0) return s;
+    return s + FUNCTION_BUBBLE_ROW_GAP_PX + s;
+  };
+
+  let s = Math.floor(Math.min(W, H));
+  while (s > 8 && (widthNeed(s) > W || heightNeed(s) > H)) {
+    s -= 1;
+  }
+
+  return { bubbleSize: Math.max(1, s) };
 }
 
 function makeFunctionBubbles(): FunctionBubble[] {
@@ -380,6 +436,69 @@ function makeSurveySections(type: "potential" | "existing"): SurveySection[] {
   });
 }
 
+// ─── Undoable draft (Cmd+Z 用に1オブジェクトに集約) ─────────────────
+type ResearchDraft = {
+  activeTab: TabKey;
+  productSubTab: ProductSubTab;
+  overviewPanel: number;
+  heroInfo: HeroInfo;
+  gallery: GalleryItem[];
+  galleryIdx: Record<string, number>;
+  functionBubbles: FunctionBubble[];
+  expandedBubble: number | null;
+  researchModal: { bubbleId: number; dataIdx: number } | null;
+  designColors: DesignColor[];
+  emotionKeywords: EmotionKeyword[];
+  experienceQuotes: ExperienceQuote[];
+  storyNodes: StoryNode[];
+  offerPlans: OfferPlan[];
+  reviewCards: ReviewCard[];
+  reviewScrollIdx: number;
+  awards: AwardBubble[];
+  media: MediaBubble[];
+  flowSections: FlowSection[];
+  experienceLogs: ExperienceLog[];
+  uspCards: USPCard[];
+  marketRows: MarketRow[];
+  marketCols: string[];
+  refCreatives: RefCreative[];
+  customerSub: CustomerSub;
+  potentialSurveys: SurveySection[];
+  existingSurveys: SurveySection[];
+};
+
+function makeResearchDraft(): ResearchDraft {
+  return {
+    activeTab: "product",
+    productSubTab: "hero",
+    overviewPanel: 0,
+    heroInfo: makeHeroInfo(),
+    gallery: makeGalleryItems(),
+    galleryIdx: { LP: 0, "バナー": 0, "動画": 0 },
+    functionBubbles: makeFunctionBubbles(),
+    expandedBubble: null,
+    researchModal: null,
+    designColors: makeDesignColors(),
+    emotionKeywords: makeEmotionKeywords(),
+    experienceQuotes: makeExperienceQuotes(),
+    storyNodes: makeStoryNodes(),
+    offerPlans: makeOfferPlans(),
+    reviewCards: makeReviewCards(),
+    reviewScrollIdx: 0,
+    awards: makeAwards(),
+    media: makeMedia(),
+    flowSections: makeFlowSections(),
+    experienceLogs: makeExperienceLogs(),
+    uspCards: makeUSPCards(),
+    marketRows: makeMarketRows(),
+    marketCols: [...MARKET_COLUMNS],
+    refCreatives: makeRefCreatives(),
+    customerSub: "potential",
+    potentialSurveys: makeSurveySections("potential"),
+    existingSurveys: makeSurveySections("existing"),
+  };
+}
+
 // ─── Page Component ──────────────────────────────────
 export default function ResearchPage({
   params,
@@ -387,96 +506,138 @@ export default function ResearchPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = use(params);
-  const [activeTab, setActiveTab] = useState<TabKey>("product");
+  const [draft, setDraft, { undo, redo }] = useUndoableState(() => makeResearchDraft(), { mergeWindowMs: 450 });
+  const setField = useCallback(
+    <K extends keyof ResearchDraft>(key: K, value: SetStateAction<ResearchDraft[K]>) => {
+      setDraft((s) => ({
+        ...s,
+        [key]: typeof value === "function" ? (value as (prev: ResearchDraft[K]) => ResearchDraft[K])(s[key]) : value,
+      }));
+    },
+    [setDraft],
+  );
+  useBindPageUndo(undo, redo);
 
-  // Product sub-tab
-  const [productSubTab, setProductSubTab] = useState<ProductSubTab>("hero");
-  const [overviewPanel, setOverviewPanel] = useState(0);
   const OVERVIEW_PANELS = ["機能", "デザイン", "体験", "ストーリー", "オファー"] as const;
+  const {
+    activeTab,
+    productSubTab,
+    overviewPanel,
+    heroInfo,
+    gallery,
+    galleryIdx,
+    functionBubbles,
+    expandedBubble,
+    researchModal,
+    designColors,
+    emotionKeywords,
+    experienceQuotes,
+    storyNodes,
+    offerPlans,
+    reviewCards,
+    reviewScrollIdx,
+    awards,
+    media,
+    flowSections,
+    experienceLogs,
+    uspCards,
+    marketRows,
+    marketCols,
+    refCreatives,
+    customerSub,
+    potentialSurveys,
+    existingSurveys,
+  } = draft;
 
-  // Hero state
-  const [heroInfo, setHeroInfo] = useState<HeroInfo>(makeHeroInfo);
-  const [gallery] = useState<GalleryItem[]>(makeGalleryItems);
-  const [galleryIdx, setGalleryIdx] = useState<Record<string, number>>({ "LP": 0, "バナー": 0, "動画": 0 });
-
-  // Overview state
-  const [functionBubbles, setFunctionBubbles] = useState<FunctionBubble[]>(makeFunctionBubbles);
-  const [expandedBubble, setExpandedBubble] = useState<number | null>(null);
-  const [researchModal, setResearchModal] = useState<{ bubbleId: number; dataIdx: number } | null>(null);
-  const [designColors, setDesignColors] = useState<DesignColor[]>(makeDesignColors);
-  const [moodboardSlots] = useState(6);
-  const [emotionKeywords, setEmotionKeywords] = useState<EmotionKeyword[]>(makeEmotionKeywords);
-  const [experienceQuotes, setExperienceQuotes] = useState<ExperienceQuote[]>(makeExperienceQuotes);
-  const [storyNodes, setStoryNodes] = useState<StoryNode[]>(makeStoryNodes);
-  const [offerPlans, setOfferPlans] = useState<OfferPlan[]>(makeOfferPlans);
-
-  // Reviews & Authority state
-  const [reviewCards, setReviewCards] = useState<ReviewCard[]>(makeReviewCards);
-  const [reviewScrollIdx, setReviewScrollIdx] = useState(0);
-  const [awards, setAwards] = useState<AwardBubble[]>(makeAwards);
-  const [media, setMedia] = useState<MediaBubble[]>(makeMedia);
-
-  // Operations state
-  const [flowSections, setFlowSections] = useState<FlowSection[]>(makeFlowSections);
-
-  // Experience Log state
-  const [experienceLogs, setExperienceLogs] = useState<ExperienceLog[]>(makeExperienceLogs);
-
-  // USP state
-  const [uspCards, setUSPCards] = useState<USPCard[]>(makeUSPCards);
-
-  // Market state
-  const [marketRows, setMarketRows] = useState<MarketRow[]>(makeMarketRows);
-  const [marketCols, setMarketCols] = useState<string[]>(MARKET_COLUMNS);
-  const [refCreatives, setRefCreatives] = useState<RefCreative[]>(makeRefCreatives);
-
-  // Customer state
-  const [customerSub, setCustomerSub] = useState<CustomerSub>("potential");
-  const [potentialSurveys, setPotentialSurveys] = useState<SurveySection[]>(() => makeSurveySections("potential"));
-  const [existingSurveys, setExistingSurveys] = useState<SurveySection[]>(() => makeSurveySections("existing"));
+  const moodboardSlots = 6;
+  const bubbleContainerRef = useRef<HTMLDivElement>(null);
+  const [bubbleBoardSize, setBubbleBoardSize] = useState({ width: 0, height: 0 });
 
   // ─── Updaters ────────────────────────────────────────
   const updateMarketCell = useCallback((rowIdx: number, colIdx: number, val: string) => {
-    setMarketRows((prev) => {
-      const next = [...prev];
+    setDraft((s) => {
+      const next = [...s.marketRows];
       const row = { ...next[rowIdx], values: [...next[rowIdx].values] };
       row.values[colIdx] = val;
       next[rowIdx] = row;
-      return next;
+      return { ...s, marketRows: next };
     });
-  }, []);
+  }, [setDraft]);
 
   const updateSurveyCell = useCallback(
     (sectionIdx: number, rowIdx: number, field: "source" | "item", val: string) => {
-      const setter = customerSub === "potential" ? setPotentialSurveys : setExistingSurveys;
-      setter((prev) => {
+      setDraft((s) => {
+        const key = s.customerSub === "potential" ? "potentialSurveys" : "existingSurveys";
+        const prev = s[key];
         const next = [...prev];
         const sec = { ...next[sectionIdx], rows: [...next[sectionIdx].rows] };
         sec.rows[rowIdx] = { ...sec.rows[rowIdx], [field]: val };
         next[sectionIdx] = sec;
-        return next;
+        return { ...s, [key]: next };
       });
     },
-    [customerSub],
+    [setDraft],
   );
 
   const updateSurveyPercentage = useCallback(
     (sectionIdx: number, rowIdx: number, pctIdx: number, val: string) => {
-      const setter = customerSub === "potential" ? setPotentialSurveys : setExistingSurveys;
-      setter((prev) => {
+      setDraft((s) => {
+        const key = s.customerSub === "potential" ? "potentialSurveys" : "existingSurveys";
+        const prev = s[key];
         const next = [...prev];
         const sec = { ...next[sectionIdx], rows: [...next[sectionIdx].rows] };
         const row = { ...sec.rows[rowIdx], percentages: [...sec.rows[rowIdx].percentages] };
         row.percentages[pctIdx] = val;
         sec.rows[rowIdx] = row;
         next[sectionIdx] = sec;
-        return next;
+        return { ...s, [key]: next };
       });
     },
-    [customerSub],
+    [setDraft],
   );
 
   const surveys = customerSub === "potential" ? potentialSurveys : existingSurveys;
+
+  // 商品概要「機能」ボードの実寸（バブルをボードいっぱいに配置するため）
+  useEffect(() => {
+    if (productSubTab !== "overview" || overviewPanel !== 0) return;
+    const el = bubbleContainerRef.current;
+    if (!el) return;
+    let raf = 0;
+    const measure = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const w = Math.round(el.clientWidth);
+        const h = Math.round(el.clientHeight);
+        setBubbleBoardSize((prev) =>
+          prev.width === w && prev.height === h ? prev : { width: w, height: h },
+        );
+      });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, [productSubTab, overviewPanel, functionBubbles.length]);
+
+  // 仕様上9件まで（過去に10件以上入っていた場合の整理）
+  useEffect(() => {
+    if (functionBubbles.length > FUNCTION_BUBBLE_TOTAL_MAX) {
+      setField("functionBubbles", (p) => p.slice(0, FUNCTION_BUBBLE_TOTAL_MAX));
+      setField("expandedBubble", null);
+    }
+  }, [functionBubbles.length, setField]);
+
+  // 選択インデックスが配列外（削除・Undo 等）のときは詳細を閉じる
+  useEffect(() => {
+    if (expandedBubble === null) return;
+    if (expandedBubble < 0 || expandedBubble >= functionBubbles.length) {
+      setField("expandedBubble", null);
+    }
+  }, [expandedBubble, functionBubbles.length, setField]);
 
   // ─── Render helpers ─────────────────────────────────
   const inputClass =
@@ -522,11 +683,11 @@ export default function ResearchPage({
             {/* Arrows - always show if multiple items */}
             {items.length > 1 && (
               <>
-                <button onClick={() => setGalleryIdx((p) => ({ ...p, [type]: (idx - 1 + items.length) % items.length }))}
+                <button onClick={() => setField("galleryIdx",(p) => ({ ...p, [type]: (idx - 1 + items.length) % items.length }))}
                   className="absolute left-1 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-white/90 shadow flex items-center justify-center text-[#1A1A2E]/40 hover:text-[#9333EA] transition-colors">
                   <ChevronLeft className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={() => setGalleryIdx((p) => ({ ...p, [type]: (idx + 1) % items.length }))}
+                <button onClick={() => setField("galleryIdx",(p) => ({ ...p, [type]: (idx + 1) % items.length }))}
                   className="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-white/90 shadow flex items-center justify-center text-[#1A1A2E]/40 hover:text-[#9333EA] transition-colors">
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
@@ -551,31 +712,31 @@ export default function ResearchPage({
       <div className="space-y-5">
         {/* ── Product Hero Card ── */}
         <div className="rounded-2xl bg-gradient-to-br from-[#9333EA] to-[#6D28D9] p-5 shadow-lg">
-          {/* Logo centered */}
-          <div className="flex justify-center mb-3">
-            <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center shadow-md overflow-hidden">
-              <img src={`https://www.google.com/s2/favicons?domain=dot-ai-bootcamp.com&sz=64`} alt="logo" className="w-9 h-9 object-contain"
-                onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = "none"; }} />
+          <div className="flex gap-4">
+            {/* Logo - 左寄せ・上下中央 */}
+            <div className="shrink-0 flex items-center">
+              <div className="w-20 h-20 rounded-xl bg-white flex items-center justify-center shadow-md overflow-hidden">
+                <img src={`https://www.google.com/s2/favicons?domain=dot-ai-bootcamp.com&sz=128`} alt="logo" className="w-14 h-14 object-contain"
+                  onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = "none"; }} />
+              </div>
             </div>
-          </div>
-          <div className="flex gap-3">
-            {/* Product info: name + category + price + features - 右寄せ */}
+            {/* Product info: name + category + price + features */}
             <div className="flex-[30] min-w-0">
               <input className="bg-transparent text-white text-xl font-bold outline-none w-full placeholder-white/40"
-                value={heroInfo.productName} onChange={(e) => setHeroInfo((p) => ({ ...p, productName: e.target.value }))} placeholder="商品名" />
+                value={heroInfo.productName} onChange={(e) => setField("heroInfo",(p) => ({ ...p, productName: e.target.value }))} placeholder="商品名" />
               <input className="bg-transparent text-white/50 text-[11px] outline-none w-full placeholder-white/30 mb-1"
-                value={heroInfo.category} onChange={(e) => setHeroInfo((p) => ({ ...p, category: e.target.value }))} placeholder="カテゴリ" />
+                value={heroInfo.category} onChange={(e) => setField("heroInfo",(p) => ({ ...p, category: e.target.value }))} placeholder="カテゴリ" />
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-white/40 text-[10px]">価格</span>
                 <input className="bg-white/10 border border-white/20 rounded-lg px-2 py-0.5 text-[13px] text-white font-bold outline-none w-28 placeholder-white/30"
-                  value={heroInfo.price} onChange={(e) => setHeroInfo((p) => ({ ...p, price: e.target.value }))} placeholder="価格" />
+                  value={heroInfo.price} onChange={(e) => setField("heroInfo",(p) => ({ ...p, price: e.target.value }))} placeholder="価格" />
               </div>
               <div className="space-y-1">
                 {heroInfo.summaryPoints.map((pt, i) => (
                   <div key={i} className="flex items-start gap-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300 shrink-0 mt-0.5" />
                     <input className="bg-transparent text-white/80 text-[11px] outline-none w-full placeholder-white/30"
-                      value={pt} onChange={(e) => { const pts = [...heroInfo.summaryPoints]; pts[i] = e.target.value; setHeroInfo((p) => ({ ...p, summaryPoints: pts })); }}
+                      value={pt} onChange={(e) => { const pts = [...heroInfo.summaryPoints]; pts[i] = e.target.value; setField("heroInfo",(p) => ({ ...p, summaryPoints: pts })); }}
                       placeholder="特徴を入力" />
                   </div>
                 ))}
@@ -600,7 +761,7 @@ export default function ResearchPage({
                     </div>
                   </div>
                   <textarea className="text-[11px] text-[#1A1A2E]/70 leading-relaxed flex-1 bg-transparent outline-none resize-none placeholder:text-[#1A1A2E]/20" rows={3}
-                    value={heroInfo.topReview} onChange={(e) => setHeroInfo((p) => ({ ...p, topReview: e.target.value }))} placeholder="口コミ" />
+                    value={heroInfo.topReview} onChange={(e) => setField("heroInfo",(p) => ({ ...p, topReview: e.target.value }))} placeholder="口コミ" />
                   <div className="flex items-center gap-1 mt-2">
                     {[1,2,3,4,5].map((s) => (
                       <Star key={s} className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
@@ -632,7 +793,7 @@ export default function ResearchPage({
         <div className="rounded-xl overflow-hidden shadow-sm border border-black/[0.06]">
           <div className="grid grid-cols-3">
             {/* LP section */}
-            <div className="bg-gradient-to-b from-blue-50 to-white p-4 border-r border-black/[0.04]">
+            <div className="bg-gradient-to-b from-blue-50 to-white p-4 border-r border-black/[0.04] flex flex-col">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center">
                   <Globe className="w-3.5 h-3.5 text-blue-600" />
@@ -640,22 +801,24 @@ export default function ResearchPage({
                 <span className="text-[12px] font-bold text-[#1A1A2E]/70">LP</span>
                 <span className="text-[9px] text-[#1A1A2E]/25 ml-auto">{lpItems.length}件</span>
               </div>
-              <div className="relative flex justify-center" style={{ minHeight: 200 }}>
+              <div className="relative flex-1 flex flex-col items-center justify-center" style={{ minHeight: 200 }}>
                 {lpItems.length > 1 && (
                   <>
-                    <button onClick={() => setGalleryIdx((p) => ({ ...p, LP: ((p.LP || 0) - 1 + lpItems.length) % lpItems.length }))}
+                    <button onClick={() => setField("galleryIdx",(p) => ({ ...p, LP: ((p.LP || 0) - 1 + lpItems.length) % lpItems.length }))}
                       className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#1A1A2E]/30 hover:text-blue-600 transition-colors">
                       <ChevronLeft className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => setGalleryIdx((p) => ({ ...p, LP: ((p.LP || 0) + 1) % lpItems.length }))}
+                    <button onClick={() => setField("galleryIdx",(p) => ({ ...p, LP: ((p.LP || 0) + 1) % lpItems.length }))}
                       className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#1A1A2E]/30 hover:text-blue-600 transition-colors">
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </>
                 )}
-                <div className="w-[85%] aspect-[3/4] rounded-xl overflow-hidden border border-blue-100 bg-white shadow-inner">
+                <div className="w-[85%] aspect-[3/4] rounded-xl overflow-hidden border border-blue-100 bg-white shadow-inner mx-auto">
                   {lpItems[galleryIdx.LP || 0]?.url ? (
-                    <iframe src={lpItems[galleryIdx.LP || 0].url} className="w-full h-full" title="LP" sandbox="allow-scripts allow-same-origin" />
+                    <div className="w-full h-full relative">
+                      <iframe src={lpItems[galleryIdx.LP || 0].url} className="absolute inset-0 w-[200%] h-[200%] origin-top-left scale-50" title="LP" sandbox="allow-scripts allow-same-origin" />
+                    </div>
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-blue-50/50 to-white">
                       <Globe className="w-8 h-8 text-blue-200 mb-2" />
@@ -666,7 +829,7 @@ export default function ResearchPage({
                 {/* Dots */}
                 <div className="flex items-center justify-center gap-1.5 mt-2">
                   {lpItems.map((_, di) => (
-                    <button key={di} onClick={() => setGalleryIdx((p) => ({ ...p, LP: di }))}
+                    <button key={di} onClick={() => setField("galleryIdx",(p) => ({ ...p, LP: di }))}
                       className={`w-1.5 h-1.5 rounded-full transition-all ${di === (galleryIdx.LP || 0) ? "bg-blue-500 w-3" : "bg-blue-200"}`} />
                   ))}
                 </div>
@@ -674,7 +837,7 @@ export default function ResearchPage({
             </div>
 
             {/* バナー section (正方形) */}
-            <div className="bg-gradient-to-b from-amber-50 to-white p-4 border-r border-black/[0.04]">
+            <div className="bg-gradient-to-b from-amber-50 to-white p-4 border-r border-black/[0.04] flex flex-col">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center">
                   <Package className="w-3.5 h-3.5 text-amber-600" />
@@ -682,28 +845,28 @@ export default function ResearchPage({
                 <span className="text-[12px] font-bold text-[#1A1A2E]/70">バナー</span>
                 <span className="text-[9px] text-[#1A1A2E]/25 ml-auto">{bannerItems.length}件</span>
               </div>
-              <div className="relative flex justify-center" style={{ minHeight: 240 }}>
+              <div className="relative flex-1 flex flex-col items-center justify-center" style={{ minHeight: 240 }}>
                 {bannerItems.length > 1 && (
                   <>
-                    <button onClick={() => setGalleryIdx((p) => ({ ...p, "バナー": ((p["バナー"] || 0) - 1 + bannerItems.length) % bannerItems.length }))}
+                    <button onClick={() => setField("galleryIdx",(p) => ({ ...p, "バナー": ((p["バナー"] || 0) - 1 + bannerItems.length) % bannerItems.length }))}
                       className="absolute left-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#1A1A2E]/30 hover:text-amber-600 transition-colors">
                       <ChevronLeft className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => setGalleryIdx((p) => ({ ...p, "バナー": ((p["バナー"] || 0) + 1) % bannerItems.length }))}
+                    <button onClick={() => setField("galleryIdx",(p) => ({ ...p, "バナー": ((p["バナー"] || 0) + 1) % bannerItems.length }))}
                       className="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#1A1A2E]/30 hover:text-amber-600 transition-colors">
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </>
                 )}
-                <div className="w-[85%] aspect-square rounded-xl overflow-hidden border border-amber-100 bg-white shadow-inner">
+                <div className="w-[85%] aspect-square rounded-xl overflow-hidden border border-amber-100 bg-white shadow-inner mx-auto">
                   <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-amber-50/50 to-white">
                     <Package className="w-10 h-10 text-amber-200 mb-2" />
                     <span className="text-[11px] text-amber-300 font-medium">{bannerItems[galleryIdx["バナー"] || 0]?.label || "バナー"}</span>
                   </div>
                 </div>
-                <div className="absolute bottom-0 flex items-center justify-center gap-1.5">
+                <div className="flex items-center justify-center gap-1.5 mt-2">
                   {bannerItems.map((_, di) => (
-                    <button key={di} onClick={() => setGalleryIdx((p) => ({ ...p, "バナー": di }))}
+                    <button key={di} onClick={() => setField("galleryIdx",(p) => ({ ...p, "バナー": di }))}
                       className={`w-1.5 h-1.5 rounded-full transition-all ${di === (galleryIdx["バナー"] || 0) ? "bg-amber-500 w-3" : "bg-amber-200"}`} />
                   ))}
                 </div>
@@ -711,7 +874,7 @@ export default function ResearchPage({
             </div>
 
             {/* 動画 section (縦型スマホ画面) */}
-            <div className="bg-gradient-to-b from-purple-50 to-white p-4">
+            <div className="bg-gradient-to-b from-purple-50 to-white p-4 flex flex-col">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-6 h-6 rounded-lg bg-purple-100 flex items-center justify-center">
                   <Play className="w-3.5 h-3.5 text-purple-600" />
@@ -719,14 +882,14 @@ export default function ResearchPage({
                 <span className="text-[12px] font-bold text-[#1A1A2E]/70">動画</span>
                 <span className="text-[9px] text-[#1A1A2E]/25 ml-auto">{videoItems.length}件</span>
               </div>
-              <div className="relative flex justify-center" style={{ minHeight: 240 }}>
+              <div className="relative flex-1 flex flex-col items-center justify-center" style={{ minHeight: 240 }}>
                 {videoItems.length > 1 && (
                   <>
-                    <button onClick={() => setGalleryIdx((p) => ({ ...p, "動画": ((p["動画"] || 0) - 1 + videoItems.length) % videoItems.length }))}
+                    <button onClick={() => setField("galleryIdx",(p) => ({ ...p, "動画": ((p["動画"] || 0) - 1 + videoItems.length) % videoItems.length }))}
                       className="absolute left-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#1A1A2E]/30 hover:text-purple-600 transition-colors">
                       <ChevronLeft className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => setGalleryIdx((p) => ({ ...p, "動画": ((p["動画"] || 0) + 1) % videoItems.length }))}
+                    <button onClick={() => setField("galleryIdx",(p) => ({ ...p, "動画": ((p["動画"] || 0) + 1) % videoItems.length }))}
                       className="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#1A1A2E]/30 hover:text-purple-600 transition-colors">
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
@@ -741,9 +904,9 @@ export default function ResearchPage({
                   </div>
                   <div className="w-[20px] h-[3px] bg-white/20 rounded-full mx-auto mb-[4px] shrink-0" />
                 </div>
-                <div className="absolute bottom-0 flex items-center justify-center gap-1.5">
+                <div className="flex items-center justify-center gap-1.5 mt-2">
                   {videoItems.map((_, di) => (
-                    <button key={di} onClick={() => setGalleryIdx((p) => ({ ...p, "動画": di }))}
+                    <button key={di} onClick={() => setField("galleryIdx",(p) => ({ ...p, "動画": di }))}
                       className={`w-1.5 h-1.5 rounded-full transition-all ${di === (galleryIdx["動画"] || 0) ? "bg-purple-500 w-3" : "bg-purple-200"}`} />
                   ))}
                 </div>
@@ -758,8 +921,8 @@ export default function ResearchPage({
   // ─── Sub-tab 2: 商品概要 (5 panels) ─────────────────
   function renderOverviewTab() {
     const panelName = OVERVIEW_PANELS[overviewPanel];
-    const prevPanel = () => setOverviewPanel((p) => (p - 1 + OVERVIEW_PANELS.length) % OVERVIEW_PANELS.length);
-    const nextPanel = () => setOverviewPanel((p) => (p + 1) % OVERVIEW_PANELS.length);
+    const prevPanel = () => setField("overviewPanel",(p) => (p - 1 + OVERVIEW_PANELS.length) % OVERVIEW_PANELS.length);
+    const nextPanel = () => setField("overviewPanel",(p) => (p + 1) % OVERVIEW_PANELS.length);
     const prevName = OVERVIEW_PANELS[(overviewPanel - 1 + OVERVIEW_PANELS.length) % OVERVIEW_PANELS.length];
     const nextName = OVERVIEW_PANELS[(overviewPanel + 1) % OVERVIEW_PANELS.length];
 
@@ -782,7 +945,7 @@ export default function ResearchPage({
           </button>
           <div className="flex items-center gap-3">
             {OVERVIEW_PANELS.map((name, i) => (
-              <button key={name} onClick={() => setOverviewPanel(i)}
+              <button key={name} onClick={() => setField("overviewPanel",i)}
                 className={`text-[11px] font-semibold px-3 py-1.5 rounded-full transition-all ${
                   i === overviewPanel ? "bg-[#9333EA] text-white shadow-md" : "text-[#1A1A2E]/30 hover:text-[#1A1A2E]/50 hover:bg-black/[0.03]"
                 }`}>
@@ -796,99 +959,254 @@ export default function ResearchPage({
           </button>
         </div>
 
-        {/* Full-screen panel */}
-        <div className={`rounded-2xl bg-gradient-to-b ${panelColors[overviewPanel]} border p-6 min-h-[400px]`}>
+        {/* Full-screen panel — 機能タブ時は高さ固定（追加でバブルだけ縮小） */}
+        <div
+          className={`rounded-2xl bg-gradient-to-b ${panelColors[overviewPanel]} border px-5 py-4 ${
+            overviewPanel === 0
+              ? "h-[540px] flex flex-col overflow-hidden overflow-x-hidden"
+              : "min-h-[420px]"
+          }`}
+        >
 
-        {/* ── 機能パネル ── */}
+        {/* ── 機能パネル（md+: 左バブル / 右詳細） ── */}
         {overviewPanel === 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-[16px] font-bold text-[#1A1A2E]/80">⚡ 機能</h3>
-              <button onClick={() => {
-                const newBubble = { id: Date.now(), name: "", description: "", customerValue: "", effects: [], researchData: [] };
-                setFunctionBubbles((p) => [...p, newBubble]);
-              }} className="flex items-center gap-1 text-[11px] text-[#9333EA] font-semibold hover:underline">
-                <Plus className="w-3 h-3" /> 追加
+          <div className="flex min-h-0 flex-1 flex-col gap-3">
+            <div className="flex shrink-0 items-center justify-between gap-2">
+              <div className="min-w-0">
+                <h3 className="text-[14px] font-bold text-[#1A1A2E]/80">⚡ 機能</h3>
+                <p className="mt-0.5 text-[10px] text-[#1A1A2E]/40">上段最大5・下段最大4（合計9まで）</p>
+              </div>
+              <button
+                type="button"
+                disabled={functionBubbles.length >= FUNCTION_BUBBLE_TOTAL_MAX}
+                onClick={() => {
+                  if (functionBubbles.length >= FUNCTION_BUBBLE_TOTAL_MAX) return;
+                  const newBubble = { id: Date.now(), name: "", description: "", customerValue: "", effects: [], researchData: [] };
+                  setField("functionBubbles",(p) => [...p, newBubble]);
+                }}
+                className={`flex shrink-0 items-center gap-1 text-[11px] font-semibold ${
+                  functionBubbles.length >= FUNCTION_BUBBLE_TOTAL_MAX
+                    ? "cursor-not-allowed text-[#1A1A2E]/25"
+                    : "text-[#9333EA] hover:underline"
+                }`}
+              >
+                <Plus className="h-3 w-3" /> 追加
               </button>
             </div>
-            <div className="flex flex-wrap gap-4 justify-center">
-              {functionBubbles.map((bubble, bi) => (
-                <div key={bubble.id}
-                  onClick={() => setExpandedBubble(expandedBubble === bi ? null : bi)}
-                  className={`w-[140px] h-[140px] rounded-full flex flex-col items-center justify-center text-center cursor-pointer transition-all hover:scale-105 ${
-                    expandedBubble === bi
-                      ? "bg-[#9333EA] text-white shadow-xl scale-110"
-                      : "bg-white border-2 border-[#9333EA]/20 hover:border-[#9333EA]/40 shadow-sm"
-                  }`}>
-                  <span className={`text-[13px] font-bold ${expandedBubble === bi ? "text-white" : "text-[#1A1A2E]/80"}`}>
-                    {bubble.name || "機能名"}
-                  </span>
-                  <span className={`text-[9px] mt-1 px-2 leading-snug ${expandedBubble === bi ? "text-white/70" : "text-[#1A1A2E]/40"}`}>
-                    {bubble.description || "説明"}
-                  </span>
-                  <span className={`text-[8px] mt-0.5 px-2 ${expandedBubble === bi ? "text-white/50" : "text-[#9333EA]/50"}`}>
-                    {bubble.customerValue || "顧客価値"}
-                  </span>
-                </div>
-              ))}
-            </div>
 
-            {/* Expanded bubble detail */}
-            {expandedBubble !== null && functionBubbles[expandedBubble] && (() => {
-              const b = functionBubbles[expandedBubble];
-              const bi = expandedBubble;
-              return (
-                <div className="mt-6 bg-white rounded-xl border border-[#9333EA]/10 p-5 shadow-sm">
-                  <div className="grid grid-cols-3 gap-4 mb-4">
-                    <div>
-                      <label className="text-[9px] font-bold text-[#1A1A2E]/30 uppercase">機能名</label>
-                      <input className="w-full text-[13px] font-bold text-[#1A1A2E]/80 bg-transparent border-b border-black/[0.08] focus:border-[#9333EA]/40 outline-none mt-0.5"
-                        value={b.name} onChange={(e) => { const n = [...functionBubbles]; n[bi] = { ...n[bi], name: e.target.value }; setFunctionBubbles(n); }} />
+            <div className="flex min-h-0 flex-1 flex-col gap-4 md:flex-row md:items-stretch md:gap-5 md:overflow-hidden">
+              {/* 左: バブルボード（md 以上は w-full を外し flex で幅を奪う） */}
+              <div className="flex min-h-[240px] min-w-0 flex-1 flex-col md:min-h-0">
+                <div
+                  ref={bubbleContainerRef}
+                  className="relative flex h-[280px] w-full min-w-0 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[#9333EA]/20 bg-white/50 p-3 shadow-inner sm:p-4 md:h-full md:min-h-[200px] md:shrink md:flex-1"
+                >
+              {(() => {
+                const gap = FUNCTION_BUBBLE_GAP_PX;
+                const { top: topRow, bottom: bottomRow } = splitFunctionBubblesTwoRows(functionBubbles);
+                const nTop = topRow.length;
+                const nBottom = bottomRow.length;
+                if (nTop + nBottom === 0) {
+                  return (
+                    <p className="text-[12px] text-[#1A1A2E]/35 text-center px-4">
+                      「追加」から機能バブルを登録できます（上段5・下段4・最大9）
+                    </p>
+                  );
+                }
+                const measureW = bubbleBoardSize.width > 48 ? bubbleBoardSize.width : 520;
+                const measureH = bubbleBoardSize.height > 48 ? bubbleBoardSize.height : 336;
+                const { bubbleSize } = computeFunctionBubbleStaggeredLayout(nTop, nBottom, measureW, measureH, gap);
+                const fontSize = Math.max(8, Math.min(16, Math.round(bubbleSize * 0.11)));
+                const subFontSize = Math.max(7, fontSize - 3);
+                const valueFontSize = Math.max(6, subFontSize - 1);
+                const rowGap = FUNCTION_BUBBLE_ROW_GAP_PX;
+                const topRowWidth = nTop > 0 ? nTop * bubbleSize + (nTop - 1) * gap : 0;
+
+                const renderBubbleCell = (bubble: FunctionBubble) => {
+                  const bi = functionBubbles.findIndex((b) => b.id === bubble.id);
+                  return (
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setField("expandedBubble",expandedBubble === bi ? null : bi);
+                        }
+                      }}
+                      onClick={() => setField("expandedBubble",expandedBubble === bi ? null : bi)}
+                      className={`shrink-0 rounded-full flex flex-col items-center justify-center text-center cursor-pointer overflow-hidden transition-[background-color,border-color,color,box-shadow] duration-150 ${
+                        expandedBubble === bi
+                          ? "bg-[#9333EA] text-white shadow-xl z-10 ring-2 ring-white/40"
+                          : "bg-white border-2 border-[#9333EA]/20 hover:border-[#9333EA]/45 shadow-sm hover:shadow-md"
+                      }`}
+                      style={{ width: bubbleSize, height: bubbleSize, padding: Math.max(4, bubbleSize * 0.06) }}
+                    >
+                      <span
+                        className={`font-bold leading-tight line-clamp-2 w-full ${expandedBubble === bi ? "text-white" : "text-[#1A1A2E]/80"}`}
+                        style={{ fontSize }}
+                      >
+                        {bubble.name || "機能名"}
+                      </span>
+                      <span
+                        className={`mt-0.5 leading-snug line-clamp-2 w-full ${expandedBubble === bi ? "text-white/75" : "text-[#1A1A2E]/45"}`}
+                        style={{ fontSize: subFontSize }}
+                      >
+                        {bubble.description || "説明"}
+                      </span>
+                      {bubbleSize >= 96 && (
+                        <span
+                          className={`mt-0.5 line-clamp-2 w-full ${expandedBubble === bi ? "text-white/55" : "text-[#9333EA]/55"}`}
+                          style={{ fontSize: valueFontSize }}
+                        >
+                          {bubble.customerValue || "顧客価値"}
+                        </span>
+                      )}
                     </div>
-                    <div>
-                      <label className="text-[9px] font-bold text-[#1A1A2E]/30 uppercase">一言説明</label>
-                      <input className="w-full text-[12px] text-[#1A1A2E]/60 bg-transparent border-b border-black/[0.08] focus:border-[#9333EA]/40 outline-none mt-0.5"
-                        value={b.description} onChange={(e) => { const n = [...functionBubbles]; n[bi] = { ...n[bi], description: e.target.value }; setFunctionBubbles(n); }} />
-                    </div>
-                    <div>
-                      <label className="text-[9px] font-bold text-[#1A1A2E]/30 uppercase">顧客価値</label>
-                      <input className="w-full text-[12px] text-[#9333EA]/70 bg-transparent border-b border-black/[0.08] focus:border-[#9333EA]/40 outline-none mt-0.5"
-                        value={b.customerValue} onChange={(e) => { const n = [...functionBubbles]; n[bi] = { ...n[bi], customerValue: e.target.value }; setFunctionBubbles(n); }} />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="text-[10px] font-bold text-[#1A1A2E]/40 mb-2">効果・効能</h4>
-                      {b.effects.map((ef, ei) => (
-                        <div key={ei} className="flex items-center gap-2 mb-1.5">
-                          <span className="text-[14px]">{ef.emoji}</span>
-                          <input className="flex-1 text-[11px] text-[#1A1A2E]/60 bg-transparent border-b border-black/[0.06] focus:border-[#9333EA]/40 outline-none"
-                            value={ef.text} onChange={(e) => { const n = [...functionBubbles]; const efs = [...n[bi].effects]; efs[ei] = { ...efs[ei], text: e.target.value }; n[bi] = { ...n[bi], effects: efs }; setFunctionBubbles(n); }} />
+                  );
+                };
+
+                const useGapHoneycomb = nTop >= 2 && nBottom > 0;
+
+                return (
+                  <div className="flex flex-col items-center justify-center mx-auto w-full">
+                    {useGapHoneycomb ? (
+                      <div className="relative shrink-0" style={{ width: topRowWidth }}>
+                        <div className="flex justify-center" style={{ gap }}>
+                          {topRow.map((bubble) => (
+                            <div key={bubble.id}>{renderBubbleCell(bubble)}</div>
+                          ))}
                         </div>
-                      ))}
-                      <button onClick={() => { const n = [...functionBubbles]; n[bi] = { ...n[bi], effects: [...n[bi].effects, { emoji: "✨", text: "" }] }; setFunctionBubbles(n); }}
-                        className="text-[9px] text-[#9333EA]/50 hover:text-[#9333EA] flex items-center gap-1 mt-1"><Plus className="w-2.5 h-2.5" /> 追加</button>
-                    </div>
-                    <div>
-                      <h4 className="text-[10px] font-bold text-[#1A1A2E]/40 mb-2">研究データ</h4>
-                      {b.researchData.map((rd, ri) => (
-                        <div key={ri} className="flex items-start gap-2 mb-1.5 bg-[#FAF8F5] rounded-lg px-2 py-1.5">
-                          <span className="text-[12px]">{rd.icon}</span>
-                          <div className="flex-1 min-w-0">
-                            <input className="text-[10px] font-semibold text-[#1A1A2E]/70 bg-transparent outline-none w-full"
-                              value={rd.title} onChange={(e) => { const n = [...functionBubbles]; const rds = [...n[bi].researchData]; rds[ri] = { ...rds[ri], title: e.target.value }; n[bi] = { ...n[bi], researchData: rds }; setFunctionBubbles(n); }} />
-                            <button onClick={() => setResearchModal({ bubbleIdx: bi, dataIdx: ri })}
-                              className="text-[8px] text-[#9333EA] hover:underline mt-0.5">詳細を表示</button>
+                        <div
+                          className="relative shrink-0 w-full"
+                          style={{ marginTop: rowGap, height: bubbleSize }}
+                        >
+                          {bottomRow.map((bubble, k) => (
+                            <div
+                              key={bubble.id}
+                              className="absolute top-0"
+                              style={{
+                                // 上段 k と k+1 の間の中心の下（左端座標）
+                                left: k * (bubbleSize + gap) + bubbleSize / 2 + gap / 2,
+                                width: bubbleSize,
+                                height: bubbleSize,
+                              }}
+                            >
+                              {renderBubbleCell(bubble)}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {nTop > 0 && (
+                          <div className="flex justify-center items-center" style={{ gap }}>
+                            {topRow.map((bubble) => (
+                              <div key={bubble.id}>{renderBubbleCell(bubble)}</div>
+                            ))}
+                          </div>
+                        )}
+                        {nBottom > 0 && (
+                          <div
+                            className="flex justify-center items-center"
+                            style={{ gap, marginTop: nTop > 0 ? rowGap : 0 }}
+                          >
+                            {bottomRow.map((bubble) => (
+                              <div key={bubble.id}>{renderBubbleCell(bubble)}</div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                );
+              })()}
+                </div>
+              </div>
+
+              {/* 右: 詳細（md+ は固定幅帯で必ず表示。w-full+flex-row だと幅が潰れるため flex-none） */}
+              <div className="flex w-full min-h-[160px] flex-col border-t border-black/[0.08] pt-4 md:min-h-0 md:w-[min(46vw,440px)] md:max-w-[50%] md:shrink-0 md:grow-0 md:border-l md:border-t-0 md:pl-5 md:pt-0">
+                <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden pr-0.5">
+                  {expandedBubble !== null && functionBubbles[expandedBubble] ? (() => {
+                    const b = functionBubbles[expandedBubble];
+                    const bi = expandedBubble;
+                    return (
+                      <div className="rounded-xl border border-[#9333EA]/10 bg-white p-4 shadow-sm md:border-0 md:bg-transparent md:p-0 md:shadow-none">
+                        <div className="mb-4 flex items-center justify-between gap-2 border-b border-black/[0.06] pb-3 md:pt-0">
+                          <p className="min-w-0 truncate text-[12px] font-bold text-[#1A1A2E]/70">
+                            {b.name || "機能名未設定"}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const idToRemove = b.id;
+                              setField("functionBubbles",(prev) => prev.filter((x) => x.id !== idToRemove));
+                              setField("expandedBubble",null);
+                            }}
+                            className="inline-flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-red-600/90 transition-colors hover:bg-red-50 hover:text-red-700"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                            削除
+                          </button>
+                        </div>
+                        <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                          <div className="sm:col-span-2 xl:col-span-1">
+                            <label className="text-[9px] font-bold uppercase text-[#1A1A2E]/30">機能名</label>
+                            <input className="mt-0.5 w-full border-b border-black/[0.08] bg-transparent text-[13px] font-bold text-[#1A1A2E]/80 outline-none focus:border-[#9333EA]/40"
+                              value={b.name} onChange={(e) => { const n = [...functionBubbles]; n[bi] = { ...n[bi], name: e.target.value }; setField("functionBubbles",n); }} />
+                          </div>
+                          <div className="sm:col-span-2 xl:col-span-1">
+                            <label className="text-[9px] font-bold uppercase text-[#1A1A2E]/30">一言説明</label>
+                            <input className="mt-0.5 w-full border-b border-black/[0.08] bg-transparent text-[12px] text-[#1A1A2E]/60 outline-none focus:border-[#9333EA]/40"
+                              value={b.description} onChange={(e) => { const n = [...functionBubbles]; n[bi] = { ...n[bi], description: e.target.value }; setField("functionBubbles",n); }} />
+                          </div>
+                          <div className="sm:col-span-2 xl:col-span-1">
+                            <label className="text-[9px] font-bold uppercase text-[#1A1A2E]/30">顧客価値</label>
+                            <input className="mt-0.5 w-full border-b border-black/[0.08] bg-transparent text-[12px] text-[#9333EA]/70 outline-none focus:border-[#9333EA]/40"
+                              value={b.customerValue} onChange={(e) => { const n = [...functionBubbles]; n[bi] = { ...n[bi], customerValue: e.target.value }; setField("functionBubbles",n); }} />
                           </div>
                         </div>
-                      ))}
-                      <button onClick={() => { const n = [...functionBubbles]; n[bi] = { ...n[bi], researchData: [...n[bi].researchData, { icon: "📊", title: "", detail: "", source: "" }] }; setFunctionBubbles(n); }}
-                        className="text-[9px] text-[#9333EA]/50 hover:text-[#9333EA] flex items-center gap-1 mt-1"><Plus className="w-2.5 h-2.5" /> 追加</button>
+                        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                          <div>
+                            <h4 className="mb-2 text-[10px] font-bold text-[#1A1A2E]/40">効果・効能</h4>
+                            {b.effects.map((ef, ei) => (
+                              <div key={ei} className="mb-1.5 flex items-center gap-2">
+                                <span className="text-[14px]">{ef.emoji}</span>
+                                <input className="flex-1 border-b border-black/[0.06] bg-transparent text-[11px] text-[#1A1A2E]/60 outline-none focus:border-[#9333EA]/40"
+                                  value={ef.text} onChange={(e) => { const n = [...functionBubbles]; const efs = [...n[bi].effects]; efs[ei] = { ...efs[ei], text: e.target.value }; n[bi] = { ...n[bi], effects: efs }; setField("functionBubbles",n); }} />
+                              </div>
+                            ))}
+                            <button type="button" onClick={() => { const n = [...functionBubbles]; n[bi] = { ...n[bi], effects: [...n[bi].effects, { emoji: "✨", text: "" }] }; setField("functionBubbles",n); }}
+                              className="mt-1 flex items-center gap-1 text-[9px] text-[#9333EA]/50 hover:text-[#9333EA]"><Plus className="h-2.5 w-2.5" /> 追加</button>
+                          </div>
+                          <div>
+                            <h4 className="mb-2 text-[10px] font-bold text-[#1A1A2E]/40">研究データ</h4>
+                            {b.researchData.map((rd, ri) => (
+                              <div key={ri} className="mb-1.5 flex items-start gap-2 rounded-lg bg-[#FAF8F5] px-2 py-1.5">
+                                <span className="text-[12px]">{rd.icon}</span>
+                                <div className="min-w-0 flex-1">
+                                  <input className="w-full bg-transparent text-[10px] font-semibold text-[#1A1A2E]/70 outline-none"
+                                    value={rd.title} onChange={(e) => { const n = [...functionBubbles]; const rds = [...n[bi].researchData]; rds[ri] = { ...rds[ri], title: e.target.value }; n[bi] = { ...n[bi], researchData: rds }; setField("functionBubbles",n); }} />
+                                  <button type="button" onClick={() => setField("researchModal",{ bubbleId: b.id, dataIdx: ri })}
+                                    className="mt-0.5 text-[8px] text-[#9333EA] hover:underline">詳細を表示</button>
+                                </div>
+                              </div>
+                            ))}
+                            <button type="button" onClick={() => { const n = [...functionBubbles]; n[bi] = { ...n[bi], researchData: [...n[bi].researchData, { icon: "📊", title: "", detail: "", source: "" }] }; setField("functionBubbles",n); }}
+                              className="mt-1 flex items-center gap-1 text-[9px] text-[#9333EA]/50 hover:text-[#9333EA]"><Plus className="h-2.5 w-2.5" /> 追加</button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })() : (
+                    <div className="flex h-full min-h-[140px] flex-col items-center justify-center rounded-xl border border-dashed border-[#9333EA]/20 bg-white/40 px-4 py-8 text-center md:min-h-[200px]">
+                      <p className="text-[12px] font-medium text-[#1A1A2E]/45">機能を選ぶと</p>
+                      <p className="mt-1 text-[11px] text-[#1A1A2E]/35">ここで詳細を確認できます</p>
                     </div>
-                  </div>
+                  )}
                 </div>
-              );
-            })()}
+              </div>
+            </div>
           </div>
         )}
 
@@ -906,7 +1224,7 @@ export default function ResearchPage({
                         <div className="w-14 h-14 rounded-full border-2 border-white shadow-lg" style={{ backgroundColor: dc.color }} />
                       </label>
                       <input id={`color-${dc.key}`} type="color" value={dc.color} className="sr-only"
-                        onChange={(e) => { const n = [...designColors]; n[di] = { ...n[di], color: e.target.value }; setDesignColors(n); }} />
+                        onChange={(e) => { const n = [...designColors]; n[di] = { ...n[di], color: e.target.value }; setField("designColors",n); }} />
                       <span className="text-[9px] font-medium text-[#1A1A2E]/50">{dc.label}</span>
                       <span className="text-[8px] text-[#1A1A2E]/25 font-mono">{dc.color}</span>
                     </div>
@@ -937,11 +1255,11 @@ export default function ResearchPage({
                   <div className="flex items-center gap-1 bg-green-50 border border-green-200 rounded-full px-3 py-1.5 shadow-sm cursor-default hover:shadow-md transition-shadow">
                     <span className="text-[16px]">{kw.emoji}</span>
                     <input className="text-[11px] font-medium text-[#1A1A2E]/70 bg-transparent outline-none w-16"
-                      value={kw.text} onChange={(e) => { const n = [...emotionKeywords]; n[ki] = { ...n[ki], text: e.target.value }; setEmotionKeywords(n); }} />
+                      value={kw.text} onChange={(e) => { const n = [...emotionKeywords]; n[ki] = { ...n[ki], text: e.target.value }; setField("emotionKeywords",n); }} />
                   </div>
                 </div>
               ))}
-              <button onClick={() => setEmotionKeywords((p) => [...p, { id: Date.now(), emoji: "💡", text: "", x: 50, y: 50 }])}
+              <button onClick={() => setField("emotionKeywords",(p) => [...p, { id: Date.now(), emoji: "💡", text: "", x: 50, y: 50 }])}
                 className="absolute bottom-3 right-3 text-[9px] text-[#1A1A2E]/20 hover:text-[#9333EA] flex items-center gap-1"><Plus className="w-3 h-3" /> キーワード追加</button>
             </div>
             <div className="mt-4 space-y-2">
@@ -951,9 +1269,9 @@ export default function ResearchPage({
                   <span className="text-[14px] shrink-0">💬</span>
                   <div className="flex-1 min-w-0">
                     <textarea className="text-[11px] text-[#1A1A2E]/60 bg-transparent outline-none w-full resize-none" rows={1}
-                      value={q.text} onChange={(e) => { const n = [...experienceQuotes]; n[qi] = { ...n[qi], text: e.target.value }; setExperienceQuotes(n); }} />
+                      value={q.text} onChange={(e) => { const n = [...experienceQuotes]; n[qi] = { ...n[qi], text: e.target.value }; setField("experienceQuotes",n); }} />
                     <input className="text-[9px] text-[#1A1A2E]/30 bg-transparent outline-none"
-                      value={q.author} onChange={(e) => { const n = [...experienceQuotes]; n[qi] = { ...n[qi], author: e.target.value }; setExperienceQuotes(n); }} />
+                      value={q.author} onChange={(e) => { const n = [...experienceQuotes]; n[qi] = { ...n[qi], author: e.target.value }; setField("experienceQuotes",n); }} />
                   </div>
                 </div>
               ))}
@@ -973,16 +1291,16 @@ export default function ResearchPage({
                       {ni + 1}
                     </div>
                     <input className="text-[11px] font-bold text-[#9333EA] bg-transparent outline-none text-center mt-2 w-24"
-                      value={node.year} onChange={(e) => { const n = [...storyNodes]; n[ni] = { ...n[ni], year: e.target.value }; setStoryNodes(n); }} />
+                      value={node.year} onChange={(e) => { const n = [...storyNodes]; n[ni] = { ...n[ni], year: e.target.value }; setField("storyNodes",n); }} />
                     <textarea className="text-[10px] text-[#1A1A2E]/60 bg-transparent outline-none text-center resize-none mt-1 w-[140px]" rows={2}
-                      value={node.description} onChange={(e) => { const n = [...storyNodes]; n[ni] = { ...n[ni], description: e.target.value }; setStoryNodes(n); }} />
+                      value={node.description} onChange={(e) => { const n = [...storyNodes]; n[ni] = { ...n[ni], description: e.target.value }; setField("storyNodes",n); }} />
                   </div>
                   {ni < storyNodes.length - 1 && (
                     <div className="w-12 h-0.5 bg-[#9333EA]/30 mt-5 shrink-0" />
                   )}
                 </div>
               ))}
-              <button onClick={() => setStoryNodes((p) => [...p, { id: Date.now(), year: "", description: "" }])}
+              <button onClick={() => setField("storyNodes",(p) => [...p, { id: Date.now(), year: "", description: "" }])}
                 className="shrink-0 w-10 h-10 rounded-full border-2 border-dashed border-[#9333EA]/20 hover:border-[#9333EA]/40 flex items-center justify-center mt-0 ml-2 text-[#9333EA]/30 hover:text-[#9333EA] transition-all">
                 <Plus className="w-4 h-4" />
               </button>
@@ -999,18 +1317,18 @@ export default function ResearchPage({
                 <div key={pi} className={`rounded-xl border-2 p-5 ${pi === 1 ? "border-[#9333EA] bg-[#9333EA]/[0.02] shadow-lg" : "border-black/[0.06] bg-white"}`}>
                   {pi === 1 && <span className="text-[9px] font-bold text-[#9333EA] bg-[#9333EA]/10 px-2 py-0.5 rounded-full mb-2 inline-block">おすすめ</span>}
                   <input className="text-[15px] font-bold text-[#1A1A2E]/80 bg-transparent outline-none w-full mb-1"
-                    value={plan.title} onChange={(e) => { const n = [...offerPlans]; n[pi] = { ...n[pi], title: e.target.value }; setOfferPlans(n); }} />
+                    value={plan.title} onChange={(e) => { const n = [...offerPlans]; n[pi] = { ...n[pi], title: e.target.value }; setField("offerPlans",n); }} />
                   <input className="text-[20px] font-bold text-[#9333EA] bg-transparent outline-none w-full mb-3"
-                    value={plan.price} onChange={(e) => { const n = [...offerPlans]; n[pi] = { ...n[pi], price: e.target.value }; setOfferPlans(n); }} />
+                    value={plan.price} onChange={(e) => { const n = [...offerPlans]; n[pi] = { ...n[pi], price: e.target.value }; setField("offerPlans",n); }} />
                   <div className="space-y-1.5">
                     {plan.items.map((item, ii) => (
                       <div key={ii} className="flex items-center gap-2">
                         <Check className="w-4 h-4 text-emerald-500 shrink-0" />
                         <input className="text-[11px] text-[#1A1A2E]/60 bg-transparent outline-none flex-1"
-                          value={item} onChange={(e) => { const n = [...offerPlans]; const items = [...n[pi].items]; items[ii] = e.target.value; n[pi] = { ...n[pi], items }; setOfferPlans(n); }} />
+                          value={item} onChange={(e) => { const n = [...offerPlans]; const items = [...n[pi].items]; items[ii] = e.target.value; n[pi] = { ...n[pi], items }; setField("offerPlans",n); }} />
                       </div>
                     ))}
-                    <button onClick={() => { const n = [...offerPlans]; n[pi] = { ...n[pi], items: [...n[pi].items, ""] }; setOfferPlans(n); }}
+                    <button onClick={() => { const n = [...offerPlans]; n[pi] = { ...n[pi], items: [...n[pi].items, ""] }; setField("offerPlans",n); }}
                       className="text-[9px] text-[#9333EA]/40 hover:text-[#9333EA] flex items-center gap-1 mt-1"><Plus className="w-2.5 h-2.5" /> 追加</button>
                   </div>
                 </div>
@@ -1039,7 +1357,7 @@ export default function ResearchPage({
           <div className="relative">
             {reviewScrollIdx > 0 && (
               <button
-                onClick={() => setReviewScrollIdx((p) => Math.max(0, p - 1))}
+                onClick={() => setField("reviewScrollIdx",(p) => Math.max(0, p - 1))}
                 className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center text-[#1A1A2E]/60 hover:text-[#9333EA] transition-colors -ml-4"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -1047,7 +1365,7 @@ export default function ResearchPage({
             )}
             {reviewScrollIdx < maxScroll && (
               <button
-                onClick={() => setReviewScrollIdx((p) => Math.min(maxScroll, p + 1))}
+                onClick={() => setField("reviewScrollIdx",(p) => Math.min(maxScroll, p + 1))}
                 className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center text-[#1A1A2E]/60 hover:text-[#9333EA] transition-colors -mr-4"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -1061,21 +1379,21 @@ export default function ResearchPage({
                 {reviewCards.map((card, ri) => (
                   <div key={card.id} className="min-w-[280px] max-w-[280px] bg-white rounded-xl border border-black/[0.06] shadow-sm overflow-hidden relative group">
                     <button
-                      onClick={() => setReviewCards((p) => p.filter((_, i) => i !== ri))}
+                      onClick={() => setField("reviewCards",(p) => p.filter((_, i) => i !== ri))}
                       className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/90 shadow flex items-center justify-center text-[#1A1A2E]/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all z-10"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
                     <div className="p-4 space-y-2">
                       {renderStars(card.rating, (r) => {
-                        const next = [...reviewCards]; next[ri] = { ...next[ri], rating: r }; setReviewCards(next);
+                        const next = [...reviewCards]; next[ri] = { ...next[ri], rating: r }; setField("reviewCards",next);
                       })}
                       <textarea
                         className="w-full text-[12px] text-[#1A1A2E]/80 bg-transparent outline-none resize-none line-clamp-3"
                         rows={3}
                         value={card.text}
                         onChange={(e) => {
-                          const next = [...reviewCards]; next[ri] = { ...next[ri], text: e.target.value }; setReviewCards(next);
+                          const next = [...reviewCards]; next[ri] = { ...next[ri], text: e.target.value }; setField("reviewCards",next);
                         }}
                       />
                       <div className="aspect-video border-2 border-dashed border-black/10 rounded-lg flex items-center justify-center bg-[#FAF8F5]">
@@ -1088,22 +1406,22 @@ export default function ResearchPage({
                             className="bg-transparent outline-none text-[10px] w-16"
                             value={card.source}
                             onChange={(e) => {
-                              const next = [...reviewCards]; next[ri] = { ...next[ri], source: e.target.value }; setReviewCards(next);
+                              const next = [...reviewCards]; next[ri] = { ...next[ri], source: e.target.value }; setField("reviewCards",next);
                             }}
                           />
                         </span>
                       </div>
                       <div className="flex items-center justify-between text-[10px] text-[#1A1A2E]/40">
                         <input className="bg-transparent outline-none text-[10px] w-20" value={card.author}
-                          onChange={(e) => { const next = [...reviewCards]; next[ri] = { ...next[ri], author: e.target.value }; setReviewCards(next); }} placeholder="投稿者名" />
+                          onChange={(e) => { const next = [...reviewCards]; next[ri] = { ...next[ri], author: e.target.value }; setField("reviewCards",next); }} placeholder="投稿者名" />
                         <input className="bg-transparent outline-none text-[10px] w-24 text-right" value={card.date}
-                          onChange={(e) => { const next = [...reviewCards]; next[ri] = { ...next[ri], date: e.target.value }; setReviewCards(next); }} placeholder="日付" />
+                          onChange={(e) => { const next = [...reviewCards]; next[ri] = { ...next[ri], date: e.target.value }; setField("reviewCards",next); }} placeholder="日付" />
                       </div>
                     </div>
                   </div>
                 ))}
                 <button
-                  onClick={() => setReviewCards((p) => [...p, { id: Date.now(), rating: 5, text: "", source: "", author: "", date: "" }])}
+                  onClick={() => setField("reviewCards",(p) => [...p, { id: Date.now(), rating: 5, text: "", source: "", author: "", date: "" }])}
                   className="min-w-[280px] max-w-[280px] bg-white/50 rounded-xl border-2 border-dashed border-black/[0.08] flex flex-col items-center justify-center gap-2 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/5 transition-all group"
                 >
                   <Plus className="w-6 h-6 text-[#1A1A2E]/20 group-hover:text-[#9333EA]/50 transition-colors" />
@@ -1121,7 +1439,7 @@ export default function ResearchPage({
             {awards.map((aw, ai) => (
               <div key={aw.id} className="flex flex-col items-center gap-2 group relative">
                 <button
-                  onClick={() => setAwards((p) => p.filter((_, i) => i !== ai))}
+                  onClick={() => setField("awards",(p) => p.filter((_, i) => i !== ai))}
                   className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-white shadow flex items-center justify-center text-[#1A1A2E]/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all z-10"
                 >
                   <X className="w-3 h-3" />
@@ -1130,15 +1448,15 @@ export default function ResearchPage({
                   <textarea
                     className="w-16 h-12 bg-transparent text-white text-[10px] font-bold text-center outline-none resize-none flex items-center justify-center"
                     value={aw.name}
-                    onChange={(e) => { const next = [...awards]; next[ai] = { ...next[ai], name: e.target.value }; setAwards(next); }}
+                    onChange={(e) => { const next = [...awards]; next[ai] = { ...next[ai], name: e.target.value }; setField("awards",next); }}
                   />
                 </div>
                 <input className="text-[11px] text-[#1A1A2E]/60 font-semibold bg-transparent outline-none text-center w-16" value={aw.year}
-                  onChange={(e) => { const next = [...awards]; next[ai] = { ...next[ai], year: e.target.value }; setAwards(next); }} />
+                  onChange={(e) => { const next = [...awards]; next[ai] = { ...next[ai], year: e.target.value }; setField("awards",next); }} />
               </div>
             ))}
             <button
-              onClick={() => setAwards((p) => [...p, { id: Date.now(), name: "", year: "" }])}
+              onClick={() => setField("awards",(p) => [...p, { id: Date.now(), name: "", year: "" }])}
               className="w-24 h-24 rounded-full border-2 border-dashed border-black/[0.08] flex items-center justify-center hover:border-[#9333EA]/30 hover:bg-[#9333EA]/5 transition-all"
             >
               <Plus className="w-5 h-5 text-[#1A1A2E]/20" />
@@ -1153,7 +1471,7 @@ export default function ResearchPage({
             {media.map((m, mi) => (
               <div key={m.id} className="flex flex-col items-center gap-2 group relative">
                 <button
-                  onClick={() => setMedia((p) => p.filter((_, i) => i !== mi))}
+                  onClick={() => setField("media",(p) => p.filter((_, i) => i !== mi))}
                   className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-white shadow flex items-center justify-center text-[#1A1A2E]/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all z-10"
                 >
                   <X className="w-3 h-3" />
@@ -1162,15 +1480,15 @@ export default function ResearchPage({
                   <textarea
                     className="w-16 h-12 bg-transparent text-white text-[10px] font-bold text-center outline-none resize-none"
                     value={m.name}
-                    onChange={(e) => { const next = [...media]; next[mi] = { ...next[mi], name: e.target.value }; setMedia(next); }}
+                    onChange={(e) => { const next = [...media]; next[mi] = { ...next[mi], name: e.target.value }; setField("media",next); }}
                   />
                 </div>
                 <input className="text-[11px] text-[#1A1A2E]/60 font-semibold bg-transparent outline-none text-center w-20" value={m.date}
-                  onChange={(e) => { const next = [...media]; next[mi] = { ...next[mi], date: e.target.value }; setMedia(next); }} />
+                  onChange={(e) => { const next = [...media]; next[mi] = { ...next[mi], date: e.target.value }; setField("media",next); }} />
               </div>
             ))}
             <button
-              onClick={() => setMedia((p) => [...p, { id: Date.now(), name: "", date: "" }])}
+              onClick={() => setField("media",(p) => [...p, { id: Date.now(), name: "", date: "" }])}
               className="w-24 h-24 rounded-full border-2 border-dashed border-black/[0.08] flex items-center justify-center hover:border-[#9333EA]/30 hover:bg-[#9333EA]/5 transition-all"
             >
               <Plus className="w-5 h-5 text-[#1A1A2E]/20" />
@@ -1202,7 +1520,7 @@ export default function ResearchPage({
                             const nodes = [...next[si].nodes];
                             nodes[ni] = { ...nodes[ni], text: e.target.value };
                             next[si] = { ...next[si], nodes };
-                            setFlowSections(next);
+                            setField("flowSections",next);
                           }}
                         />
                       </div>
@@ -1210,7 +1528,7 @@ export default function ResearchPage({
                         onClick={() => {
                           const next = [...flowSections];
                           next[si] = { ...next[si], nodes: next[si].nodes.filter((_, i) => i !== ni) };
-                          setFlowSections(next);
+                          setField("flowSections",next);
                         }}
                         className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-white shadow flex items-center justify-center text-[#1A1A2E]/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                       >
@@ -1226,7 +1544,7 @@ export default function ResearchPage({
                   onClick={() => {
                     const next = [...flowSections];
                     next[si] = { ...next[si], nodes: [...next[si].nodes, { id: Date.now(), text: "" }] };
-                    setFlowSections(next);
+                    setField("flowSections",next);
                   }}
                   className="shrink-0 w-10 h-10 rounded-xl border-2 border-dashed border-black/[0.08] flex items-center justify-center hover:border-[#9333EA]/30 hover:bg-[#9333EA]/5 transition-all"
                 >
@@ -1247,7 +1565,7 @@ export default function ResearchPage({
       <div className="space-y-6">
         <div className="flex justify-end">
           <button
-            onClick={() => setExperienceLogs((p) => [{ id: Date.now(), date: new Date().toISOString().split("T")[0], tags: [], text: "" }, ...p])}
+            onClick={() => setField("experienceLogs",(p) => [{ id: Date.now(), date: new Date().toISOString().split("T")[0], tags: [], text: "" }, ...p])}
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#9333EA] text-white text-[12px] font-semibold hover:bg-[#7C22CB] transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" /> 新しいログを追加
@@ -1257,7 +1575,7 @@ export default function ResearchPage({
           {experienceLogs.map((log, li) => (
             <div key={log.id} className="bg-white rounded-xl border border-black/[0.06] shadow-sm overflow-hidden relative group">
               <button
-                onClick={() => setExperienceLogs((p) => p.filter((_, i) => i !== li))}
+                onClick={() => setField("experienceLogs",(p) => p.filter((_, i) => i !== li))}
                 className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white/90 shadow flex items-center justify-center text-[#1A1A2E]/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all z-10"
               >
                 <X className="w-3.5 h-3.5" />
@@ -1269,20 +1587,20 @@ export default function ResearchPage({
                     type="date"
                     className="text-[14px] font-bold text-[#1A1A2E] bg-transparent outline-none"
                     value={log.date}
-                    onChange={(e) => { const next = [...experienceLogs]; next[li] = { ...next[li], date: e.target.value }; setExperienceLogs(next); }}
+                    onChange={(e) => { const next = [...experienceLogs]; next[li] = { ...next[li], date: e.target.value }; setField("experienceLogs",next); }}
                   />
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {log.tags.map((tag, ti) => (
                     <span key={ti} className={`inline-flex items-center gap-1 text-[10px] font-semibold rounded-full px-2 py-0.5 ${tagColors[ti % tagColors.length]}`}>
                       <input className="bg-transparent outline-none text-[10px] w-16" value={tag}
-                        onChange={(e) => { const next = [...experienceLogs]; const tags = [...next[li].tags]; tags[ti] = e.target.value; next[li] = { ...next[li], tags }; setExperienceLogs(next); }} />
-                      <button onClick={() => { const next = [...experienceLogs]; next[li] = { ...next[li], tags: next[li].tags.filter((_, i) => i !== ti) }; setExperienceLogs(next); }}>
+                        onChange={(e) => { const next = [...experienceLogs]; const tags = [...next[li].tags]; tags[ti] = e.target.value; next[li] = { ...next[li], tags }; setField("experienceLogs",next); }} />
+                      <button onClick={() => { const next = [...experienceLogs]; next[li] = { ...next[li], tags: next[li].tags.filter((_, i) => i !== ti) }; setField("experienceLogs",next); }}>
                         <X className="w-2.5 h-2.5" />
                       </button>
                     </span>
                   ))}
-                  <button onClick={() => { const next = [...experienceLogs]; next[li] = { ...next[li], tags: [...next[li].tags, ""] }; setExperienceLogs(next); }}
+                  <button onClick={() => { const next = [...experienceLogs]; next[li] = { ...next[li], tags: [...next[li].tags, ""] }; setField("experienceLogs",next); }}
                     className="text-[10px] text-[#9333EA]/60 hover:text-[#9333EA] font-semibold flex items-center gap-0.5">
                     <Plus className="w-3 h-3" /> タグ
                   </button>
@@ -1294,7 +1612,7 @@ export default function ResearchPage({
                   className={inputClass + " text-[12px] resize-none"}
                   rows={4}
                   value={log.text}
-                  onChange={(e) => { const next = [...experienceLogs]; next[li] = { ...next[li], text: e.target.value }; setExperienceLogs(next); }}
+                  onChange={(e) => { const next = [...experienceLogs]; next[li] = { ...next[li], text: e.target.value }; setField("experienceLogs",next); }}
                   placeholder="体験内容を記録..."
                 />
               </div>
@@ -1314,7 +1632,7 @@ export default function ResearchPage({
           {uspCards.map((usp, ui) => (
             <div key={usp.id} className="bg-white rounded-xl border border-black/[0.06] shadow-sm p-5 relative group">
               <button
-                onClick={() => setUSPCards((p) => p.filter((_, i) => i !== ui))}
+                onClick={() => setField("uspCards",(p) => p.filter((_, i) => i !== ui))}
                 className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white shadow flex items-center justify-center text-[#1A1A2E]/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
               >
                 <X className="w-3.5 h-3.5" />
@@ -1322,7 +1640,7 @@ export default function ResearchPage({
               <input
                 className="text-[16px] font-bold text-[#1A1A2E] bg-transparent outline-none w-full mb-3 placeholder-[#1A1A2E]/20"
                 value={usp.title}
-                onChange={(e) => setUSPCards((p) => p.map((c, i) => i === ui ? { ...c, title: e.target.value } : c))}
+                onChange={(e) => setField("uspCards",(p) => p.map((c, i) => i === ui ? { ...c, title: e.target.value } : c))}
                 placeholder="USPタイトル"
               />
               <div className="mb-3">
@@ -1331,13 +1649,13 @@ export default function ResearchPage({
                   {usp.functionTags.map((tag, ti) => (
                     <span key={ti} className="inline-flex items-center gap-1 bg-[#9333EA]/10 text-[#9333EA] text-[10px] font-semibold rounded-full px-2.5 py-1">
                       <input className="bg-transparent outline-none text-[10px] w-20" value={tag}
-                        onChange={(e) => { const next = [...uspCards]; const tags = [...next[ui].functionTags]; tags[ti] = e.target.value; next[ui] = { ...next[ui], functionTags: tags }; setUSPCards(next); }} />
-                      <button onClick={() => { const next = [...uspCards]; next[ui] = { ...next[ui], functionTags: next[ui].functionTags.filter((_, i) => i !== ti) }; setUSPCards(next); }}>
+                        onChange={(e) => { const next = [...uspCards]; const tags = [...next[ui].functionTags]; tags[ti] = e.target.value; next[ui] = { ...next[ui], functionTags: tags }; setField("uspCards",next); }} />
+                      <button onClick={() => { const next = [...uspCards]; next[ui] = { ...next[ui], functionTags: next[ui].functionTags.filter((_, i) => i !== ti) }; setField("uspCards",next); }}>
                         <X className="w-2.5 h-2.5" />
                       </button>
                     </span>
                   ))}
-                  <button onClick={() => { const next = [...uspCards]; next[ui] = { ...next[ui], functionTags: [...next[ui].functionTags, ""] }; setUSPCards(next); }}
+                  <button onClick={() => { const next = [...uspCards]; next[ui] = { ...next[ui], functionTags: [...next[ui].functionTags, ""] }; setField("uspCards",next); }}
                     className="inline-flex items-center gap-0.5 text-[10px] text-[#9333EA]/60 hover:text-[#9333EA] font-semibold">
                     <Plus className="w-3 h-3" /> タグ追加
                   </button>
@@ -1349,14 +1667,14 @@ export default function ResearchPage({
                   className={inputClass + " text-[12px] resize-none"}
                   rows={2}
                   value={usp.benefit}
-                  onChange={(e) => setUSPCards((p) => p.map((c, i) => i === ui ? { ...c, benefit: e.target.value } : c))}
+                  onChange={(e) => setField("uspCards",(p) => p.map((c, i) => i === ui ? { ...c, benefit: e.target.value } : c))}
                   placeholder="提供便益を入力"
                 />
               </div>
             </div>
           ))}
           <button
-            onClick={() => setUSPCards((p) => [...p, { id: Date.now(), title: "", functionTags: [], benefit: "" }])}
+            onClick={() => setField("uspCards",(p) => [...p, { id: Date.now(), title: "", functionTags: [], benefit: "" }])}
             className="bg-white/50 rounded-xl border-2 border-dashed border-black/[0.08] flex flex-col items-center justify-center gap-2 py-12 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/5 transition-all group"
           >
             <Plus className="w-6 h-6 text-[#1A1A2E]/20 group-hover:text-[#9333EA]/50 transition-colors" />
@@ -1376,7 +1694,7 @@ export default function ResearchPage({
           {PRODUCT_SUB_TABS.map((sub) => (
             <button
               key={sub.key}
-              onClick={() => setProductSubTab(sub.key)}
+              onClick={() => setField("productSubTab",sub.key)}
               className={`px-4 py-2 rounded-lg text-[12px] font-semibold transition-all ${
                 productSubTab === sub.key
                   ? "bg-[#9333EA] text-white shadow-sm"
@@ -1418,7 +1736,7 @@ export default function ResearchPage({
                         <input
                           className="bg-transparent border-none outline-none text-[11px] font-bold text-[#9333EA]/70 w-full"
                           value={col}
-                          onChange={(e) => { const next = [...marketCols]; next[ci] = e.target.value; setMarketCols(next); }}
+                          onChange={(e) => { const next = [...marketCols]; next[ci] = e.target.value; setField("marketCols",next); }}
                         />
                       </th>
                     ))}
@@ -1457,7 +1775,7 @@ export default function ResearchPage({
                   <Image className="w-8 h-8 text-[#9333EA]/30" />
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
-                      onClick={() => setRefCreatives((prev) => prev.filter((_, i) => i !== idx))}
+                      onClick={() => setField("refCreatives",(prev) => prev.filter((_, i) => i !== idx))}
                       className="w-6 h-6 rounded-full bg-white/90 shadow flex items-center justify-center text-[#1A1A2E]/40 hover:text-red-500 transition-colors"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -1468,25 +1786,25 @@ export default function ResearchPage({
                   <input
                     className={inputClass + " font-semibold text-[13px]"}
                     value={cr.name}
-                    onChange={(e) => { const next = [...refCreatives]; next[idx] = { ...next[idx], name: e.target.value }; setRefCreatives(next); }}
+                    onChange={(e) => { const next = [...refCreatives]; next[idx] = { ...next[idx], name: e.target.value }; setField("refCreatives",next); }}
                     placeholder="クリエイティブ名"
                   />
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-[#9333EA]/10 text-[#9333EA] text-[10px] font-semibold shrink-0">
                       <Globe className="w-3 h-3" />
                       <input className="bg-transparent outline-none w-16 text-[10px]" value={cr.platform}
-                        onChange={(e) => { const next = [...refCreatives]; next[idx] = { ...next[idx], platform: e.target.value }; setRefCreatives(next); }} />
+                        onChange={(e) => { const next = [...refCreatives]; next[idx] = { ...next[idx], platform: e.target.value }; setField("refCreatives",next); }} />
                     </div>
                     <input className={inputClass + " text-[11px] flex-1"} value={cr.url}
-                      onChange={(e) => { const next = [...refCreatives]; next[idx] = { ...next[idx], url: e.target.value }; setRefCreatives(next); }} placeholder="URL" />
+                      onChange={(e) => { const next = [...refCreatives]; next[idx] = { ...next[idx], url: e.target.value }; setField("refCreatives",next); }} placeholder="URL" />
                   </div>
                   <textarea className={inputClass + " text-[11px] resize-none"} rows={2} value={cr.notes}
-                    onChange={(e) => { const next = [...refCreatives]; next[idx] = { ...next[idx], notes: e.target.value }; setRefCreatives(next); }} placeholder="メモ・特徴" />
+                    onChange={(e) => { const next = [...refCreatives]; next[idx] = { ...next[idx], notes: e.target.value }; setField("refCreatives",next); }} placeholder="メモ・特徴" />
                 </div>
               </div>
             ))}
             <button
-              onClick={() => setRefCreatives((prev) => [...prev, { id: Date.now(), name: "", platform: "", url: "", notes: "" }])}
+              onClick={() => setField("refCreatives",(prev) => [...prev, { id: Date.now(), name: "", platform: "", url: "", notes: "" }])}
               className="bg-white/50 rounded-xl border-2 border-dashed border-black/[0.08] flex flex-col items-center justify-center gap-2 py-12 hover:border-[#9333EA]/30 hover:bg-[#9333EA]/5 transition-all group"
             >
               <Plus className="w-6 h-6 text-[#1A1A2E]/20 group-hover:text-[#9333EA]/50 transition-colors" />
@@ -1506,7 +1824,7 @@ export default function ResearchPage({
           {(["potential", "existing"] as const).map((key) => (
             <button
               key={key}
-              onClick={() => setCustomerSub(key)}
+              onClick={() => setField("customerSub",key)}
               className={`px-4 py-2 rounded-lg text-[12px] font-semibold transition-all ${
                 customerSub === key
                   ? "bg-[#9333EA] text-white shadow-sm"
@@ -1566,7 +1884,7 @@ export default function ResearchPage({
           {TABS.map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => setField("activeTab",tab.key)}
               className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[12px] font-semibold transition-all ${
                 activeTab === tab.key
                   ? "bg-[#9333EA] text-white shadow-sm"

@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useState, useCallback } from "react";
+import { use, useCallback, type SetStateAction } from "react";
+import { usePageUndoDraft } from "@/hooks/use-page-undo-draft";
 import { Plus, Trash2, Download, Camera, ListChecks, Smartphone, ArrowLeft, FolderOpen, MapPin, User, Clock, Shirt } from "lucide-react";
 import { VoiceInputButton } from "@/components/voice-input-button";
 
@@ -91,13 +92,32 @@ const INITIAL_DAYS: ShootDay[] = [
 ];
 
 // ─── Main Page ────────────────────────────────────────
+type ShootingDraft = {
+  activeTab: "materials" | "callsheet";
+  materials: MaterialItem[];
+  days: ShootDay[];
+  statusFilter: "all" | "未撮影" | "撮影済";
+  selectedDayId: number | null;
+};
+
 export default function ShootingPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = use(params);
-  const [activeTab, setActiveTab] = useState<"materials" | "callsheet">("materials");
-  const [materials, setMaterials] = useState<MaterialItem[]>(makeMaterials);
-  const [days, setDays] = useState<ShootDay[]>(INITIAL_DAYS);
-  const [statusFilter, setStatusFilter] = useState<"all" | "未撮影" | "撮影済">("all");
-  const [selectedDayId, setSelectedDayId] = useState<number | null>(null);
+  const [draft, setField] = usePageUndoDraft<ShootingDraft>(
+    () => ({
+      activeTab: "materials",
+      materials: makeMaterials(),
+      days: INITIAL_DAYS,
+      statusFilter: "all",
+      selectedDayId: null,
+    }),
+    { mergeWindowMs: 400 },
+  );
+  const { activeTab, materials, days, statusFilter, selectedDayId } = draft;
+  const setActiveTab = (u: SetStateAction<ShootingDraft["activeTab"]>) => setField("activeTab", u);
+  const setMaterials = (u: SetStateAction<MaterialItem[]>) => setField("materials", u);
+  const setDays = (u: SetStateAction<ShootDay[]>) => setField("days", u);
+  const setStatusFilter = (u: SetStateAction<ShootingDraft["statusFilter"]>) => setField("statusFilter", u);
+  const setSelectedDayId = (u: SetStateAction<number | null>) => setField("selectedDayId", u);
 
   // Material handlers
   const updateMaterial = useCallback((id: number, field: string, value: any) => {

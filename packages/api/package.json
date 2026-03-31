@@ -7,11 +7,18 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
     "test": "vitest run",
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@hono/node-server": "^1.19.7",
     "@ureru-buzz-ai/core": "workspace:*",
-    "@ureru-buzz-ai/orchestrator": "workspace:*"
+    "@ureru-buzz-ai/orchestrator": "workspace:*",
+    "hono": "^4.11.4"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
   }
 }

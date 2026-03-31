@@ -1,12 +1,22 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useUndoableState } from "@/hooks/use-undoable-state";
+import { useBindPageUndo } from "@/components/providers/global-undo-provider";
+
+type LoginDraft = { email: string; password: string };
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [draft, setDraft, { undo, redo }] = useUndoableState<LoginDraft>(
+    () => ({ email: "", password: "" }),
+    { mergeWindowMs: 400 },
+  );
+  useBindPageUndo(undo, redo);
+  const email = draft.email;
+  const password = draft.password;
+  const setEmail = (v: string) => setDraft((s) => ({ ...s, email: v }));
+  const setPassword = (v: string) => setDraft((s) => ({ ...s, password: v }));
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();

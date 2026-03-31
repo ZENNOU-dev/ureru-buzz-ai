@@ -1,2 +1,1 @@
-// API package - Sprint 6で実装
-export {};
+export { app } from "./app.js";
