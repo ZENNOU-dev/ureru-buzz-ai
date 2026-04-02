@@ -1,13 +1,6 @@
-"use client";
-
 import { Plus, Clapperboard, Calendar, ArrowRight } from "lucide-react";
 import Link from "next/link";
-
-const MOCK_PROJECTS = [
-  { id: "proj-001", name: "サプリメントA 動画広告", client: "株式会社サンプルA", status: "制作中", updatedAt: "2026-03-18" },
-  { id: "proj-002", name: "美容液B プロモーション", client: "株式会社サンプルB", status: "レビュー中", updatedAt: "2026-03-15" },
-  { id: "proj-003", name: "フィットネスC キャンペーン", client: "株式会社サンプルC", status: "完了", updatedAt: "2026-03-10" },
-];
+import { fetchProjects } from "@/lib/fetch-projects";
 
 const STATUS_COLORS: Record<string, string> = {
   "制作中": "bg-purple-50 text-[#9333EA]",
@@ -15,20 +8,22 @@ const STATUS_COLORS: Record<string, string> = {
   "完了": "bg-emerald-50 text-emerald-600",
 };
 
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
+  const projects = await fetchProjects();
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-[#1A1A2E]">制作</h1>
-          <p className="text-sm text-[#1A1A2E]/40 mt-0.5">{MOCK_PROJECTS.length} 件の案件</p>
+          <p className="text-sm text-[#1A1A2E]/40 mt-0.5">{projects.length} 件の案件</p>
         </div>
         <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-bold transition-all hover:opacity-90 active:scale-[0.98] gradient-warm">
           <Plus className="w-4 h-4" />新規案件
         </button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {MOCK_PROJECTS.map((p) => (
+        {projects.map((p) => (
           <Link key={p.id} href={`/projects/${p.id}/scripts/script-001`} className="group content-card content-card-hover rounded-xl p-5 transition-all">
             <div className="flex items-start justify-between mb-3">
               <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center"><Clapperboard className="w-5 h-5 text-[#9333EA]" /></div>

@@ -14,9 +14,12 @@
 
 export interface AdOrchClient {
   id: string;
-  name: string;
+  company_name: string;
   notion_page_id?: string;
+  industry?: string;
+  status: "商談" | "進行中" | "停止";
   created_at: string;
+  updated_at: string;
 }
 
 export interface AdOrchProject {
@@ -24,7 +27,11 @@ export interface AdOrchProject {
   client_id: string;
   name: string;
   notion_page_id?: string;
+  genre?: string;
+  industry?: string;
+  status: "進行中" | "停止中";
   created_at: string;
+  updated_at: string;
 }
 
 export interface AdOrchCreative {
