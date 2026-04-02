@@ -30,8 +30,8 @@ export async function GET(req: NextRequest) {
   let data: unknown[];
   try {
     data = await fetchAllRows((from, to) =>
-      adOrchSupabase!.from("ad_daily_conversions")
-        .select("ad_name, creative_name, cv, spend")
+      adOrchSupabase!.from("v_unified_metrics")
+        .select("ad_name, cv, spend")
         .eq("project_id", projectId)
         .gte("date", startDate).lte("date", endDate)
         .range(from, to)

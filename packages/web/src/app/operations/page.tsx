@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Loader2, ArrowUp, ArrowDown, ArrowUpDown, ChevronRight, Play, TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
-import { LineChart, Line, ResponsiveContainer, Tooltip } from "recharts";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, ReferenceLine } from "recharts";
 import { useProject } from "@/components/providers/project-provider";
 import { VideoPreviewModal } from "@/components/video-preview-modal";
 
@@ -85,6 +86,12 @@ function KpiCard({ def, selectedVal, comparisonVal, comparisonLabel, daily, grad
   const sparkData = daily.map((d) => ({ date: d.date, v: d.value ?? 0 }));
   const firstDate = daily[0]?.date ?? "";
   const lastDate = daily[daily.length - 1]?.date ?? "";
+  const avgValue = sparkData.length > 0 ? sparkData.reduce((s, d) => s + d.v, 0) / sparkData.length : 0;
+  const fmtShort = (v: number) => {
+    if (v >= 1000000) return `${(v / 1000000).toFixed(1)}M`;
+    if (v >= 1000) return `${(v / 1000).toFixed(0)}k`;
+    return v % 1 === 0 ? String(v) : v.toFixed(1);
+  };
 
   return (
     <div className="content-card rounded-xl p-3.5 relative overflow-hidden min-w-0">
@@ -108,9 +115,20 @@ function KpiCard({ def, selectedVal, comparisonVal, comparisonLabel, daily, grad
       </div>
       {sparkData.length > 0 && (
         <div className="mt-1.5">
-          <div className="h-10">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={sparkData} margin={{ left: 0, right: 0, top: 2, bottom: 2 }}>
+          <div className="h-12">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+              <LineChart data={sparkData} margin={{ left: 30, right: 4, top: 2, bottom: 2 }}>
+                <YAxis
+                  domain={[0, "auto"]}
+                  ticks={avgValue > 0 ? [0, Math.round(avgValue * 100) / 100] : [0]}
+                  tick={{ fontSize: 8, fill: "#999" }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={28}
+                  tickFormatter={(v: number) => `${def.prefix}${fmtShort(v)}${def.suffix}`}
+                />
+                <ReferenceLine y={0} stroke="#999" strokeWidth={1} />
+                <ReferenceLine y={avgValue} stroke="#9333EA" strokeDasharray="4 3" strokeWidth={1.2} label={{ value: "avg", position: "right", fontSize: 8, fill: "#9333EA", fontWeight: 600 }} />
                 <Tooltip
                   contentStyle={{ borderRadius: 8, border: "1px solid #eee", fontSize: 10, padding: "4px 8px" }}
                   formatter={(value: number) => [`${def.prefix}${value.toLocaleString()}${def.suffix}`, def.label]}
@@ -129,6 +147,158 @@ function KpiCard({ def, selectedVal, comparisonVal, comparisonLabel, daily, grad
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// --- CR Share Section ---
+function CrShareSection({ daily, creatives, crNames, colors }: {
+  daily: Record<string, unknown>[];
+  creatives: { name: string; cost: number; cv: number; cpa: number | null }[];
+  crNames: string[];
+  colors: string[];
+}) {
+  // Group small CRs (<1% share) into "その他"
+  const totalCost = creatives.reduce((s, c) => s + c.cost, 0);
+  const significantCrs = creatives.filter((c) => totalCost > 0 && (c.cost / totalCost) >= 0.01);
+  const otherCrs = creatives.filter((c) => totalCost === 0 || (c.cost / totalCost) < 0.01);
+  const displayCrs = otherCrs.length > 0 ? [...significantCrs, { name: "その他", cost: otherCrs.reduce((s, c) => s + c.cost, 0), cv: otherCrs.reduce((s, c) => s + c.cv, 0), cpa: null }] : significantCrs;
+  const displayNames = displayCrs.map((c) => c.name);
+
+  // Merge "その他" into daily
+  const mergedDaily = useMemo(() => daily.map((day) => {
+    const entry = { ...day };
+    if (otherCrs.length > 0) {
+      let otherShare = 0, otherCost = 0, otherCv = 0;
+      for (const cr of otherCrs) {
+        otherShare += Number(day[cr.name]) || 0;
+        otherCost += Number(day[`${cr.name}__cost`]) || 0;
+        otherCv += Number(day[`${cr.name}__cv`]) || 0;
+      }
+      entry["その他"] = Math.round(otherShare * 10) / 10;
+      entry["その他__cost"] = Math.round(otherCost);
+      entry["その他__cv"] = otherCv;
+    }
+    return entry;
+  }), [daily, otherCrs]);
+
+  // Reverse so largest cost at bottom of stack
+  const stackOrder = [...displayNames].reverse();
+  const colorMap = new Map(displayNames.map((n, i) => [n, n === "その他" ? "#D1D5DB" : colors[i % colors.length]]));
+
+  const [hoveredCr, setHoveredCr] = useState<string | null>(null);
+
+  function ShareTooltip({ active, label }: { active?: boolean; label?: string }) {
+    if (!active || !hoveredCr || !label) return null;
+    const dayData = daily.find((d) => d.date === label);
+    if (!dayData) return null;
+    const totalCost = dayData._totalCost as number ?? 0;
+    const share = Number(dayData[hoveredCr]) || 0;
+    const dayCost = Number(dayData[`${hoveredCr}__cost`]) || 0;
+    const dayCv = Number(dayData[`${hoveredCr}__cv`]) || 0;
+    const dayCpa = dayCv > 0 ? Math.round(dayCost / dayCv) : null;
+    return (
+      <div className="bg-white rounded-lg shadow-lg border border-black/[0.08] p-3 min-w-[200px]">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: colorMap.get(hoveredCr) }} />
+          <p className="text-[11px] font-semibold text-[#1A1A2E] truncate">{hoveredCr}</p>
+        </div>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px]">
+          <span className="text-[#1A1A2E]/40">シェア</span><span className="text-right font-medium text-[#1A1A2E]">{share}%</span>
+          <span className="text-[#1A1A2E]/40">COST</span><span className="text-right font-medium text-[#1A1A2E]">¥{dayCost.toLocaleString()}</span>
+          <span className="text-[#1A1A2E]/40">CV</span><span className="text-right font-medium text-[#1A1A2E]">{dayCv}</span>
+          <span className="text-[#1A1A2E]/40">CPA</span><span className="text-right font-medium text-[#1A1A2E]">{dayCpa ? `¥${dayCpa.toLocaleString()}` : "-"}</span>
+        </div>
+        <p className="text-[10px] text-[#1A1A2E]/25 mt-2">{label} 合計 ¥{totalCost.toLocaleString()}</p>
+      </div>
+    );
+  }
+
+  // Aggregate COST/CPA trend (全広告合計)
+  const trendData = useMemo(() =>
+    daily.map((day) => {
+      let totalCost = 0, totalCv = 0;
+      for (const cr of crNames) {
+        totalCost += Number(day[`${cr}__cost`]) || 0;
+        totalCv += Number(day[`${cr}__cv`]) || 0;
+      }
+      return {
+        date: day.date as string,
+        cost: Math.round(totalCost),
+        cpa: totalCv > 0 ? Math.round(totalCost / totalCv) : 0,
+        cv: totalCv,
+      };
+    }), [daily, crNames]);
+
+  return (
+    <div className="content-card rounded-xl p-5">
+      {/* Cost share bar chart — no XAxis (shared with chart below) */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold text-[#1A1A2E]">CR別コストシェア推移</h3>
+          <span className="text-[10px] text-[#1A1A2E]/30">{creatives.length} CR</span>
+        </div>
+        <div className="flex gap-4">
+          <div className="flex-1 h-40">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+              <BarChart data={mergedDaily} margin={{ left: 0, right: 45 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                <XAxis dataKey="date" tick={false} axisLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: "#999" }} ticks={[0, 50, 100]} tickFormatter={(v: number) => `${v}%`} width={45} domain={[0, 100]} />
+                <Tooltip content={<ShareTooltip />} />
+                {stackOrder.map((name) => (
+                  <Bar key={name} dataKey={name} stackId="1"
+                    fill={colorMap.get(name)} fillOpacity={hoveredCr && hoveredCr !== name ? 0.15 : 0.85}
+                    onMouseEnter={() => setHoveredCr(name)} onMouseLeave={() => setHoveredCr(null)} />
+                ))}
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="w-[240px] shrink-0 space-y-0.5 max-h-40 overflow-y-auto">
+            {displayCrs.map((cr, i) => {
+              const share = totalCost > 0 ? Math.round((cr.cost / totalCost) * 1000) / 10 : 0;
+              return (
+                <div key={cr.name} className={`flex items-center gap-2 px-2 py-1 rounded transition-opacity ${hoveredCr && hoveredCr !== cr.name ? "opacity-30" : ""}`}
+                  onMouseEnter={() => setHoveredCr(cr.name)} onMouseLeave={() => setHoveredCr(null)}>
+                  <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: colorMap.get(cr.name) }} />
+                  <span className="text-[11px] text-[#1A1A2E]/70 flex-1 leading-tight" title={cr.name}>{cr.name}</span>
+                  <span className="text-[10px] font-medium text-[#1A1A2E]/40 shrink-0">{share}%</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* COST + CPA trend — shares XAxis with chart above */}
+      <div className="flex gap-4 mt-1">
+        <div className="flex-1">
+          <div className="h-32">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+              <BarChart data={trendData} margin={{ left: 0, right: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#999" }} interval={trendData.length > 14 ? 1 : 0} />
+                <YAxis yAxisId="cost" tick={{ fontSize: 10, fill: "#6366F1" }} tickFormatter={(v: number) => `¥${(v / 1000).toFixed(0)}k`} width={45} />
+                <YAxis yAxisId="cpa" orientation="right" tick={{ fontSize: 10, fill: "#EF4444" }} tickFormatter={(v: number) => `¥${(v / 1000).toFixed(0)}k`} width={45} domain={[0, "auto"]} />
+                <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid #eee", fontSize: 11 }}
+                  formatter={(v: number | null, name: string) => [v ? `¥${v.toLocaleString()}` : "-", name === "cost" ? "COST" : "CPA"]} />
+                <Bar yAxisId="cost" dataKey="cost" fill="#6366F1" fillOpacity={0.75} radius={[3, 3, 0, 0]} />
+                <Line yAxisId="cpa" type="monotone" dataKey="cpa" stroke="#EF4444" strokeWidth={2}
+                  dot={(props: Record<string, unknown>) => {
+                    const { cx, cy, payload } = props as { cx: number; cy: number; payload: { cpa: number } };
+                    const isZero = payload?.cpa === 0;
+                    return <circle cx={cx} cy={cy} r={3} fill={isZero ? "#D1D5DB" : "#EF4444"} stroke="none" />;
+                  }} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex items-center gap-4 mt-1 justify-end">
+            <span className="flex items-center gap-1 text-[10px] text-[#1A1A2E]/40"><span className="w-3 h-2 rounded-sm bg-[#6366F1]/60" />COST</span>
+            <span className="flex items-center gap-1 text-[10px] text-[#1A1A2E]/40"><span className="w-3 h-0.5 bg-[#EF4444]" />CPA</span>
+          </div>
+        </div>
+        <div className="w-[240px] shrink-0" />
+      </div>
     </div>
   );
 }
@@ -153,13 +323,35 @@ const LEVEL_LABELS: Record<Level, string> = {
 
 export default function OperationsPage() {
   const { currentProject } = useProject();
-  const [platform, setPlatform] = useState<Platform>("meta");
-  const [level, setLevel] = useState<Level>("campaign");
-  const [selectedCampaign, setSelectedCampaign] = useState<{ id: string; name: string } | null>(null);
-  const [selectedAdset, setSelectedAdset] = useState<{ id: string; name: string } | null>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const [platform, setPlatform] = useState<Platform>(() => (searchParams.get("platform") as Platform) || "meta");
+  const [level, setLevel] = useState<Level>(() => (searchParams.get("level") as Level) || "campaign");
+  const [selectedCampaign, setSelectedCampaign] = useState<{ id: string; name: string } | null>(() => {
+    const id = searchParams.get("cpnId");
+    const name = searchParams.get("cpnName");
+    return id && name ? { id, name: decodeURIComponent(name) } : null;
+  });
+  const [selectedAdset, setSelectedAdset] = useState<{ id: string; name: string } | null>(() => {
+    const id = searchParams.get("asId");
+    const name = searchParams.get("asName");
+    return id && name ? { id, name: decodeURIComponent(name) } : null;
+  });
+
+  // Sync state to URL
+  const syncUrl = useCallback((lvl: Level, cpn: { id: string; name: string } | null, as_: { id: string; name: string } | null, plat: Platform) => {
+    const params = new URLSearchParams();
+    params.set("platform", plat);
+    params.set("level", lvl);
+    if (cpn) { params.set("cpnId", cpn.id); params.set("cpnName", cpn.name); }
+    if (as_) { params.set("asId", as_.id); params.set("asName", as_.name); }
+    router.replace(`/operations?${params.toString()}`, { scroll: false });
+  }, [router]);
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortKey, setSortKey] = useState<string | null>(null);
+  const [crShareData, setCrShareData] = useState<{ daily: Record<string, unknown>[]; creatives: string[] } | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [kpi, setKpi] = useState<KpiData | null>(null);
@@ -200,13 +392,26 @@ export default function OperationsPage() {
     if (showLoading) setLoading(true);
 
     // KPI (scoped to selected campaign/adset)
-    let kpiUrl = `/api/operations/kpi?projectId=${currentProject.id}&from=${dateFrom}&to=${dateTo}`;
+    let kpiUrl = `/api/operations/kpi?projectId=${currentProject.id}&from=${dateFrom}&to=${dateTo}&platform=${platform}`;
     if (selectedCampaign) kpiUrl += `&campaignId=${selectedCampaign.id}`;
     if (selectedAdset) kpiUrl += `&adsetId=${selectedAdset.id}`;
     fetch(kpiUrl)
       .then((r) => r.json())
       .then((data) => setKpi(data.error ? null : data))
       .catch(() => setKpi(null));
+
+    // CR impression share (when at ad level)
+    if (level === "ad" && selectedAdset) {
+      let shareUrl = `/api/operations/cr-share?projectId=${currentProject.id}&adsetId=${selectedAdset.id}&platform=${platform}`;
+      if (dateFrom) shareUrl += `&from=${dateFrom}`;
+      if (dateTo) shareUrl += `&to=${dateTo}`;
+      fetch(shareUrl)
+        .then((r) => r.json())
+        .then((data) => setCrShareData(data.error ? null : data))
+        .catch(() => setCrShareData(null));
+    } else {
+      setCrShareData(null);
+    }
 
     // Table
     let url = `/api/operations?projectId=${currentProject.id}&platform=${platform}&level=${level}`;
@@ -301,8 +506,11 @@ export default function OperationsPage() {
   function navigateTo(newLevel: Level, campaign?: { id: string; name: string }, adset?: { id: string; name: string }) {
     setSortKey(null);
     setLevel(newLevel);
+    const newCpn = campaign !== undefined ? campaign : selectedCampaign;
+    const newAs = adset !== undefined ? adset : selectedAdset;
     if (campaign !== undefined) setSelectedCampaign(campaign);
     if (adset !== undefined) setSelectedAdset(adset);
+    syncUrl(newLevel, newCpn, newAs, platform);
   }
 
   function handleRowClick(row: Row) {
@@ -375,7 +583,7 @@ export default function OperationsPage() {
       )}
 
       {/* KPI Cards */}
-      {kpi && (
+      {kpi && level !== "ad" && (
         <>
           {(selectedCampaign || selectedAdset) && (
             <p className="text-[11px] text-[#9333EA] font-medium">
@@ -398,12 +606,28 @@ export default function OperationsPage() {
         </>
       )}
 
+      {/* CR Cost Share Chart (ad level only) */}
+      {crShareData && crShareData.daily.length > 0 && (() => {
+        const SHARE_COLORS = ["#9333EA", "#6366F1", "#22D3EE", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#8B5CF6", "#14B8A6", "#F97316", "#06B6D4", "#84CC16"];
+        const crs = crShareData.creatives as { name: string; cost: number; cv: number; cpa: number | null }[];
+        const crNames = crs.map((c) => c.name);
+
+        return (
+          <CrShareSection
+            daily={crShareData.daily}
+            creatives={crs}
+            crNames={crNames}
+            colors={SHARE_COLORS}
+          />
+        );
+      })()}
+
       {/* Platform tabs */}
       <div className="flex gap-2">
         {(["meta", "tiktok"] as Platform[]).map((p) => (
           <button
             key={p}
-            onClick={() => { setPlatform(p); navigateTo("campaign", null as never, null as never); setSelectedCampaign(null); setSelectedAdset(null); }}
+            onClick={() => { setPlatform(p); setSelectedCampaign(null); setSelectedAdset(null); setLevel("campaign"); syncUrl("campaign", null, null, p); }}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
               platform === p ? "bg-[#9333EA] text-white" : "bg-[#1A1A2E]/[0.04] text-[#1A1A2E]/50 hover:bg-[#1A1A2E]/[0.08]"
             }`}

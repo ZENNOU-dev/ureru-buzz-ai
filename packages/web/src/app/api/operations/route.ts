@@ -52,18 +52,25 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const viewName = platform === "tiktok" ? "v_tiktok_performance" : "v_ad_performance";
+    const isTiktok = platform === "tiktok";
+    const viewName = isTiktok ? "v_tiktok_performance" : "v_ad_performance";
+    // TikTok uses adgroup_id/adgroup_name instead of adset_id/adset_name
+    const adsetCol = isTiktok ? "adgroup_id" : "adset_id";
+    const adsetNameCol = isTiktok ? "adgroup_name" : "adset_name";
+    const selectFields = isTiktok
+      ? "date, campaign_id, campaign_name, adgroup_id, adgroup_name, ad_id, ad_name, spend, impressions, clicks, cv, mcv"
+      : "date, campaign_id, campaign_name, adset_id, adset_name, ad_id, ad_name, creative_name, creative_url, spend, impressions, clicks, cv, mcv";
 
     // Fetch all performance rows for this project
     const rows = await fetchAllRows((rangeFrom, rangeTo) => {
       let q = adOrchSupabase!
         .from(viewName)
-        .select("date, campaign_id, campaign_name, adset_id, adset_name, ad_id, ad_name, creative_name, creative_url, spend, impressions, clicks, cv, mcv")
+        .select(selectFields)
         .eq("project_id", projectId);
       if (fromDate) q = q.gte("date", fromDate);
       if (toDate) q = q.lte("date", toDate);
       if (campaignId) q = q.eq("campaign_id", campaignId);
-      if (adsetId) q = q.eq("adset_id", adsetId);
+      if (adsetId) q = q.eq(adsetCol, adsetId);
       return q.range(rangeFrom, rangeTo);
     });
 
@@ -86,8 +93,8 @@ export async function GET(req: NextRequest) {
       const map = new Map<string, { name: string; campaignName: string; agg: Agg }>();
       for (const row of rows) {
         const r = row as Record<string, unknown>;
-        const id = r.adset_id as string;
-        const entry = map.get(id) ?? { name: r.adset_name as string, campaignName: r.campaign_name as string, agg: emptyAgg() };
+        const id = (r[adsetCol] ?? r.adset_id ?? r.adgroup_id) as string;
+        const entry = map.get(id) ?? { name: (r[adsetNameCol] ?? r.adset_name ?? r.adgroup_name) as string, campaignName: r.campaign_name as string, agg: emptyAgg() };
         addAgg(entry.agg, r);
         map.set(id, entry);
       }
@@ -98,14 +105,16 @@ export async function GET(req: NextRequest) {
     }
 
     if (level === "ad") {
-      // Build CR name → Drive URL fallback from creatives table
+      // Build CR name → Drive URL fallback from creatives table (Meta only)
       const crDriveMap = new Map<string, string>();
-      const { data: creatives } = await adOrchSupabase
-        .from("creatives")
-        .select("creative_name, cr_url")
-        .eq("project_id", projectId);
-      for (const cr of creatives ?? []) {
-        if (cr.cr_url) crDriveMap.set((cr.creative_name as string).normalize("NFC"), cr.cr_url);
+      if (!isTiktok) {
+        const { data: creatives } = await adOrchSupabase
+          .from("creatives")
+          .select("creative_name, cr_url")
+          .eq("project_id", projectId);
+        for (const cr of creatives ?? []) {
+          if (cr.cr_url) crDriveMap.set((cr.creative_name as string).normalize("NFC"), cr.cr_url);
+        }
       }
 
       const map = new Map<string, { name: string; adsetName: string; creativeName: string | null; creativeUrl: string | null; agg: Agg }>();
@@ -113,12 +122,12 @@ export async function GET(req: NextRequest) {
         const r = row as Record<string, unknown>;
         const id = r.ad_id as string;
         if (!map.has(id)) {
-          const crName = resolveCreativeName(r);
+          const crName = isTiktok ? null : resolveCreativeName(r);
           map.set(id, {
             name: r.ad_name as string,
-            adsetName: r.adset_name as string,
+            adsetName: ((r[adsetNameCol] ?? r.adset_name ?? r.adgroup_name) as string) ?? "",
             creativeName: crName,
-            creativeUrl: r.creative_url as string | null,
+            creativeUrl: isTiktok ? null : (r.creative_url as string | null),
             agg: emptyAgg(),
           });
         }
@@ -127,11 +136,10 @@ export async function GET(req: NextRequest) {
 
       const result = Array.from(map.entries()).map(([id, { name, adsetName, creativeName, creativeUrl, agg }]) => {
         const nfcCrName = creativeName?.normalize("NFC") ?? null;
-        // Use creative_url from view, fallback to creatives table by CR name
         const driveUrl = creativeUrl || (nfcCrName ? crDriveMap.get(nfcCrName) : null) || null;
         const fileId = extractDriveFileId(driveUrl);
         return {
-          id, name, adsetName, creativeName: nfcCrName,
+          id, name, adsetName, creativeName: nfcCrName ?? name,
           thumbnailUrl: fileId ? driveThumbnailUrl(fileId) : null,
           previewUrl: fileId ? drivePreviewUrl(fileId) : null,
           ...buildMetrics(agg),

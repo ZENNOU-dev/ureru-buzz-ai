@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
 
   const q = (fields: string, start: string, end: string) =>
     fetchAllRows((from, to) =>
-      adOrchSupabase!.from("ad_daily_conversions").select(fields)
+      adOrchSupabase!.from("v_unified_metrics").select(fields)
         .eq("project_id", projectId).gte("date", start).lte("date", end)
         .range(from, to)
     );

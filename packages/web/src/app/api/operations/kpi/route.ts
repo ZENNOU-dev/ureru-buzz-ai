@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
   const toDate = req.nextUrl.searchParams.get("to");
   const campaignId = req.nextUrl.searchParams.get("campaignId");
   const adsetId = req.nextUrl.searchParams.get("adsetId");
+  const platform = req.nextUrl.searchParams.get("platform") ?? "meta";
   if (!projectId) return NextResponse.json({ error: "projectId required" }, { status: 400 });
   if (!adOrchSupabase) return NextResponse.json({ error: "Supabase not configured" }, { status: 503 });
 
@@ -58,15 +59,19 @@ export async function GET(req: NextRequest) {
       fetchStart = new Date(Date.now() - 13 * 86400000).toISOString().slice(0, 10);
     }
 
+    const isTiktok = platform === "tiktok";
+    const viewName = isTiktok ? "v_tiktok_performance" : "ad_daily_conversions";
+    const adsetCol = isTiktok ? "adgroup_id" : "adset_id";
+
     const rows = await fetchAllRows((rangeFrom, rangeTo) => {
       let q = adOrchSupabase!
-        .from("ad_daily_conversions")
+        .from(viewName)
         .select("date, spend, cv, mcv, impressions, clicks")
         .eq("project_id", projectId)
         .gte("date", fetchStart)
         .lte("date", fetchEnd);
       if (campaignId) q = q.eq("campaign_id", campaignId);
-      if (adsetId) q = q.eq("adset_id", adsetId);
+      if (adsetId) q = q.eq(adsetCol, adsetId);
       return q.range(rangeFrom, rangeTo);
     });
 
