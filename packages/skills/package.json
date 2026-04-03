@@ -8,12 +8,14 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
+    "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
   "dependencies": {
     "@ureru-buzz-ai/core": "workspace:*",
     "@notionhq/client": "^2.2.0",
     "@supabase/supabase-js": "^2.49.0",
-    "@anthropic-ai/sdk": "^0.39.0"
+    "@anthropic-ai/sdk": "^0.39.0",
+    "zod": "^3.25.0"
   }
 }

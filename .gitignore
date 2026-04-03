@@ -17,3 +17,4 @@ __pycache__/
 
 # Cursor (mcp.json にローカルパスが含まれるため)
 .cursor/mcp.json
+

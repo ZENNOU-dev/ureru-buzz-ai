@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@ureru-buzz-ai/core": "workspace:*",
-    "@ureru-buzz-ai/skills": "workspace:*"
+    "@ureru-buzz-ai/skills": "workspace:*",
+    "zod": "^3.25.0"
   }
 }

@@ -6,13 +6,12 @@
   "type": "module",
   "scripts": {
     "build": "turbo build",
+    "typecheck": "turbo typecheck",
     "test": "turbo test",
     "lint": "turbo lint",
     "clean": "turbo clean",
     "dev:api": "pnpm --filter @ureru-buzz-ai/api dev",
     "dev:web": "pnpm --filter @ureru-buzz-ai/web dev",
-    "soundcore-sync": "pnpm --filter @ureru-buzz-ai/soundcore-sync sync",
-    "soundcore-sync:http": "pnpm --filter @ureru-buzz-ai/soundcore-sync run start:http",
     "issues:requirement-gap": "node scripts/create-requirement-gap-issues.mjs"
   },
   "devDependencies": {

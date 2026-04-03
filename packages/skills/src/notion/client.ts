@@ -100,6 +100,16 @@ export class NotionSkill {
     );
   }
 
+  /** Archive (trash) a page — useful for E2E cleanup */
+  async archivePage(pageId: string): Promise<void> {
+    await this.rateLimitedCall(() =>
+      this.client.pages.update({
+        page_id: pageId,
+        archived: true,
+      }),
+    );
+  }
+
   /**
    * Wrap API call with rate limiter + retry
    */
