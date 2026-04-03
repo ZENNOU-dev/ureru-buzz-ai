@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useRef } from "react";
-import { Search, Filter, ChevronLeft, ChevronRight, Loader2, Play, ArrowUp, ArrowDown, ArrowUpDown, X } from "lucide-react";
+import { Search, Filter, ChevronLeft, ChevronRight, Loader2, Play, ArrowUp, ArrowDown, ArrowUpDown, X, LayoutGrid, List, Image } from "lucide-react";
 import { useProject } from "@/components/providers/project-provider";
 import { VideoPreviewModal } from "@/components/video-preview-modal";
 
@@ -21,8 +21,17 @@ interface Creative {
   cvr: number | null;
   firstDeliveryDate: string | null;
   lastDeliveryDate: string | null;
+  deliveryStatus?: "active" | "paused" | "not_delivered" | "not_submitted";
   platform: string;
 }
+
+type ViewMode = "list" | "card";
+const STATUS_BADGE: Record<string, { label: string; bg: string; text: string }> = {
+  active: { label: "配信中", bg: "bg-emerald-500", text: "text-white" },
+  paused: { label: "停止中", bg: "bg-amber-400", text: "text-white" },
+  not_delivered: { label: "未配信", bg: "bg-[#1A1A2E]/10", text: "text-[#1A1A2E]/50" },
+  not_submitted: { label: "未入稿", bg: "bg-[#1A1A2E]/[0.06]", text: "text-[#1A1A2E]/30" },
+};
 
 type SortKey = "name" | "cost" | "cv" | "cpa" | "ctr" | "cpc" | "mcvr" | "mcpa" | "lpcvr" | "cvr" | "date";
 type SortDir = "asc" | "desc";
@@ -261,6 +270,7 @@ export default function CreativesPage() {
   const [firstDateFilter, setFirstDateFilter] = useState<DateFilter>({ from: "", to: "" });
   const [deliveryDateFilter, setDeliveryDateFilter] = useState<DateFilter>({ from: "", to: "" });
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
 
   useEffect(() => {
     setLoading(true);
@@ -560,6 +570,22 @@ export default function CreativesPage() {
                 className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-black/[0.08] text-sm text-[#1A1A2E] placeholder:text-[#1A1A2E]/30 focus:outline-none focus:ring-2 focus:ring-[#9333EA]/20 focus:border-[#9333EA]/40 transition-colors"
               />
             </div>
+            <div className="flex items-center rounded-xl border border-black/[0.08] overflow-hidden">
+              <button
+                onClick={() => setViewMode("list")}
+                className={`px-3 py-2.5 transition-colors ${viewMode === "list" ? "bg-[#9333EA] text-white" : "bg-white text-[#1A1A2E]/40 hover:bg-black/[0.02]"}`}
+                title="リスト表示"
+              >
+                <List className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("card")}
+                className={`px-3 py-2.5 transition-colors ${viewMode === "card" ? "bg-[#9333EA] text-white" : "bg-white text-[#1A1A2E]/40 hover:bg-black/[0.02]"}`}
+                title="カード表示"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+            </div>
             <button
               onClick={() => setShowFilter(!showFilter)}
               className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
@@ -595,7 +621,109 @@ export default function CreativesPage() {
             />
           )}
 
+          {/* Card View */}
+          {viewMode === "card" && (
+            <>
+            <div className="flex items-center gap-1.5 mb-3">
+              {([["cost", "COST"], ["cv", "CV"], ["cpa", "CPA"], ["date", "新しい順"]] as [SortKey, string][]).map(([key, label]) => {
+                const isActive = sortKey === key;
+                const displayLabel = isActive && key !== "date" ? `${label}${sortDir === "desc" ? "降順" : "昇順"}` : label;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      if (sortKey === key) {
+                        if (sortDir === "desc") setSortDir("asc");
+                        else { setSortKey(null); setSortDir("desc"); }
+                      } else { setSortKey(key); setSortDir("desc"); }
+                    }}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors ${
+                      isActive ? "bg-[#9333EA] text-white" : "bg-black/[0.03] text-[#1A1A2E]/40 hover:bg-black/[0.06]"
+                    }`}
+                  >
+                    {displayLabel}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+              {sorted.length === 0 ? (
+                <p className="col-span-full text-center text-sm text-[#1A1A2E]/30 py-12">
+                  {creatives.length > 0 ? "フィルター条件に一致するデータがありません" : "データがありません"}
+                </p>
+              ) : (
+                sorted.map((row) => {
+                  const st = row.deliveryStatus ? STATUS_BADGE[row.deliveryStatus] : null;
+                  return (
+                    <button
+                      key={row.id}
+                      onClick={() => row.previewUrl && setPreviewUrl(row.previewUrl)}
+                      className="relative text-left rounded-xl border border-black/[0.06] p-2 hover:border-black/[0.12] bg-white transition-all group"
+                    >
+                      {st && (
+                        <div className={`absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded text-[8px] font-bold z-10 ${st.bg} ${st.text}`}>
+                          {st.label}
+                        </div>
+                      )}
+                      <div className="aspect-[9/16] w-full rounded overflow-hidden bg-black/[0.04] mb-2 relative">
+                        {row.thumbnailUrl ? (
+                          <>
+                            <img src={row.thumbnailUrl} alt={row.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                            {row.previewUrl && (
+                              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center">
+                                  <Play className="w-4 h-4 text-white fill-white" />
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Image className="w-6 h-6 text-[#1A1A2E]/10" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-[11px] font-medium text-[#1A1A2E] mb-1.5 break-all leading-tight">{row.name}</p>
+                      <div className="grid grid-cols-3 gap-x-1 text-[9px]">
+                        <div>
+                          <span className="text-[#1A1A2E]/30 block">COST</span>
+                          <span className="text-[#1A1A2E]/60 font-medium">{row.cost >= 1000 ? `¥${Math.round(row.cost / 1000)}k` : `¥${row.cost}`}</span>
+                        </div>
+                        <div>
+                          <span className="text-[#1A1A2E]/30 block">CV</span>
+                          <span className="text-[#1A1A2E]/60 font-medium">{row.cv}</span>
+                        </div>
+                        <div>
+                          <span className="text-[#1A1A2E]/30 block">CPA</span>
+                          <span className="text-[#1A1A2E]/60 font-medium">{row.cpa ? `¥${row.cpa.toLocaleString()}` : "-"}</span>
+                        </div>
+                      </div>
+                      {(row.ctr !== null || row.mcvr !== null) && (
+                        <div className="grid grid-cols-3 gap-x-1 text-[9px] mt-0.5">
+                          <div>
+                            <span className="text-[#1A1A2E]/30 block">CTR</span>
+                            <span className="text-[#1A1A2E]/60 font-medium">{fmt(row.ctr, "", "%")}</span>
+                          </div>
+                          <div>
+                            <span className="text-[#1A1A2E]/30 block">MCVR</span>
+                            <span className="text-[#1A1A2E]/60 font-medium">{fmt(row.mcvr, "", "%")}</span>
+                          </div>
+                          <div>
+                            <span className="text-[#1A1A2E]/30 block">LPCVR</span>
+                            <span className="text-[#1A1A2E]/60 font-medium">{fmt(row.lpcvr, "", "%")}</span>
+                          </div>
+                        </div>
+                      )}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+            </>
+          )}
+
           {/* Table */}
+          {viewMode === "list" && (
           <div className="content-card rounded-xl overflow-x-auto">
             <table className="w-full text-sm min-w-[1100px]">
               <thead>
@@ -681,6 +809,7 @@ export default function CreativesPage() {
               </tbody>
             </table>
           </div>
+          )}
         </>
       )}
 

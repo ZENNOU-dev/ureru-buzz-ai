@@ -59,10 +59,10 @@ def read_sheets_data(start_row: int = START_ROW) -> list[list[str]]:
     all_values = worksheet.get(f"A{start_row}:G")
 
     all_rows = []
-    date_pattern = re.compile(r'^20\d{2}/\d{1,2}/\d{1,2}$')
 
     for row in all_values:
-        if len(row) >= 6 and date_pattern.match(row[0]) and row[5].strip():
+        # Row is valid if it has a CR名 (column F = index 5)
+        if len(row) >= 6 and row[5].strip():
             all_rows.append(row)
 
     logger.info(f"Read {len(all_rows)} valid rows from Google Sheets (from row {start_row})")
@@ -159,6 +159,83 @@ def process_rows(
     return list(seen.values())
 
 
+def _fix_project_ids(
+    sb,
+    rows: list[list[str]],
+    project_mapping: dict[str, int],
+    existing_crs: set[str],
+) -> int:
+    """Fix project_id for existing CRs where the sheet has a different (correct) project."""
+    # Build CR name → correct project_id from sheet
+    sheet_cr_project: dict[str, int] = {}
+    for row in rows:
+        if len(row) >= 6:
+            cr_name = row[5].strip()
+            project_name = row[1].strip() if len(row) > 1 else ""
+            mapped = PROJECT_NAME_MAP.get(project_name, project_name)
+            pid = project_mapping.get(mapped)
+            if cr_name and pid and cr_name in existing_crs:
+                sheet_cr_project[cr_name] = pid
+
+    if not sheet_cr_project:
+        return 0
+
+    # Batch check current project_ids
+    fixed = 0
+    names_to_check = list(sheet_cr_project.keys())
+    batch_size = 200
+    for i in range(0, len(names_to_check), batch_size):
+        batch = names_to_check[i : i + batch_size]
+        result = sb.table("creatives").select("id, creative_name, project_id").in_("creative_name", batch).execute()
+        for r in result.data:
+            name = r["creative_name"]
+            correct_pid = sheet_cr_project.get(name)
+            if correct_pid and r["project_id"] != correct_pid:
+                sb.table("creatives").update({"project_id": correct_pid}).eq("id", r["id"]).execute()
+                fixed += 1
+
+    if fixed:
+        logger.info(f"Fixed project_id for {fixed} existing CRs")
+    return fixed
+
+
+def _fix_cr_urls(
+    sb,
+    rows: list[list[str]],
+    existing_crs: set[str],
+) -> int:
+    """Fix cr_url for existing CRs where the sheet has a different (correct) URL."""
+    # Build CR name → correct cr_url from sheet
+    sheet_cr_url: dict[str, str] = {}
+    for row in rows:
+        if len(row) >= 7:
+            cr_name = row[5].strip()
+            cr_url = row[6].strip()
+            if cr_name and cr_url and cr_name in existing_crs:
+                sheet_cr_url[cr_name] = cr_url
+
+    if not sheet_cr_url:
+        return 0
+
+    # Batch check current cr_urls
+    fixed = 0
+    names_to_check = list(sheet_cr_url.keys())
+    batch_size = 200
+    for i in range(0, len(names_to_check), batch_size):
+        batch = names_to_check[i : i + batch_size]
+        result = sb.table("creatives").select("id, creative_name, cr_url").in_("creative_name", batch).execute()
+        for r in result.data:
+            name = r["creative_name"]
+            correct_url = sheet_cr_url.get(name)
+            if correct_url and r.get("cr_url") != correct_url:
+                sb.table("creatives").update({"cr_url": correct_url}).eq("id", r["id"]).execute()
+                fixed += 1
+
+    if fixed:
+        logger.info(f"Fixed cr_url for {fixed} existing CRs")
+    return fixed
+
+
 def sync(dry_run: bool = False) -> dict:
     """Run full sync: Sheets → Supabase creatives.
 
@@ -181,13 +258,21 @@ def sync(dry_run: bool = False) -> dict:
     existing_crs = get_existing_creative_names()
     logger.info(f"Existing CRs in Supabase: {len(existing_crs)}")
 
-    # 3. Process
+    # 2b. Fix project_id mismatches for existing CRs
+    sb = get_client()
+    fix_count = 0
+    fix_url_count = 0
+    if not dry_run:
+        fix_count = _fix_project_ids(sb, rows, project_mapping, existing_crs)
+        fix_url_count = _fix_cr_urls(sb, rows, existing_crs)
+
+    # 3. Process new CRs
     records = process_rows(rows, project_mapping, existing_crs)
     logger.info(f"New unique CRs to sync: {len(records)}")
 
     if not records:
         logger.info("No new CRs to sync.")
-        return {"total_rows": len(rows), "new_records": 0, "upserted": 0, "errors": []}
+        return {"total_rows": len(rows), "new_records": 0, "upserted": 0, "fixed_projects": fix_count, "fixed_cr_urls": fix_url_count, "errors": []}
 
     # Summary
     matched = sum(1 for r in records if r.get("project_id"))
@@ -221,7 +306,6 @@ def sync(dry_run: bool = False) -> dict:
         }
 
     # 4. Upsert to Supabase
-    sb = get_client()
     upserted = upsert_creatives(sb, records)
     logger.info(f"Upserted {upserted}/{len(records)} CRs to Supabase")
 
@@ -229,6 +313,7 @@ def sync(dry_run: bool = False) -> dict:
         "total_rows": len(rows),
         "new_records": len(records),
         "upserted": upserted,
+        "fixed_cr_urls": fix_url_count,
         "errors": [],
         "unmatched_projects": list(unmatched_projects),
     }

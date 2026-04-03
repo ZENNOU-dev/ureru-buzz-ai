@@ -33,7 +33,8 @@ export async function GET(req: NextRequest) {
     const knownNames = new Set((creativesResult.data ?? []).map((c) => (c.creative_name as string).normalize("NFC")));
 
     // 2. Get metrics — either from placement table or daily conversions
-    interface Agg { cv: number; mcv: number; spend: number; impressions: number; clicks: number; firstDate: string; lastDate: string }
+    const todayStr = new Date().toISOString().slice(0, 10);
+    interface Agg { cv: number; mcv: number; spend: number; impressions: number; clicks: number; firstDate: string; lastDate: string; todayImpressions: number }
     const metricsMap = new Map<string, Agg>();
 
     if (placement) {
@@ -132,15 +133,17 @@ export async function GET(req: NextRequest) {
         const r = row as Record<string, unknown>;
         const name = resolveCreativeName(r);
         if (!name || !knownNames.has(name)) continue;
-        const entry = metricsMap.get(name) ?? { cv: 0, mcv: 0, spend: 0, impressions: 0, clicks: 0, firstDate: "9999-99-99", lastDate: "0000-00-00" };
+        const entry = metricsMap.get(name) ?? { cv: 0, mcv: 0, spend: 0, impressions: 0, clicks: 0, firstDate: "9999-99-99", lastDate: "0000-00-00", todayImpressions: 0 };
         entry.cv += Number(r.cv) || 0;
         entry.mcv += Number(r.mcv) || 0;
         entry.spend += Number(r.spend) || 0;
-        entry.impressions += Number(r.impressions) || 0;
+        const dayImp = Number(r.impressions) || 0;
+        entry.impressions += dayImp;
         entry.clicks += Number(r.clicks) || 0;
         const d = r.date as string;
         if (d < entry.firstDate) entry.firstDate = d;
         if (d > entry.lastDate) entry.lastDate = d;
+        if (d === todayStr) entry.todayImpressions += dayImp;
         metricsMap.set(name, entry);
       }
     }
@@ -166,6 +169,15 @@ export async function GET(req: NextRequest) {
       const imp = m?.impressions ?? 0;
       const clicks = m?.clicks ?? 0;
 
+      // Determine delivery status
+      const hasAds = !!m; // has matching rows in ad performance
+      const todayImp = m?.todayImpressions ?? 0;
+      let deliveryStatus: "active" | "paused" | "not_delivered" | "not_submitted";
+      if (!hasAds) deliveryStatus = "not_submitted";
+      else if (imp === 0) deliveryStatus = "not_delivered";
+      else if (todayImp > 0) deliveryStatus = "active";
+      else deliveryStatus = "paused";
+
       return {
         id: String(cr.id),
         name: nfcName,
@@ -182,6 +194,7 @@ export async function GET(req: NextRequest) {
         cvr: clicks > 0 ? Math.round((cv / clicks) * 10000) / 100 : null,
         firstDeliveryDate: m && m.firstDate !== "9999-99-99" ? m.firstDate : null,
         lastDeliveryDate: m && m.lastDate !== "0000-00-00" ? m.lastDate : null,
+        deliveryStatus,
         platform: "meta" as const,
       };
     });

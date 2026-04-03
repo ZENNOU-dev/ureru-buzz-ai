@@ -294,25 +294,152 @@ class MetaAPIError(Exception):
 
 # ---- Video upload ----
 
+def _resumable_upload(account_id: str, file_path_or_bytes, filename: str,
+                      token: str, chunk_size: int = 4 * 1024 * 1024) -> str:
+    """Upload a video via Meta's resumable upload protocol.
+
+    Args:
+        account_id: Meta ad account ID (e.g. "act_123456").
+        file_path_or_bytes: Either a file path (str) or raw bytes.
+        filename: Display filename for the video.
+        token: Meta API access token.
+        chunk_size: Bytes per chunk (default 4 MB).
+
+    Returns:
+        video_id (str).
+    """
+    url = f"{GRAPH_API_BASE}/{account_id}/advideos"
+
+    # Normalise input to bytes
+    if isinstance(file_path_or_bytes, str):
+        with open(file_path_or_bytes, "rb") as f:
+            file_bytes = f.read()
+    else:
+        file_bytes = file_path_or_bytes
+
+    file_size = len(file_bytes)
+    logger.info(f"Resumable upload: {filename} ({file_size} bytes, chunk_size={chunk_size})")
+
+    # --- Phase 1: start ---
+    resp = requests.post(url, data={
+        "access_token": token,
+        "upload_phase": "start",
+        "file_size": str(file_size),
+    }, timeout=60)
+    data = resp.json()
+    if "error" in data:
+        raise MetaAPIError(
+            f"Resumable upload start failed: {data['error'].get('message', '')}",
+            error_data=data["error"],
+        )
+
+    upload_session_id = data["upload_session_id"]
+    video_id = data["video_id"]
+    start_offset = int(data["start_offset"])
+    end_offset = int(data["end_offset"])
+    logger.info(f"Resumable upload started: session={upload_session_id}, video_id={video_id}")
+
+    # --- Phase 2: transfer chunks ---
+    while start_offset < file_size:
+        chunk = file_bytes[start_offset:end_offset]
+        logger.info(f"Resumable upload chunk: {start_offset}-{end_offset} ({len(chunk)} bytes)")
+        resp = requests.post(url, data={
+            "access_token": token,
+            "upload_phase": "transfer",
+            "upload_session_id": upload_session_id,
+            "start_offset": str(start_offset),
+        }, files={
+            "video_file_chunk": (filename, io.BytesIO(chunk), "application/octet-stream"),
+        }, timeout=300)
+        data = resp.json()
+        if "error" in data:
+            raise MetaAPIError(
+                f"Resumable upload transfer failed at offset {start_offset}: "
+                f"{data['error'].get('message', '')}",
+                error_data=data["error"],
+            )
+        start_offset = int(data["start_offset"])
+        end_offset = int(data["end_offset"])
+
+    # --- Phase 3: finish ---
+    resp = requests.post(url, data={
+        "access_token": token,
+        "upload_phase": "finish",
+        "upload_session_id": upload_session_id,
+    }, timeout=60)
+    data = resp.json()
+    if "error" in data:
+        raise MetaAPIError(
+            f"Resumable upload finish failed: {data['error'].get('message', '')}",
+            error_data=data["error"],
+        )
+
+    logger.info(f"Resumable upload complete: video_id={video_id}")
+    return video_id
+
+
 def upload_video_to_meta(account_id: str, video_bytes: bytes, filename: str,
-                          token: str, file_url: str = None) -> str:
+                          token: str, file_url: str = None,
+                          drive_url: str = None) -> str:
     """Upload video to Meta ad account. Returns video_id.
 
-    If file_url is provided, uses Meta's server-side download (avoids 413 for large files).
-    Otherwise falls back to multipart upload.
+    Fallback chain:
+      1. file_url (Meta downloads from URL directly — best for large files)
+      2. source multipart upload
+      3. resumable upload (for 413 / very large files)
+
+    If file_url fails with error code 351, 389, or 413 and drive_url is provided,
+    the file is downloaded from Drive and retried via source multipart, then
+    resumable upload if multipart also fails with 413.
     """
     endpoint = f"{account_id}/advideos"
     url = f"{GRAPH_API_BASE}/{endpoint}"
 
-    # Method 1: file_url (Meta downloads from URL directly — best for large files)
+    _FILE_URL_RETRY_CODES = {351, 389, 413}
+
+    def _parse_response(resp):
+        """Parse upload response, return (data, error_code|None)."""
+        if resp.status_code != 200:
+            logger.error(f"Video upload HTTP {resp.status_code}: {resp.text[:500]}")
+            raise MetaAPIError(f"Video upload failed: HTTP {resp.status_code}")
+        try:
+            data = resp.json()
+        except Exception:
+            logger.error(f"Video upload non-JSON response ({len(resp.content)} bytes): {resp.text[:200]}")
+            raise MetaAPIError(f"Video upload failed: non-JSON response (status={resp.status_code})")
+        if "error" in data:
+            code = data["error"].get("code")
+            return data, code
+        return data, None
+
+    # --- Method 1: file_url ---
     if file_url:
         logger.info(f"Uploading via file_url to {account_id}: {filename}")
         resp = requests.post(url, data={
             "access_token": token,
             "file_url": file_url,
         }, timeout=120)
-    else:
-        # Method 2: multipart upload (source file)
+        data, err_code = _parse_response(resp)
+
+        if err_code is None:
+            video_id = data.get("id")
+            logger.info(f"Video uploaded (file_url): video_id={video_id}")
+            return video_id
+
+        # file_url failed — decide whether to retry via download
+        if err_code in _FILE_URL_RETRY_CODES and drive_url:
+            logger.warning(
+                f"file_url failed (code={err_code}), falling back to Drive download + multipart"
+            )
+            video_bytes, filename = download_from_drive(drive_url)
+        else:
+            raise MetaAPIError(
+                f"Video upload failed: {data['error'].get('message', '')}",
+                error_data=data["error"],
+            )
+
+    # --- Method 2: source multipart upload ---
+    if video_bytes:
         logger.info(f"Uploading via source to {account_id}: {filename} ({len(video_bytes)} bytes)")
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp:
             tmp.write(video_bytes)
@@ -329,22 +456,24 @@ def upload_video_to_meta(account_id: str, video_bytes: bytes, filename: str,
         finally:
             os.unlink(tmp_path)
 
-    if resp.status_code != 200:
-        logger.error(f"Video upload HTTP {resp.status_code}: {resp.text[:500]}")
-        raise MetaAPIError(f"Video upload failed: HTTP {resp.status_code}")
+        data, err_code = _parse_response(resp)
 
-    try:
-        data = resp.json()
-    except Exception:
-        logger.error(f"Video upload non-JSON response ({len(resp.content)} bytes): {resp.text[:200]}")
-        raise MetaAPIError(f"Video upload failed: non-JSON response (status={resp.status_code})")
+        if err_code is None:
+            video_id = data.get("id")
+            logger.info(f"Video uploaded (source): video_id={video_id}")
+            return video_id
 
-    if "error" in data:
-        raise MetaAPIError(f"Video upload failed: {data['error'].get('message', '')}")
+        # Multipart failed — try resumable only for 413
+        if err_code == 413:
+            logger.warning("Source multipart failed (413), falling back to resumable upload")
+            return _resumable_upload(account_id, video_bytes, filename, token)
 
-    video_id = data.get("id")
-    logger.info(f"Video uploaded: video_id={video_id}")
-    return video_id
+        raise MetaAPIError(
+            f"Video upload failed: {data['error'].get('message', '')}",
+            error_data=data["error"],
+        )
+
+    raise MetaAPIError("Video upload failed: no file_url and no video_bytes provided")
 
 
 def get_video_thumbnail(video_id: str, token: str) -> str:
@@ -816,6 +945,7 @@ def submit(submission_id: int, dry_run: bool = False):
                                 video_id = upload_video_to_meta(
                                     account_id, b"", filename, token,
                                     file_url=direct_url,
+                                    drive_url=ad["drive_url"],
                                 )
                                 # Cache video_id in creatives.meta_video_ids
                                 if creative_id:

@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from fetcher import run_fetch
 from sync_notion_to_supabase import sync_all
 from sync_sheets_to_notion import read_sheets_data, run_migration
+from sync_sheets_to_supabase import sync as sync_sheets_to_supabase
 
 # Load environment variables
 load_dotenv()
@@ -61,6 +62,16 @@ def sheets_sync_job():
         logger.error(f"=== Sheets sync failed: {e} ===", exc_info=True)
 
 
+def sheets_direct_sync_job():
+    """Sync new CRs from Google Sheets 【制作DB】 directly to Supabase (diff-based)."""
+    logger.info("=== Starting Sheets → Supabase direct CR sync ===")
+    try:
+        result = sync_sheets_to_supabase()
+        logger.info(f"=== Sheets→Supabase sync complete: {result.get('upserted', 0)} new CRs (from {result.get('total_rows', 0)} rows) ===")
+    except Exception as e:
+        logger.error(f"=== Sheets→Supabase sync failed: {e} ===", exc_info=True)
+
+
 def full_job():
     """Run the full pipeline: Sheets→Notion → Notion→Supabase → Meta fetch."""
     sheets_sync_job()
@@ -82,10 +93,12 @@ def main():
     logger.info(f"  1. Sheets 【制作DB】 → Notion CR sync")
     logger.info(f"  2. Notion → Supabase sync (incremental)")
     logger.info(f"  3. Meta Ads API → Supabase fetch")
+    logger.info(f"  4. Sheets → Supabase direct CR sync (every 12h)")
 
     # First run: full pipeline
     logger.info("=== Initial full sync ===")
     sheets_sync_job()
+    sheets_direct_sync_job()  # Also run direct sync on startup
     try:
         sync_all(incremental=False)  # Full sync on startup
     except Exception as e:
@@ -94,6 +107,7 @@ def main():
 
     # Schedule recurring runs
     schedule.every(interval).minutes.do(full_job)
+    schedule.every(12).hours.do(sheets_direct_sync_job)  # Sheets → Supabase diff sync
 
     logger.info(f"Scheduler running. Next run in {interval} minutes.")
     while True:
